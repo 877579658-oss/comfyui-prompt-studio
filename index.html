@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>ComfyUI Prompt Studio</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">P</div>
+        <div>
+          <strong>Prompt Studio</strong>
+          <span>ComfyUI 本地提示词工作台</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="status-pill"><i></i>完全离线</span>
+        <span class="status-pill muted">自动保存</span>
+        <button class="icon-button" id="themeButton" type="button" title="切换主题">◐</button>
+        <button class="icon-button" id="helpButton" type="button" title="使用说明">?</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <aside class="side-panel">
+        <div class="panel-label">工作流程</div>
+        <nav class="step-nav" aria-label="页面导航">
+          <a href="#section-model" class="active"><span>01</span>模型与模式</a>
+          <a href="#section-character"><span>02</span>角色与外观</a>
+          <a href="#section-outfit"><span>03</span>服装与造型</a>
+          <a href="#section-action"><span>04</span>姿势与动作</a>
+          <a href="#section-adult" class="adult-nav" hidden><span>05</span>成人创作细化</a>
+          <a href="#section-scene"><span>06</span>场景与环境</a>
+          <a href="#section-camera"><span>07</span>镜头与光线</a>
+          <a href="#section-style"><span>08</span>风格与高级</a>
+        </nav>
+
+        <div class="panel-label preset-label">快速场景</div>
+        <div class="preset-list" id="promptPresetList"></div>
+
+        <div class="side-note">
+          <strong>模型适配</strong>
+          <p id="modelSummary">选择模型后自动应用对应提示词结构。</p>
+        </div>
+      </aside>
+
+      <section class="workspace">
+        <section class="hero-card">
+          <div>
+            <span class="eyebrow">MODEL-AWARE PROMPT BUILDER</span>
+            <h1><span>把零散想法，</span><span>变成可以直接使用的提示词。</span></h1>
+            <p>从当前已安装的模型出发，逐项选择角色、服装、动作和镜头。所有内容只保存在本机。</p>
+          </div>
+          <div class="hero-actions">
+            <button class="button secondary" id="randomButton" type="button">随机灵感</button>
+            <button class="button secondary" id="resetButton" type="button">重置</button>
+            <button class="button primary" id="generateButton" type="button">生成提示词</button>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-model">
+          <div class="card-heading">
+            <div class="step-number">01</div>
+            <div>
+              <h2>模型与输出</h2>
+              <p>切换模型后，提示词会自动采用对应结构。</p>
+            </div>
+            <span class="mode-badge" id="modeBadge">图像</span>
+          </div>
+
+          <div class="control-grid cols-3">
+            <label class="field wide">
+              <span>目标模型</span>
+              <select id="model" data-state></select>
+              <small id="modelHint"></small>
+            </label>
+            <label class="field custom-only" id="customModelWrap">
+              <span>自定义模型名称</span>
+              <input id="customModelName" data-state type="text" placeholder="例如我的定制模型">
+            </label>
+            <label class="field custom-only" id="customFormatWrap">
+              <span>输出结构</span>
+              <select id="customFormat" data-state>
+                <option value="natural">自然语言</option>
+                <option value="tags">标签流</option>
+                <option value="h3">连续镜头时间轴</option>
+                <option value="i2v">图生视频</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>提示词语言</span>
+              <select id="language" data-state>
+                <option value="en">英文（模型更稳）</option>
+                <option value="zh">中文</option>
+                <option value="bilingual">英文 + 中文对照</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>细节程度</span>
+              <select id="detailLevel" data-state>
+                <option value="balanced">平衡</option>
+                <option value="concise">精简</option>
+                <option value="cinematic">电影级详细</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>画面比例</span>
+              <select id="aspectRatio" data-state></select>
+            </label>
+          </div>
+
+          <div class="notice" id="modelNotice"></div>
+        </section>
+
+        <section class="form-card" id="section-character">
+          <div class="card-heading">
+            <div class="step-number">02</div>
+            <div>
+              <h2>角色与外观</h2>
+              <p>人物选项默认限制为成年虚构角色，避免身份和年龄歧义。</p>
+            </div>
+            <span class="mini-badge">成年安全</span>
+          </div>
+
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>主体类型</span>
+              <select id="subjectType" data-state>
+                <option value="person">单个人物</option>
+                <option value="couple">双人角色</option>
+                <option value="group">小群像</option>
+                <option value="creature">奇幻生物</option>
+                <option value="object">产品 / 物体</option>
+              </select>
+            </label>
+            <label class="field character-only">
+              <span>角色预设</span>
+              <select id="rolePreset" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>性别与呈现</span>
+              <select id="gender" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>年龄感</span>
+              <select id="age" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>外貌取向</span>
+              <select id="appearance" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>体型</span>
+              <select id="body" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>脸型与面部</span>
+              <select id="face" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>发型</span>
+              <select id="hairStyle" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>发色</span>
+              <select id="hairColor" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>眼睛</span>
+              <select id="eyes" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>表情</span>
+              <select id="expression" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>皮肤质感</span>
+              <select id="skin" data-state></select>
+            </label>
+            <label class="field creature-only">
+              <span>生物类型</span>
+              <select id="creatureType" data-state></select>
+            </label>
+            <label class="field object-only">
+              <span>物体主体</span>
+              <input id="objectDescription" data-state type="text" placeholder="例如：黑色机械腕表">
+            </label>
+            <label class="field wide">
+              <span>自定义角色描述</span>
+              <textarea id="characterCustom" data-state rows="2" placeholder="补充面部、气质、身份或第二个角色的特征"></textarea>
+            </label>
+          </div>
+
+          <label class="switch-row">
+            <span>
+              <strong>成年人私密氛围</strong>
+              <small>仅启用克制、成年人、虚构角色的服装和氛围选项。</small>
+            </span>
+            <input type="checkbox" id="adultMode" data-state>
+          </label>
+        </section>
+
+        <section class="form-card" id="section-outfit">
+          <div class="card-heading">
+            <div class="step-number">03</div>
+            <div>
+              <h2>服装与造型</h2>
+              <p>选择服装主体，再用材质、颜色和配饰控制细节。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field wide character-only">
+              <span>服装</span>
+              <select id="outfit" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>材质</span>
+              <select id="fabric" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>颜色</span>
+              <select id="outfitColor" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>版型</span>
+              <select id="fit" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>配饰</span>
+              <select id="accessories" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>鞋履</span>
+              <select id="footwear" data-state></select>
+            </label>
+            <label class="field character-only">
+              <span>妆容与打理</span>
+              <select id="grooming" data-state></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-action">
+          <div class="card-heading">
+            <div class="step-number">04</div>
+            <div>
+              <h2>姿势与动作</h2>
+              <p>视频建议保持一个主要动作，用次级动态增强物理感。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>姿势</span>
+              <select id="pose" data-state></select>
+            </label>
+            <label class="field">
+              <span>主要动作</span>
+              <select id="action" data-state></select>
+            </label>
+            <label class="field">
+              <span>互动</span>
+              <select id="interaction" data-state></select>
+            </label>
+            <label class="field">
+              <span>身体朝向</span>
+              <select id="bodyOrientation" data-state></select>
+            </label>
+            <label class="field">
+              <span>视线</span>
+              <select id="gaze" data-state></select>
+            </label>
+            <label class="field">
+              <span>手部姿势</span>
+              <select id="handPose" data-state></select>
+            </label>
+            <label class="field">
+              <span>腿部姿势</span>
+              <select id="legPose" data-state></select>
+            </label>
+            <label class="field">
+              <span>体态线条</span>
+              <select id="postureLine" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>运动强度</span>
+              <select id="motionLevel" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>视频时长</span>
+              <select id="duration" data-state>
+                <option value="3">3 秒</option>
+                <option value="5" selected>5 秒</option>
+                <option value="8">8 秒</option>
+                <option value="10">10 秒</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card adult-card" id="section-adult" hidden>
+          <div class="card-heading">
+            <div class="step-number">05</div>
+            <div>
+              <h2>成人创作细化</h2>
+              <p>通过气质、亲密层次、私密场景和镜头语言组合细节，而不是堆砌露骨动作词。</p>
+            </div>
+            <span class="mini-badge">成年人 / 虚构 / 非露骨</span>
+          </div>
+
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>成人角色气质</span>
+              <select id="adultArchetype" data-state></select>
+            </label>
+            <label class="field">
+              <span>造型方向</span>
+              <select id="adultStyling" data-state></select>
+            </label>
+            <label class="field">
+              <span>亲密层次</span>
+              <select id="intimacyLevel" data-state></select>
+            </label>
+            <label class="field">
+              <span>私密场景补充</span>
+              <select id="adultScene" data-state></select>
+            </label>
+            <label class="field">
+              <span>私密光线</span>
+              <select id="adultLighting" data-state></select>
+            </label>
+            <label class="field">
+              <span>成人摄影风格</span>
+              <select id="adultCameraStyle" data-state></select>
+            </label>
+            <label class="field">
+              <span>构图尺度</span>
+              <select id="adultFraming" data-state></select>
+            </label>
+            <label class="field">
+              <span>氛围倾向</span>
+              <select id="adultAtmosphere" data-state></select>
+            </label>
+            <label class="field">
+              <span>画面关系</span>
+              <select id="adultRelationship" data-state></select>
+            </label>
+          </div>
+
+          <div class="notice adult-notice">
+            此模块只提供明确成年、虚构角色、双方自愿的暗示级组合；不包含露骨性行为、未成年人、真人身份仿冒、胁迫或暴力内容。
+          </div>
+        </section>
+
+        <section class="form-card" id="section-scene">
+          <div class="card-heading">
+            <div class="step-number">06</div>
+            <div>
+              <h2>场景与环境</h2>
+              <p>场景、时间、天气和道具共同决定叙事环境。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field wide">
+              <span>场景</span>
+              <select id="scene" data-state></select>
+            </label>
+            <label class="field">
+              <span>时间</span>
+              <select id="timeOfDay" data-state></select>
+            </label>
+            <label class="field">
+              <span>天气</span>
+              <select id="weather" data-state></select>
+            </label>
+            <label class="field">
+              <span>背景层次</span>
+              <select id="background" data-state></select>
+            </label>
+            <label class="field">
+              <span>道具</span>
+              <select id="props" data-state></select>
+            </label>
+            <label class="field">
+              <span>情绪</span>
+              <select id="mood" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>音频线索</span>
+              <select id="sound" data-state></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-camera">
+          <div class="card-heading">
+            <div class="step-number">07</div>
+            <div>
+              <h2>镜头、光线与色彩</h2>
+              <p>镜头语言是图像与视频提示词中最影响成片稳定性的部分。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>景别</span>
+              <select id="shotSize" data-state></select>
+            </label>
+            <label class="field">
+              <span>机位角度</span>
+              <select id="angle" data-state></select>
+            </label>
+            <label class="field">
+              <span>镜头焦段</span>
+              <select id="lens" data-state></select>
+            </label>
+            <label class="field">
+              <span>构图</span>
+              <select id="composition" data-state></select>
+            </label>
+            <label class="field">
+              <span>景深</span>
+              <select id="depthOfField" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>运镜</span>
+              <select id="cameraMove" data-state></select>
+            </label>
+            <label class="field">
+              <span>光线</span>
+              <select id="lighting" data-state></select>
+            </label>
+            <label class="field">
+              <span>色调</span>
+              <select id="palette" data-state></select>
+            </label>
+            <label class="field">
+              <span>画面氛围</span>
+              <select id="atmosphere" data-state></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-style">
+          <div class="card-heading">
+            <div class="step-number">08</div>
+            <div>
+              <h2>风格与高级控制</h2>
+              <p>可叠加画质标签，并补充自定义细节和负面提示词。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>视觉风格</span>
+              <select id="visualStyle" data-state></select>
+            </label>
+            <label class="field">
+              <span>渲染方式</span>
+              <select id="render" data-state></select>
+            </label>
+            <label class="field">
+              <span>胶片 / 数字质感</span>
+              <select id="filmLook" data-state></select>
+            </label>
+          </div>
+
+          <div class="chip-field">
+            <div class="chip-heading">
+              <span>画质标签（可多选）</span>
+              <small>选择适合当前模型的标签，避免无意义的堆砌。</small>
+            </div>
+            <div class="chip-group" id="qualityChips"></div>
+          </div>
+
+          <div class="control-grid cols-2">
+            <label class="field">
+              <span>自定义追加内容</span>
+              <textarea id="customDetails" data-state rows="4" placeholder="例如：桌面上有一只旧怀表，墙上有手写便签"></textarea>
+            </label>
+            <label class="field">
+              <span>自定义负面提示词</span>
+              <textarea id="customNegative" data-state rows="4" placeholder="例如：extra arms, broken fingers"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <span>Prompt Studio · 本地单页工具</span>
+          <span>所有选择与收藏保存在当前浏览器</span>
+        </footer>
+      </section>
+
+      <aside class="output-panel">
+        <div class="output-header">
+          <div>
+            <span class="eyebrow">LIVE OUTPUT</span>
+            <h2>生成结果</h2>
+          </div>
+          <span class="output-model" id="outputModel">Z-Image Turbo</span>
+        </div>
+
+        <div class="tab-list" role="tablist">
+          <button class="tab active" data-tab="prompt" type="button">正向</button>
+          <button class="tab" data-tab="negative" type="button">负面</button>
+          <button class="tab" data-tab="json" type="button">JSON</button>
+          <button class="tab" data-tab="saved" type="button">收藏</button>
+        </div>
+
+        <section class="tab-panel active" data-panel="prompt">
+          <div class="output-toolbar">
+            <span id="promptStats">0 字符</span>
+            <div>
+              <button class="text-button" id="copyPromptButton" type="button">复制</button>
+              <button class="text-button" id="saveButton" type="button">收藏</button>
+            </div>
+          </div>
+          <textarea class="output-text" id="promptOutput" readonly></textarea>
+          <div class="result-actions">
+            <button class="button primary" id="copyPromptLarge" type="button">复制正向提示词</button>
+            <button class="button secondary" id="copyNegativeButton" type="button">复制负面词</button>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="negative">
+          <div class="output-toolbar">
+            <span>与正向提示词分开使用</span>
+            <button class="text-button" id="copyNegativeTabButton" type="button">复制</button>
+          </div>
+          <textarea class="output-text" id="negativeOutput" readonly></textarea>
+          <div class="hint-box">部分工作流没有负面提示词输入框，可忽略此结果。</div>
+        </section>
+
+        <section class="tab-panel" data-panel="json">
+          <div class="output-toolbar">
+            <span>结构化参数</span>
+            <button class="text-button" id="copyJsonButton" type="button">复制</button>
+          </div>
+          <textarea class="output-text mono" id="jsonOutput" readonly></textarea>
+        </section>
+
+        <section class="tab-panel" data-panel="saved">
+          <div class="saved-actions">
+            <button class="button secondary small" id="exportButton" type="button">导出全部</button>
+            <button class="button secondary small" id="importButton" type="button">导入</button>
+            <input id="importFile" type="file" accept="application/json" hidden>
+          </div>
+          <h3>我的收藏</h3>
+          <div class="saved-list" id="savedList"></div>
+          <h3>最近生成</h3>
+          <div class="saved-list" id="historyList"></div>
+          <button class="text-button danger" id="clearHistoryButton" type="button">清空最近生成</button>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="help-dialog" id="helpDialog">
+    <button class="dialog-close" id="helpCloseButton" type="button" aria-label="关闭">×</button>
+    <span class="eyebrow">QUICK GUIDE</span>
+    <h2>怎么使用</h2>
+    <ol>
+      <li>先选择目标模型。页面会自动切换图像、文生视频或图生视频结构。</li>
+      <li>按角色、服装、动作、场景、镜头逐项选择；留空项目不会写入提示词。</li>
+      <li>图生视频模型会提示你只描述动作，因为人物和构图由首帧决定。</li>
+      <li>在右侧复制正向词、负面词或 JSON。收藏和历史保存在当前浏览器。</li>
+    </ol>
+    <p class="dialog-note">AI 扩写和反推仍由 ComfyUI Prompt Assistant 插件提供；本网页负责结构化拼接和输出。</p>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
