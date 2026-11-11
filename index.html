@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <title>ComfyUI Prompt Studio</title>
-  <link rel="stylesheet" href="./styles.css?v=20261111-2">
+  <link rel="stylesheet" href="./styles.css?v=20261111-36">
 </head>
-<body>
+<body class="light">
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
@@ -18,10 +18,6 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <label class="adult-top-toggle" title="开启成年人虚构角色的扩展选项">
-          <input type="checkbox" id="adultMode" data-state>
-          <span>成人向</span>
-        </label>
         <span class="status-pill"><i></i>完全离线</span>
         <span class="status-pill muted">自动保存</span>
         <button class="icon-button" id="themeButton" type="button" title="切换主题">◐</button>
@@ -30,44 +26,51 @@
     </header>
 
     <main class="main-grid">
-      <aside class="side-panel">
-        <div class="panel-label">工作流程</div>
-        <nav class="step-nav" aria-label="页面导航">
-          <a href="#section-model" class="active"><span>01</span>模型与模式</a>
-          <a href="#section-character"><span>02</span>角色与外观</a>
-          <a href="#section-outfit"><span>03</span>服装与造型</a>
-          <a href="#section-action"><span>04</span>姿势与动作</a>
-          <a href="#section-adult" class="adult-nav" hidden><span>05</span>成人创作细化</a>
-          <a href="#section-scene"><span>06</span>场景与环境</a>
-          <a href="#section-camera"><span>07</span>镜头与光线</a>
-          <a href="#section-style"><span>08</span>风格与高级</a>
-        </nav>
-
-        <div class="panel-label preset-label">快速场景</div>
-        <div class="preset-list" id="promptPresetList"></div>
-
-        <div class="side-note">
-          <strong>模型适配</strong>
-          <p id="modelSummary">选择模型后自动应用对应提示词结构。</p>
-        </div>
-      </aside>
-
       <section class="workspace">
-        <section class="hero-card">
-          <div>
-            <span class="eyebrow">MODEL-AWARE PROMPT BUILDER</span>
-            <h1><span>把零散想法，</span><span>变成可以直接使用的提示词。</span></h1>
-            <p>从当前已安装的模型出发，逐项选择角色、服装、动作和镜头。所有内容只保存在本机。</p>
+        <p id="modelSummary" class="sr-only" aria-hidden="true"></p>
+        <div class="top-stack">
+          <section class="command-bar" id="section-sentence">
+          <div class="cmd-main">
+            <input id="sentenceInput" type="text" autocomplete="off" spellcheck="false" placeholder="一句话描述画面，按回车自动预填（本地匹配，不联网）">
+            <button class="button primary" id="sentenceButton" type="button">解析</button>
           </div>
-          <div class="hero-actions">
-            <button class="button secondary" id="randomButton" type="button">随机灵感</button>
-            <button class="button secondary" id="resetButton" type="button">重置</button>
-            <button class="button primary" id="generateButton" type="button">生成提示词</button>
-            <button class="button review" id="reviewButton" type="button">完成并检查</button>
+          <div class="cmd-side">
+            <div class="scale-switch" id="scaleSwitch" role="group" aria-label="内容尺度">
+              <button type="button" data-scale="sfw" aria-pressed="true">日常</button>
+              <button type="button" data-scale="suggestive" aria-pressed="false">暗示</button>
+              <button type="button" data-scale="boudoir" aria-pressed="false">私房</button>
+              <button type="button" data-scale="adult" aria-pressed="false">扩展</button>
+            </div>
+            <input type="hidden" id="contentScale" data-state value="sfw">
+            <button class="icon-button compact-button is-on" id="compactButton" type="button" title="简洁模式：只显示常用字段，以及你已经改动过的字段" aria-pressed="true">简洁</button>
+            <span class="cmd-divider" aria-hidden="true"></span>
+            <div class="cmd-actions">
+              <button class="button ghost" id="randomButton" type="button" title="随机一组组合">随机</button>
+              <button class="button ghost" id="undoButton" type="button" disabled title="撤销上一次随机">撤销</button>
+              <button class="button ghost" id="resetButton" type="button" title="恢复初始选项">重置</button>
+              <button class="button review" id="reviewButton" type="button">检查</button>
+            </div>
           </div>
-        </section>
+          <div class="sentence-empty" id="sentenceEmpty" hidden>没有匹配到字段。试着换成具体的词：场景（雨夜街道）、服装（白衬衫）、动作（回头）、景别（特写）、风格（电影感）。</div>
+          <div class="sentence-result" id="sentenceResult" hidden>
+            <div class="sentence-head">
+              <span id="sentenceSummary"></span>
+              <button class="text-button" id="sentenceUndo" type="button">撤销全部</button>
+            </div>
+            <div class="sentence-chips" id="sentenceChips"></div>
+          </div>
+          </section>
 
-        <section class="form-card" id="section-model">
+          <div class="wizard-bar">
+            <div class="wizard-steps" id="wizardSteps" role="tablist" aria-label="步骤"></div>
+            <div class="wizard-actions">
+              <button class="button ghost" id="wizardPrev" type="button" disabled>上一步</button>
+              <button class="button primary" id="wizardNext" type="button">下一步</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="form-card is-active" id="section-model">
           <div class="card-heading">
             <div class="step-number">01</div>
             <div>
@@ -116,6 +119,53 @@
               <span>画面比例</span>
               <select id="aspectRatio" data-state></select>
             </label>
+            <label class="field wide">
+              <span>画面尺寸（像素）</span>
+              <div class="size-row">
+                <select id="sizePreset"></select>
+                <input id="imageWidth" data-state type="number" min="256" max="4096" step="8" inputmode="numeric" aria-label="宽度">
+                <span class="size-x">×</span>
+                <input id="imageHeight" data-state type="number" min="256" max="4096" step="8" inputmode="numeric" aria-label="高度">
+              </div>
+              <small id="sizeHint"></small>
+            </label>
+            <label class="field wide">
+              <span>LoRA 触发词（只填一个时用）</span>
+              <input id="loraTrigger" data-state type="text" placeholder="留空则使用模型自带的触发词">
+              <small id="loraTriggerHint">只填你自己 LoRA 的触发词，留空则不写入</small>
+            </label>
+
+            <div class="lora-box">
+              <div class="lora-head">
+                <span>我的 LoRA 清单</span>
+                <span class="lora-head-actions">
+                  <button class="text-button" id="loraPaste" type="button">批量粘贴</button>
+                  <button class="text-button" id="loraAdd" type="button">＋ 添加</button>
+                </span>
+              </div>
+              <div class="lora-list" id="loraList"></div>
+              <div class="lora-paste" id="loraPasteBox" hidden>
+                <textarea id="loraPasteText" rows="5" placeholder="每行一条，支持这三种写法：&#10;触发词&#10;触发词, 0.8&#10;名称, 触发词, 0.8"></textarea>
+                <div class="lora-paste-actions">
+                  <button class="button primary" id="loraPasteSave" type="button">解析并加入</button>
+                  <button class="button ghost" id="loraPasteCancel" type="button">取消</button>
+                </div>
+              </div>
+              <div class="lora-form" id="loraForm" hidden>
+                <input id="loraName" type="text" placeholder="名称（可留空，只给自己看）">
+                <input id="loraTriggerInput" type="text" placeholder="触发词，例如 moss_xvstyle">
+                <input id="loraWeight" type="number" min="0.1" max="2" step="0.05" value="0.8" title="权重（只写进 JSON，不写进提示词）">
+                <button class="button primary" id="loraSave" type="button">保存</button>
+                <button class="button ghost" id="loraCancel" type="button">取消</button>
+              </div>
+              <div class="lora-actions">
+                <button class="text-button" id="loraLoadDefaults" type="button">恢复本机推荐</button>
+                <button class="text-button" id="loraExport" type="button">导出清单</button>
+                <button class="text-button" id="loraImport" type="button">导入清单</button>
+                <input id="loraImportFile" type="file" accept="application/json" hidden>
+                <small>勾选的条目会按顺序拼到提示词最前面；权重只写进 JSON</small>
+              </div>
+            </div>
           </div>
 
           <div class="notice" id="modelNotice"></div>
@@ -142,61 +192,65 @@
                 <option value="object">产品 / 物体</option>
               </select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>角色预设</span>
               <select id="rolePreset" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>性别与呈现</span>
               <select id="gender" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>年龄感</span>
               <select id="age" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>外貌取向</span>
               <select id="appearance" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>体型</span>
               <select id="body" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>脸型与面部</span>
               <select id="face" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>发型</span>
               <select id="hairStyle" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>发色</span>
               <select id="hairColor" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>眼睛</span>
               <select id="eyes" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>表情</span>
               <select id="expression" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>皮肤质感</span>
               <select id="skin" data-state></select>
             </label>
-            <label class="field creature-only">
+            <label class="field">
               <span>生物类型</span>
               <select id="creatureType" data-state></select>
             </label>
-            <label class="field object-only">
+            <label class="field">
               <span>物体主体</span>
               <input id="objectDescription" data-state type="text" placeholder="例如：黑色机械腕表">
             </label>
             <label class="field wide">
               <span>自定义角色描述</span>
               <textarea id="characterCustom" data-state rows="2" placeholder="补充面部、气质、身份或第二个角色的特征"></textarea>
+            </label>
+            <label class="field">
+              <span>角色气质与造型</span>
+              <select id="adultArchetype" data-state></select>
             </label>
           </div>
 
@@ -211,31 +265,39 @@
             </div>
           </div>
           <div class="control-grid cols-3">
-            <label class="field wide character-only">
+            <label class="field wide">
               <span>服装</span>
               <select id="outfit" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>材质</span>
               <select id="fabric" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>颜色</span>
               <select id="outfitColor" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>版型</span>
               <select id="fit" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>配饰</span>
               <select id="accessories" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
               <span>鞋履</span>
               <select id="footwear" data-state></select>
             </label>
-            <label class="field character-only">
+            <label class="field">
+              <span>袜类</span>
+              <select id="hosiery" data-state></select>
+            </label>
+            <label class="field">
+              <span>袜类材质</span>
+              <select id="hosieryMaterial" data-state></select>
+            </label>
+            <label class="field">
               <span>妆发与造型</span>
               <select id="grooming" data-state></select>
             </label>
@@ -259,7 +321,7 @@
               <span>主要动作</span>
               <select id="action" data-state></select>
             </label>
-            <label class="field">
+            <label class="field multi-only">
               <span>互动</span>
               <select id="interaction" data-state></select>
             </label>
@@ -282,6 +344,10 @@
             <label class="field">
               <span>体态线条</span>
               <select id="postureLine" data-state></select>
+            </label>
+            <label class="field">
+              <span>亲密关系与层次</span>
+              <select id="intimacyLevel" data-state></select>
             </label>
             <label class="field video-only">
               <span>运动强度</span>
@@ -338,35 +404,9 @@
           </div>
         </section>
 
-        <section class="form-card adult-card" id="section-adult" hidden>
-          <div class="card-heading">
-            <div class="step-number">05</div>
-            <div>
-              <h2>成人创作细化</h2>
-              <p>通过气质、亲密层次、私密场景和镜头语言组合细节，而不是堆砌露骨动作词。</p>
-            </div>
-            <span class="mini-badge">成年人 / 虚构 / 非露骨</span>
-          </div>
-
-          <div class="control-grid cols-2">
-            <label class="field">
-              <span>成人角色与造型气质</span>
-              <select id="adultArchetype" data-state></select>
-            </label>
-            <label class="field">
-              <span>亲密关系与层次</span>
-              <select id="intimacyLevel" data-state></select>
-            </label>
-          </div>
-
-          <div class="notice adult-notice">
-            私密场景、光线、摄影风格、构图、氛围和造型选项已经合并到对应下拉框。开启成人模式后会追加专属选项，仅限明确成年、虚构角色、双方自愿的暗示级内容。
-          </div>
-        </section>
-
         <section class="form-card" id="section-scene">
           <div class="card-heading">
-            <div class="step-number">06</div>
+            <div class="step-number">05</div>
             <div>
               <h2>场景与环境</h2>
               <p>场景、时间、天气和道具共同决定叙事环境。</p>
@@ -406,7 +446,7 @@
 
         <section class="form-card" id="section-camera">
           <div class="card-heading">
-            <div class="step-number">07</div>
+            <div class="step-number">06</div>
             <div>
               <h2>镜头、光线与色彩</h2>
               <p>镜头语言是图像与视频提示词中最影响成片稳定性的部分。</p>
@@ -454,7 +494,7 @@
 
         <section class="form-card" id="section-style">
           <div class="card-heading">
-            <div class="step-number">08</div>
+            <div class="step-number">07</div>
             <div>
               <h2>风格与高级控制</h2>
               <p>可叠加画质标签，并补充自定义细节和负面提示词。</p>
@@ -507,7 +547,12 @@
             <span class="eyebrow">LIVE OUTPUT</span>
             <h2>生成结果</h2>
           </div>
-          <span class="output-model" id="outputModel">Z-Image Turbo</span>
+          <div class="output-meta">
+            <span class="output-size" id="outputSize"></span>
+            <span class="output-model" id="outputModel">Z-Image Turbo</span>
+            <button class="icon-button" id="outputToggle" type="button" title="折叠 / 展开结果面板">⟩</button>
+          </div>
+          <span class="output-collapsed-label">结果</span>
         </div>
 
         <div class="tab-list" role="tablist">
@@ -521,13 +566,13 @@
           <div class="output-toolbar">
             <span id="promptStats">0 字符</span>
             <div>
-              <button class="text-button" id="copyPromptButton" type="button">复制</button>
+              <span class="edit-hint">可直接修改</span>
               <button class="text-button" id="saveButton" type="button">收藏</button>
             </div>
           </div>
-          <textarea class="output-text" id="promptOutput" readonly></textarea>
+          <textarea class="output-text" id="promptOutput" spellcheck="false"></textarea>
           <div class="result-actions">
-            <button class="button primary" id="copyPromptLarge" type="button">复制正向提示词</button>
+            <button class="button primary" id="copyPromptLarge" type="button">复制提示词</button>
             <button class="button secondary" id="copyNegativeButton" type="button">复制负面词</button>
           </div>
         </section>
@@ -538,7 +583,7 @@
             <button class="text-button" id="copyNegativeTabButton" type="button">复制</button>
           </div>
           <textarea class="output-text" id="negativeOutput" readonly></textarea>
-          <div class="hint-box">部分工作流没有负面提示词输入框，可忽略此结果。</div>
+          <div class="hint-box" id="negativeHint">部分工作流没有负面提示词输入框，可忽略此结果。</div>
         </section>
 
         <section class="tab-panel" data-panel="json">
@@ -551,8 +596,14 @@
 
         <section class="tab-panel" data-panel="saved">
           <div class="saved-actions">
-            <button class="button secondary small" id="exportButton" type="button">导出全部</button>
-            <button class="button secondary small" id="importButton" type="button">导入</button>
+            <button class="button primary small" id="backupExport" type="button">备份全部</button>
+            <button class="button secondary small" id="backupImport" type="button">恢复备份</button>
+            <input id="backupFile" type="file" accept="application/json" hidden>
+          </div>
+          <p class="backup-hint">备份包含：收藏、最近生成、我的 LoRA 清单、当前所有选项。换设备时先备份，再在新设备恢复。</p>
+          <div class="saved-actions">
+            <button class="button secondary small" id="exportButton" type="button">只导出收藏</button>
+            <button class="button secondary small" id="importButton" type="button">只导入收藏</button>
             <input id="importFile" type="file" accept="application/json" hidden>
           </div>
           <h3>我的收藏</h3>
@@ -593,6 +644,7 @@
     </div>
   </dialog>
 
-  <script src="./app.js?v=20261111-2"></script>
+  <script src="./data/prompts.js?v=20261111-36"></script>
+  <script src="./app.js?v=20261111-36"></script>
 </body>
 </html>

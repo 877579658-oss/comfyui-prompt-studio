@@ -4,1346 +4,12 @@
   const $ = (id) => document.getElementById(id);
   const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
   const pair = (zh, en, extra = {}) => ({ zh, en, ...extra });
-  const NONE = pair("不指定", "");
 
-  const MODELS = {
-    zimage_turbo: {
-      label: "Z-Image Turbo",
-      type: "image",
-      format: "natural",
-      note: "适合快速写实出图。优先写主体、材质、动作、镜头和光线，不建议堆砌大量画质词。",
-      negative: "low quality, blurry, pixelated, jpeg artifacts, deformed anatomy, extra limbs, fused fingers, duplicate subject, inconsistent lighting, text, watermark"
-    },
-    zimage_int8: {
-      label: "Z-Image INT8",
-      type: "image",
-      format: "natural",
-      note: "与 Z-Image Turbo 共用自然语言结构，适合当前 INT8 工作流。",
-      negative: "low quality, blurry, pixelated, jpeg artifacts, deformed anatomy, extra limbs, fused fingers, duplicate subject, inconsistent lighting, text, watermark"
-    },
-    flux2: {
-      label: "Flux2 Klein",
-      type: "image",
-      format: "natural",
-      note: "自然语言理解强，适合清晰叙事、海报、文字与材质控制。描述尽量具体连贯。",
-      negative: "low quality, blurry, distorted typography, misspelled text, bad anatomy, extra fingers, inconsistent perspective, watermark"
-    },
-    moss: {
-      label: "MOSS Image",
-      type: "image",
-      format: "natural",
-      note: "适合自然语言画面描述。优先保持主体、空间关系和光线逻辑一致。",
-      negative: "low quality, blurry, deformed anatomy, extra limbs, fused fingers, broken perspective, inconsistent lighting, text, watermark"
-    },
-    moss_edit: {
-      label: "MOSS 图像编辑",
-      type: "image",
-      format: "edit",
-      note: "编辑模式会输出保持身份、姿势、构图和背景的修改指令。不要重复描述首图已有的全部内容。",
-      negative: "identity change, pose drift, composition change, inconsistent lighting, warped background, extra objects, seam artifacts, watermark"
-    },
-    h3_t2v: {
-      label: "MiniMax H3 文生视频",
-      type: "video",
-      format: "h3",
-      note: "使用单一连续镜头与时间轴。一个时间段只写一个清晰动作，避免多动作和频繁转场。",
-      negative: "flicker, temporal inconsistency, identity drift, warped limbs, morphing objects, jump cuts, abrupt camera movement, text, subtitles, watermark"
-    },
-    h3_i2v: {
-      label: "MiniMax H3 图生视频",
-      type: "video",
-      format: "h3",
-      i2v: true,
-      note: "人物、服装和构图由参考图决定。提示词重点写动作、物理反馈、镜头与音频。",
-      negative: "identity drift, body morphing, outfit change, background morphing, flicker, warped limbs, jump cuts, abrupt camera movement, text, watermark"
-    },
-    wan_ti2v_5b: {
-      label: "Wan 2.2 TI2V-5B",
-      type: "video",
-      format: "wan",
-      note: "适合较短视频。一个镜头只保留一个主要动作，用头发、衣摆和环境次级运动增强真实感。",
-      negative: "flicker, temporal inconsistency, identity drift, warped limbs, morphing objects, extra subjects, jump cuts, camera shake, watermark"
-    },
-    wan_i2v_a14b: {
-      label: "Wan 2.2 I2V-A14B",
-      type: "video",
-      format: "wan",
-      i2v: true,
-      note: "首帧决定人物与构图。提示词只描述动作、物理联动、镜头和光线，避免重复长相。",
-      negative: "identity drift, body morphing, outfit change, background morphing, flicker, warped limbs, extra subjects, jump cuts, watermark"
-    },
-    custom: {
-      label: "我的自定义模型",
-      type: "image",
-      format: "natural",
-      note: "请填写模型名称并选择输出结构。页面会按所选结构生成可复制的提示词。",
-      negative: "low quality, blurry, deformed anatomy, extra limbs, fused fingers, inconsistent lighting, text, watermark"
-    }
-  };
-
-  const O = {
-    aspectRatio: [
-      pair("自动", ""),
-      pair("1:1 方形", "aspect ratio 1:1"),
-      pair("4:5 竖版人像", "aspect ratio 4:5, vertical portrait"),
-      pair("3:2 横向摄影", "aspect ratio 3:2, horizontal photography"),
-      pair("16:9 电影横向", "aspect ratio 16:9, cinematic widescreen"),
-      pair("9:16 竖屏视频", "aspect ratio 9:16, vertical short video"),
-      pair("2.39:1 宽银幕", "aspect ratio 2.39:1, anamorphic widescreen")
-    ],
-    gender: [
-      pair("成年女性", "adult woman"),
-      pair("成年男性", "adult man"),
-      pair("中性气质成年人", "adult androgynous person"),
-      pair("成对女性角色", "two adult women"),
-      pair("成对男女角色", "an adult woman and an adult man"),
-      pair("成对男性角色", "two adult men")
-    ],
-    age: [
-      pair("二十多岁", "in their twenties"),
-      pair("三十多岁", "in their thirties"),
-      pair("四十多岁", "in their forties"),
-      pair("五十多岁", "in their fifties"),
-      pair("六十多岁", "in their sixties"),
-      pair("成熟年龄未知但明确成年", "clearly adult, age unspecified")
-    ],
-    appearance: [
-      pair("东亚外貌", "East Asian features"),
-      pair("东南亚外貌", "Southeast Asian features"),
-      pair("南亚外貌", "South Asian features"),
-      pair("欧洲外貌", "European features"),
-      pair("非洲外貌", "African features"),
-      pair("拉美外貌", "Latin American features"),
-      pair("中东外貌", "Middle Eastern features"),
-      pair("多元混血外貌", "mixed-heritage features"),
-      pair("不指定", "")
-    ],
-    body: [
-      pair("自然匀称", "natural balanced build"),
-      pair("苗条", "slender build"),
-      pair("运动型", "athletic build"),
-      pair("曲线型", "curvy figure"),
-      pair("肌肉型", "muscular build"),
-      pair("高挑", "tall stature"),
-      pair("娇小成年人", "petite adult build"),
-      pair("宽肩", "broad-shouldered build"),
-      pair("丰满", "full figure"),
-      pair("模特比例", "runway model proportions"),
-      pair("写实普通体型", "realistic everyday body proportions")
-    ],
-    face: [
-      pair("鹅蛋脸", "oval face"),
-      pair("瓜子脸", "heart-shaped face"),
-      pair("圆脸", "round face"),
-      pair("棱角分明", "angular facial structure"),
-      pair("柔和轮廓", "soft facial contours"),
-      pair("高颧骨", "defined cheekbones"),
-      pair("雀斑", "light natural freckles"),
-      pair("成熟轮廓", "mature facial structure"),
-      pair("中性化轮廓", "androgynous facial features"),
-      pair("不指定", "")
-    ],
-    hairStyle: [
-      pair("亚麻长发微卷", "long wavy hair with natural texture"),
-      pair("黑色长直发", "long straight hair"),
-      pair("齐肩短发", "shoulder-length bob"),
-      pair("利落短发", "short textured crop"),
-      pair("低马尾", "low ponytail"),
-      pair("高马尾", "high ponytail"),
-      pair("双马尾", "twin tails"),
-      pair("松散盘发", "loose updo"),
-      pair("法式编发", "soft French braid"),
-      pair("层次感中长发", "layered medium-length hair"),
-      pair("凌乱自然短发", "messy natural short hair"),
-      pair("狼尾发型", "wolf cut"),
-      pair("寸头", "buzz cut"),
-      pair("卷发", "voluminous curls"),
-      pair("不指定", "")
-    ],
-    hairColor: [
-      pair("自然黑", "natural black"),
-      pair("深棕", "dark brown"),
-      pair("栗棕", "chestnut brown"),
-      pair("亚麻棕", "ash brown"),
-      pair("金色", "blonde"),
-      pair("铂金", "platinum blonde"),
-      pair("红棕", "auburn"),
-      pair("酒红", "burgundy"),
-      pair("银灰", "silver gray"),
-      pair("蓝黑", "blue-black"),
-      pair("粉色挑染", "pink highlight"),
-      pair("渐变发色", "subtle gradient color"),
-      pair("不指定", "")
-    ],
-    eyes: [
-      pair("深棕眼", "dark brown eyes"),
-      pair("琥珀眼", "amber eyes"),
-      pair("绿色眼睛", "green eyes"),
-      pair("蓝色眼睛", "blue eyes"),
-      pair("灰色眼睛", "gray eyes"),
-      pair("异色瞳", "heterochromia"),
-      pair("细长眼型", "elongated eyes"),
-      pair("圆润大眼", "large round eyes"),
-      pair("下垂眼", "soft downturned eyes"),
-      pair("不指定", "")
-    ],
-    expression: [
-      pair("平静自然", "calm, natural expression"),
-      pair("轻微微笑", "subtle closed-mouth smile"),
-      pair("自信", "confident expression"),
-      pair("温柔", "gentle expression"),
-      pair("忧郁", "melancholic expression"),
-      pair("专注", "focused expression"),
-      pair("惊讶", "subtle surprised expression"),
-      pair("回眸", "looking back over the shoulder"),
-      pair("看向镜头", "looking directly at the camera"),
-      pair("看向画外", "looking off-camera"),
-      pair("沉思", "thoughtful expression"),
-      pair("克制微笑", "restrained smile"),
-      pair("轻松愉快", "lighthearted expression"),
-      pair("神秘", "mysterious expression"),
-      pair("低垂目光", "lowered gaze"),
-      pair("私密而克制", "restrained intimate expression", { adultOnly: true }),
-      pair("略带诱惑", "subtly alluring expression", { adultOnly: true }),
-      pair("半垂眼睑", "half-lidded gaze", { adultOnly: true }),
-      pair("柔和微张双唇", "soft parted lips", { adultOnly: true }),
-      pair("邀请式凝视", "inviting direct gaze", { adultOnly: true }),
-      pair("自信而撩人", "confident alluring expression", { adultOnly: true }),
-      pair("害羞偏头", "shy head tilt", { adultOnly: true }),
-      pair("克制渴望", "restrained longing expression", { adultOnly: true }),
-      pair("轻柔笑意", "soft knowing smile", { adultOnly: true }),
-      pair("亲密放松", "relaxed intimate expression", { adultOnly: true }),
-      pair("不指定", "")
-    ],
-    skin: [
-      pair("自然皮肤纹理", "natural skin texture"),
-      pair("可见细微毛孔", "subtle visible pores"),
-      pair("柔和通透", "soft translucent skin"),
-      pair("哑光质感", "matte skin finish"),
-      pair("轻微油润高光", "subtle natural highlights"),
-      pair("真实日晒肤色", "natural sun-kissed skin"),
-      pair("白皙肤色", "fair skin"),
-      pair("小麦肤色", "warm tan skin"),
-      pair("深色肤色", "deep skin tone"),
-      pair("带少量雀斑", "light freckles"),
-      pair("不指定", "")
-    ],
-    rolePreset: [
-      pair("不指定", ""),
-      pair("都市日常", "urban everyday"),
-      pair("时尚编辑", "fashion editorial"),
-      pair("职场人物", "modern professional"),
-      pair("复古名伶", "vintage screen siren"),
-      pair("赛博探员", "cyberpunk investigator"),
-      pair("奇幻旅者", "fantasy traveler"),
-      pair("古典侠客", "classical martial hero"),
-      pair("科幻机师", "sci-fi pilot"),
-      pair("音乐人", "musician"),
-      pair("艺术家", "artist"),
-      pair("运动员", "athlete"),
-      pair("学者", "scholar"),
-      pair("贵族角色", "aristocratic character")
-    ],
-    outfit: [
-      pair("不指定", ""),
-      pair("白色宽松衬衫", "oversized white shirt"),
-      pair("黑色修身西装", "tailored black suit"),
-      pair("灰色针织衫", "soft gray knit sweater"),
-      pair("牛仔夹克", "denim jacket"),
-      pair("长风衣", "long trench coat"),
-      pair("皮质机车夹克", "black leather biker jacket"),
-      pair("极简连衣裙", "minimalist slip dress"),
-      pair("丝质晚礼服", "floor-length silk evening gown"),
-      pair("休闲T恤与长裤", "relaxed t-shirt and trousers"),
-      pair("运动夹克", "technical sports jacket"),
-      pair("瑜伽运动装", "athletic yoga wear"),
-      pair("连帽卫衣", "oversized hoodie"),
-      pair("复古格纹套装", "vintage plaid suit"),
-      pair("汉服长袍", "layered traditional Hanfu robe"),
-      pair("改良旗袍", "modern fitted qipao"),
-      pair("和风浴衣", "lightweight yukata"),
-      pair("中世纪长裙", "medieval layered gown"),
-      pair("奇幻皮甲", "fantasy leather armor"),
-      pair("科幻功能服", "futuristic utility suit"),
-      pair("机甲驾驶服", "sci-fi pilot flight suit"),
-      pair("实验室白大褂", "structured laboratory coat"),
-      pair("舞台演出服", "stage performance outfit"),
-      pair("海滩度假装", "linen beachwear"),
-      pair("高级家居服", "premium loungewear"),
-      pair("白色浴袍", "white hotel bathrobe"),
-      pair("真丝睡裙", "silk slip dress", { adultOnly: true }),
-      pair("蕾丝家居服", "black lace loungewear", { adultOnly: true }),
-      pair("宽松衬衫半敞领口", "oversized shirt with a relaxed open collar", { adultOnly: true }),
-      pair("薄纱外搭与丝质内搭", "sheer robe over a silk slip", { adultOnly: true }),
-      pair("丝质吊带睡裙", "bias-cut satin camisole dress", { adultOnly: true }),
-      pair("象牙色蕾丝连体衣", "ivory lace bodysuit", { adultOnly: true }),
-      pair("缎面睡衣套装", "satin pajama set", { adultOnly: true }),
-      pair("束腰外搭衬衫", "fitted corset layered beneath a loose shirt", { adultOnly: true }),
-      pair("长袜与宽衬衫", "sheer stockings paired with an oversized shirt", { adultOnly: true }),
-      pair("露肩晚礼服", "strapless evening dress", { adultOnly: true }),
-      pair("薄纱罩衫", "sheer chiffon overlay", { adultOnly: true }),
-      pair("温泉浴巾", "spa towel wrap", { adultOnly: true }),
-      pair("亚麻敞领衬衫", "linen shirt with a relaxed open collar", { adultOnly: true }),
-      pair("缎面吊带与长裤", "satin camisole with tailored trousers", { adultOnly: true })
-    ],
-    fabric: [
-      pair("不指定", ""),
-      pair("棉麻", "soft cotton and linen"),
-      pair("真丝", "fluid silk"),
-      pair("羊毛", "brushed wool"),
-      pair("皮革", "matte leather"),
-      pair("丹宁", "textured denim"),
-      pair("针织", "fine knit"),
-      pair("薄纱", "translucent chiffon"),
-      pair("缎面", "satin"),
-      pair("科技面料", "technical performance fabric"),
-      pair("金属装甲", "brushed metal armor"),
-      pair("天鹅绒", "rich velvet")
-    ],
-    outfitColor: [
-      pair("不指定", ""),
-      pair("黑色", "black"),
-      pair("白色", "white"),
-      pair("奶油色", "cream"),
-      pair("灰色", "gray"),
-      pair("深蓝", "navy blue"),
-      pair("酒红", "burgundy"),
-      pair("棕色", "brown"),
-      pair("橄榄绿", "olive green"),
-      pair("银灰", "silver gray"),
-      pair("金色", "gold"),
-      pair("柔和粉色", "soft pink"),
-      pair("撞色", "contrasting color blocking")
-    ],
-    fit: [
-      pair("不指定", ""),
-      pair("合身", "tailored fit"),
-      pair("修身", "slim fit"),
-      pair("宽松", "relaxed oversized fit"),
-      pair("自然褶皱", "natural fabric folds"),
-      pair("结构感", "structured silhouette"),
-      pair("流动感", "flowing silhouette"),
-      pair("层次叠穿", "layered styling"),
-      pair("轻微使用痕迹", "subtle signs of wear")
-    ],
-    accessories: [
-      pair("不指定", ""),
-      pair("银色耳环", "minimal silver earrings"),
-      pair("细项链", "delicate necklace"),
-      pair("金属腕表", "metal wristwatch"),
-      pair("墨镜", "sunglasses"),
-      pair("皮包", "leather handbag"),
-      pair("帽子", "hat"),
-      pair("围巾", "scarf"),
-      pair("手套", "gloves"),
-      pair("发带", "hair ribbon"),
-      pair("胸针", "brooch"),
-      pair("战术装备", "compact tactical gear"),
-      pair("机械装置", "subtle mechanical device"),
-      pair("手持花束", "holding a small bouquet"),
-      pair("手持咖啡杯", "holding a coffee cup"),
-      pair("阅读眼镜", "reading glasses")
-    ],
-    footwear: [
-      pair("不指定", ""),
-      pair("白色运动鞋", "white sneakers"),
-      pair("黑色皮鞋", "black leather shoes"),
-      pair("短靴", "ankle boots"),
-      pair("高跟鞋", "high heels"),
-      pair("平底鞋", "minimal flats"),
-      pair("凉鞋", "sandals"),
-      pair("长靴", "knee-high boots"),
-      pair("赤足", "barefoot"),
-      pair("战术靴", "tactical boots"),
-      pair("工作靴", "work boots")
-    ],
-    grooming: [
-      pair("不指定", ""),
-      pair("自然素颜", "natural bare makeup"),
-      pair("轻薄底妆", "light natural makeup"),
-      pair("电影妆", "cinematic makeup"),
-      pair("复古红唇", "vintage red lip"),
-      pair("烟熏眼妆", "soft smoky eye"),
-      pair("湿润发感", "subtle wet-look hair"),
-      pair("凌乱造型", "intentionally tousled styling"),
-      pair("精致盘发", "polished salon styling"),
-      pair("胡茬", "neat stubble")
-    ],
-    pose: [
-      pair("自然站立", "standing naturally"),
-      pair("靠窗站立", "standing beside a window"),
-      pair("坐在床边", "sitting on the edge of a bed"),
-      pair("坐在椅子上", "seated on a chair"),
-      pair("倚靠墙面", "leaning against a wall"),
-      pair("倚靠栏杆", "leaning on a railing"),
-      pair("侧身回眸", "turning back over the shoulder"),
-      pair("半身侧坐", "side-seated three-quarter pose"),
-      pair("仰卧", "lying on their back"),
-      pair("侧卧", "lying on one side"),
-      pair("俯卧", "lying face down"),
-      pair("向后倾靠", "leaning back comfortably"),
-      pair("双手抱臂", "arms lightly crossed"),
-      pair("双手插袋", "hands in pockets"),
-      pair("整理衣领", "adjusting a collar"),
-      pair("拨动头发", "brushing hair aside"),
-      pair("向前行走", "walking toward the camera"),
-      pair("转身动作", "mid-turn movement"),
-      pair("舞蹈动作", "expressive dance pose"),
-      pair("动态跳跃", "mid-air jump"),
-      pair("蹲姿", "crouching pose"),
-      pair("跪坐", "kneeling comfortably"),
-      pair("侧躺手肘支撑", "reclining on one side, propped on one elbow", { adultOnly: true }),
-      pair("斜卧在床上", "lying diagonally across the bed", { adultOnly: true }),
-      pair("跪坐于床沿", "kneeling upright near the edge of the bed", { adultOnly: true }),
-      pair("靠坐床头", "leaning back against the headboard", { adultOnly: true }),
-      pair("对镜整理头发", "adjusting hair while facing a mirror", { adultOnly: true }),
-      pair("坐在地面靠墙", "sitting on the floor and leaning against the wall", { adultOnly: true }),
-      pair("伸懒腰", "stretching in a relaxed pose", { adultOnly: true }),
-      pair("俯身倚靠桌面", "leaning across a table on their forearms", { adultOnly: true }),
-      pair("不指定", "")
-    ],
-    action: [
-      pair("不指定", ""),
-      pair("轻微呼吸与自然眨眼", "subtle breathing and natural blinking"),
-      pair("缓慢转身", "slowly turning around"),
-      pair("向前走一步", "taking one deliberate step forward"),
-      pair("回头", "looking back"),
-      pair("抬头看向远处", "raising their gaze toward the distance"),
-      pair("拨开头发", "gently moving hair away from the face"),
-      pair("整理衣摆", "smoothing the hem of the clothing"),
-      pair("伸手触碰桌面", "reaching toward the table"),
-      pair("推开一扇门", "opening a door"),
-      pair("坐起", "slowly sitting up"),
-      pair("伸展身体", "gently stretching"),
-      pair("轻声笑", "softly laughing"),
-      pair("拿起物件", "picking up an object"),
-      pair("望向窗外", "looking out of the window"),
-      pair("风吹动头发和衣摆", "wind moving hair and fabric"),
-      pair("自然行走", "walking with natural motion"),
-      pair("舞蹈旋转", "spinning in a controlled dance movement")
-    ],
-    interaction: [
-      pair("不指定", ""),
-      pair("并排站立", "standing shoulder to shoulder"),
-      pair("牵手", "holding hands"),
-      pair("温柔拥抱", "sharing a gentle embrace"),
-      pair("面对面交流", "facing each other in conversation"),
-      pair("互相注视", "looking into each other's eyes"),
-      pair("背靠背", "standing back to back"),
-      pair("一人看向另一人", "one person looking toward the other"),
-      pair("共同完成一个动作", "working together on one action"),
-      pair("靠近低语", "leaning close and speaking softly", { adultOnly: true }),
-      pair("轻柔拥抱", "sharing a soft close embrace", { adultOnly: true }),
-      pair("额头相触", "standing with foreheads gently touching", { adultOnly: true }),
-      pair("手抚脸颊", "gently cupping the other person's cheek", { adultOnly: true }),
-      pair("身旁依偎", "sitting close and leaning against each other", { adultOnly: true }),
-      pair("并卧交谈", "lying side by side in quiet conversation", { adultOnly: true }),
-      pair("缓慢共舞", "slow dancing together", { adultOnly: true }),
-      pair("相拥凝视", "holding each other while making eye contact", { adultOnly: true })
-    ],
-    motionLevel: [
-      pair("几乎静止", "very subtle natural motion"),
-      pair("缓慢自然", "slow natural movement"),
-      pair("中等动作", "clear moderate motion"),
-      pair("明显动态", "pronounced dynamic motion"),
-      pair("强烈动作", "fast energetic action")
-    ],
-    scene: [
-      pair("不指定", ""),
-      pair("清晨酒店房间", "a quiet hotel room in the morning"),
-      pair("暖光卧室", "a warm bedroom with soft practical lamps"),
-      pair("现代公寓客厅", "a modern apartment living room"),
-      pair("极简摄影棚", "a minimalist photography studio"),
-      pair("落地窗公寓", "an apartment with floor-to-ceiling windows"),
-      pair("咖啡厅窗边", "a quiet cafe beside a large window"),
-      pair("城市街头", "a city street"),
-      pair("雨夜街道", "a rain-soaked city street at night"),
-      pair("霓虹后巷", "a neon-lit urban alley"),
-      pair("天台夜景", "a rooftop overlooking the city at night"),
-      pair("地下停车场", "an underground parking garage"),
-      pair("地铁车厢", "inside a moving subway car"),
-      pair("火车站台", "a railway platform"),
-      pair("豪华酒店走廊", "a luxurious hotel corridor"),
-      pair("图书馆", "a quiet library with tall bookshelves"),
-      pair("艺术展厅", "a contemporary art gallery"),
-      pair("室内泳池", "an indoor swimming pool"),
-      pair("健身房", "a modern gym"),
-      pair("舞蹈室", "a dance studio with mirrored walls"),
-      pair("舞台后台", "a theater backstage area"),
-      pair("森林空地", "a calm forest clearing"),
-      pair("雪山木屋", "a wooden cabin in snowy mountains"),
-      pair("海岸悬崖", "a coastal cliff"),
-      pair("热带海滩", "a tropical beach"),
-      pair("湖边长椅", "a lakeside bench"),
-      pair("花田", "a field of flowers"),
-      pair("沙漠公路", "a desert highway"),
-      pair("赛博城市", "a futuristic cyberpunk city"),
-      pair("太空舱", "a spacecraft interior"),
-      pair("未来实验室", "a futuristic laboratory"),
-      pair("古典庭院", "a classical courtyard"),
-      pair("中世纪城堡", "a medieval castle hall"),
-      pair("奇幻森林", "an enchanted fantasy forest"),
-      pair("废墟神殿", "a ruined ancient temple")
-    ],
-    timeOfDay: [
-      pair("不指定", ""),
-      pair("清晨", "early morning"),
-      pair("上午", "late morning"),
-      pair("正午", "midday"),
-      pair("午后", "afternoon"),
-      pair("黄金时刻", "golden hour"),
-      pair("黄昏", "dusk"),
-      pair("蓝调时刻", "blue hour"),
-      pair("夜晚", "night"),
-      pair("深夜", "late night"),
-      pair("室内暖光", "warm indoor lighting")
-    ],
-    weather: [
-      pair("不指定", ""),
-      pair("晴朗", "clear weather"),
-      pair("多云", "soft overcast sky"),
-      pair("薄雾", "light fog"),
-      pair("小雨", "light rain"),
-      pair("大雨", "heavy rain"),
-      pair("雷雨", "distant thunderstorm"),
-      pair("小雪", "light snow"),
-      pair("大风", "strong wind"),
-      pair("潮湿空气", "humid air"),
-      pair("室内无天气", "controlled indoor atmosphere")
-    ],
-    background: [
-      pair("不指定", ""),
-      pair("浅景深背景", "softly blurred background"),
-      pair("前景虚化", "blurred foreground elements"),
-      pair("丰富前后景", "clear foreground, midground, and background layers"),
-      pair("极简背景", "minimal clean background"),
-      pair("环境叙事细节", "environmental storytelling details"),
-      pair("人群虚化", "softly blurred distant people"),
-      pair("几何建筑背景", "strong geometric architectural background"),
-      pair("自然纹理背景", "natural organic textures in the background")
-    ],
-    props: [
-      pair("不指定", ""),
-      pair("旧书", "an old book"),
-      pair("咖啡杯", "a ceramic coffee cup"),
-      pair("玻璃杯", "a glass of water"),
-      pair("鲜花", "fresh flowers"),
-      pair("台灯", "a warm table lamp"),
-      pair("相机", "a vintage camera"),
-      pair("耳机", "over-ear headphones"),
-      pair("雨伞", "a black umbrella"),
-      pair("手提包", "a leather handbag"),
-      pair("怀表", "a vintage pocket watch"),
-      pair("车钥匙", "car keys"),
-      pair("笔记本电脑", "a slim laptop"),
-      pair("画笔与画布", "brushes and a canvas"),
-      pair("乐器", "a musical instrument"),
-      pair("镜子", "a large mirror"),
-      pair("窗帘", "soft translucent curtains"),
-      pair("蜡烛", "a small candle"),
-      pair("烟雾", "thin drifting smoke"),
-      pair("机械零件", "scattered mechanical parts"),
-      pair("全息屏幕", "floating holographic displays")
-    ],
-    mood: [
-      pair("不指定", ""),
-      pair("宁静", "quiet and calm"),
-      pair("温暖", "warm and inviting"),
-      pair("怀旧", "nostalgic"),
-      pair("孤独", "quietly lonely"),
-      pair("浪漫", "romantic"),
-      pair("神秘", "mysterious"),
-      pair("紧张", "tense"),
-      pair("未来感", "futuristic"),
-      pair("梦幻", "dreamlike"),
-      pair("高级感", "refined and premium"),
-      pair("纪实感", "documentary realism"),
-      pair("私密克制", "restrained intimacy", { adultOnly: true }),
-      pair("浪漫张力", "romantic tension", { adultOnly: true }),
-      pair("亲密信任", "intimate trust", { adultOnly: true }),
-      pair("奢华私密", "luxurious private atmosphere", { adultOnly: true }),
-      pair("暧昧安静", "quiet ambiguity", { adultOnly: true }),
-      pair("自信迷人", "confident allure", { adultOnly: true }),
-      pair("柔和脆弱", "tender vulnerability", { adultOnly: true }),
-      pair("清晨余韵", "calm morning-after atmosphere", { adultOnly: true })
-    ],
-    shotSize: [
-      pair("不指定", ""),
-      pair("极近特写", "extreme close-up"),
-      pair("面部特写", "close-up portrait"),
-      pair("半身像", "medium shot"),
-      pair("七分身", "cowboy shot"),
-      pair("全身", "full-body shot"),
-      pair("大全景", "wide shot"),
-      pair("环境人像", "environmental portrait"),
-      pair("过肩镜头", "over-the-shoulder shot"),
-      pair("细节微距", "macro detail shot")
-    ],
-    angle: [
-      pair("不指定", ""),
-      pair("平视", "eye-level camera"),
-      pair("低角度", "low-angle camera"),
-      pair("高角度俯拍", "high-angle camera"),
-      pair("鸟瞰", "top-down bird's-eye view"),
-      pair("越过肩膀", "over-the-shoulder framing"),
-      pair("背后视角", "rear view"),
-      pair("侧面视角", "side profile view"),
-      pair("荷兰倾斜", "subtle Dutch angle")
-    ],
-    lens: [
-      pair("不指定", ""),
-      pair("24mm 广角", "24mm wide-angle lens"),
-      pair("35mm 纪实", "35mm documentary lens"),
-      pair("50mm 自然", "50mm natural-perspective lens"),
-      pair("85mm 人像", "85mm portrait lens"),
-      pair("100mm 微距", "100mm macro lens"),
-      pair("135mm 长焦压缩", "135mm telephoto compression"),
-      pair("变形宽银幕", "anamorphic widescreen lens"),
-      pair("鱼眼", "fisheye lens")
-    ],
-    composition: [
-      pair("不指定", ""),
-      pair("三分法", "rule-of-thirds composition"),
-      pair("中心构图", "centered symmetrical composition"),
-      pair("对角线构图", "dynamic diagonal composition"),
-      pair("引导线构图", "strong leading lines"),
-      pair("框景构图", "natural frame-within-a-frame composition"),
-      pair("大量负空间", "generous negative space"),
-      pair("紧凑裁切", "intimate close framing"),
-      pair("前景遮挡", "layered foreground framing")
-    ],
-    depthOfField: [
-      pair("不指定", ""),
-      pair("大景深", "deep depth of field"),
-      pair("中景深", "moderate depth of field"),
-      pair("浅景深", "shallow depth of field"),
-      pair("极浅景深", "very shallow depth of field")
-    ],
-    cameraMove: [
-      pair("固定机位", "static camera"),
-      pair("缓慢推近", "slow steady push-in"),
-      pair("缓慢拉远", "slow steady pull-out"),
-      pair("横向跟拍", "smooth lateral tracking shot"),
-      pair("环绕拍摄", "slow orbital camera movement"),
-      pair("手持跟随", "subtle handheld follow"),
-      pair("无人机上升", "smooth drone rise"),
-      pair("焦点转移", "gentle rack focus"),
-      pair("轻微倾斜", "subtle tilt movement"),
-      pair("跟随后退", "camera moves backward with the subject")
-    ],
-    lighting: [
-      pair("不指定", ""),
-      pair("柔和窗光", "large soft window light"),
-      pair("侧逆光", "soft side backlight"),
-      pair("轮廓光", "clear rim light"),
-      pair("伦勃朗光", "Rembrandt lighting"),
-      pair("三点布光", "controlled three-point studio lighting"),
-      pair("黄金时刻", "warm golden-hour sunlight"),
-      pair("阴天漫射光", "soft overcast diffusion"),
-      pair("霓虹实用光", "colorful practical neon lighting"),
-      pair("暖色台灯", "warm practical lamp light"),
-      pair("冷色屏幕光", "cool screen glow"),
-      pair("烛光", "candlelight"),
-      pair("顶光", "dramatic overhead light"),
-      pair("低照度电影光", "low-key cinematic lighting"),
-      pair("高调柔光", "high-key soft lighting")
-    ],
-    palette: [
-      pair("不指定", ""),
-      pair("暖金色", "warm golden palette"),
-      pair("奶油低饱和", "low-saturation cream palette"),
-      pair("青蓝冷调", "cool teal-blue palette"),
-      pair("霓虹粉蓝", "neon pink and cyan palette"),
-      pair("黑白单色", "monochrome black-and-white palette"),
-      pair("复古胶片色", "muted vintage film colors"),
-      pair("高对比电影色", "high-contrast cinematic color grade"),
-      pair("大地色", "earth-tone palette"),
-      pair("柔粉肤色", "soft rose and skin-tone palette"),
-      pair("深海蓝", "deep ocean-blue palette")
-    ],
-    atmosphere: [
-      pair("不指定", ""),
-      pair("空气感", "airy atmospheric depth"),
-      pair("轻雾", "thin atmospheric haze"),
-      pair("雨雾", "rain mist"),
-      pair("体积光", "volumetric light rays"),
-      pair("漂浮尘埃", "fine floating dust"),
-      pair("烟尘", "subtle drifting smoke"),
-      pair("蒸汽", "soft steam"),
-      pair("电影颗粒", "fine film grain"),
-      pair("清晰锐利", "clean crisp atmosphere"),
-      pair("柔焦高光", "soft glowing highlights")
-    ],
-    filmLook: [
-      pair("不指定", ""),
-      pair("35mm胶片", "35mm film look"),
-      pair("16mm颗粒", "16mm film grain"),
-      pair("数码电影机", "digital cinema camera look"),
-      pair("复古宝丽来", "vintage Polaroid look"),
-      pair("高保真数码", "high-fidelity digital rendering"),
-      pair("柔和高光滚降", "gentle highlight roll-off"),
-      pair("低对比灰调", "low-contrast muted look"),
-      pair("商业精修", "polished commercial finish")
-    ],
-    visualStyle: [
-      pair("不指定", ""),
-      pair("电影写实", "cinematic photorealism"),
-      pair("时尚编辑", "high-fashion editorial"),
-      pair("纪实摄影", "documentary photography"),
-      pair("广告摄影", "premium commercial photography"),
-      pair("电影剧照", "cinematic film still"),
-      pair("日系人像", "Japanese portrait photography"),
-      pair("东方美学", "modern East Asian aesthetic"),
-      pair("暗黑电影", "dark cinematic aesthetic"),
-      pair("复古胶片", "vintage film aesthetic"),
-      pair("赛博朋克", "cyberpunk visual style"),
-      pair("奇幻概念艺术", "fantasy concept art"),
-      pair("3D动画", "stylized 3D animation"),
-      pair("动漫插画", "anime illustration"),
-      pair("水彩插画", "watercolor illustration"),
-      pair("漫画分镜", "comic panel art"),
-      pair("极简设计", "minimalist graphic design")
-    ],
-    render: [
-      pair("不指定", ""),
-      pair("照片级渲染", "photorealistic rendering"),
-      pair("物理光线追踪", "physically based ray-traced lighting"),
-      pair("CG角色渲染", "high-end CG character rendering"),
-      pair("Unreal风格", "Unreal Engine cinematic render"),
-      pair("Octane质感", "Octane render material response"),
-      pair("二维赛璐璐", "cel-shaded 2D illustration"),
-      pair("手绘水彩", "hand-painted watercolor"),
-      pair("矢量平面", "clean vector-style graphics")
-    ],
-    qualityChips: [
-      pair("自然皮肤纹理", "natural skin texture"),
-      pair("清晰焦点", "sharp focus"),
-      pair("真实布料褶皱", "realistic fabric folds"),
-      pair("高细节", "highly detailed"),
-      pair("统一光线", "coherent lighting"),
-      pair("电影氛围", "cinematic atmosphere"),
-      pair("细腻阴影", "delicate shadow gradation"),
-      pair("丰富材质", "rich material response"),
-      pair("空气质量感", "atmospheric depth"),
-      pair("构图稳定", "stable coherent composition"),
-      pair("身份一致", "consistent identity"),
-      pair("运动连贯", "coherent motion"),
-      pair("无文字水印", "no text, no watermark"),
-      pair("精细调色", "refined color grading")
-    ],
-    creatureType: [
-      pair("精灵", "elegant elf-like fantasy being"),
-      pair("龙族", "humanoid dragon character"),
-      pair("机械生命体", "sentient mechanical being"),
-      pair("天使", "ethereal winged being"),
-      pair("恶魔", "dignified demonic character"),
-      pair("机器人", "humanoid robot"),
-      pair("猫科拟人", "anthropomorphic feline character"),
-      pair("狐狸拟人", "anthropomorphic fox character"),
-      pair("元素生命", "elemental being"),
-      pair("外星生命", "non-human alien being")
-    ],
-    bodyOrientation: [
-      pair("不指定", ""),
-      pair("正面朝向镜头", "facing the camera directly"),
-      pair("左前方四分之三", "three-quarter view from the front left"),
-      pair("右前方四分之三", "three-quarter view from the front right"),
-      pair("左侧面", "left profile"),
-      pair("右侧面", "right profile"),
-      pair("背面", "viewed from behind"),
-      pair("背面回眸", "viewed from behind while looking back"),
-      pair("侧躺面向镜头", "lying on one side and facing the camera"),
-      pair("身体朝向画外", "body angled away from the camera"),
-      pair("镜中正面", "front-facing reflection in a mirror"),
-      pair("镜中背面", "rear reflection in a mirror")
-    ],
-    gaze: [
-      pair("不指定", ""),
-      pair("直视镜头", "direct eye contact with the camera"),
-      pair("看向画外", "looking off-camera"),
-      pair("回眸看镜头", "looking back toward the camera"),
-      pair("低垂目光", "lowered gaze"),
-      pair("向上抬眸", "glancing upward"),
-      pair("侧目", "subtle side glance"),
-      pair("闭眼", "eyes gently closed"),
-      pair("透过镜子对视", "eye contact through a mirror"),
-      pair("闭眼感受光线", "eyes closed, feeling the light"),
-      pair("看向另一人", "looking toward another person"),
-      pair("视线越过肩膀", "gaze directed over the shoulder"),
-      pair("半垂眼睑看向镜头", "half-lidded gaze toward the camera")
-    ],
-    handPose: [
-      pair("不指定", ""),
-      pair("双手自然放松", "hands resting naturally"),
-      pair("单手拨头发", "one hand moving through the hair"),
-      pair("双手梳理头发", "both hands lifting the hair"),
-      pair("手放锁骨", "one hand resting near the collarbone"),
-      pair("手扶脖颈", "one hand lightly touching the neck"),
-      pair("手放腰侧", "one hand resting at the waist"),
-      pair("手扶髋部", "one hand resting on the hip"),
-      pair("双手抱膝", "arms wrapped around the knees"),
-      pair("双臂举过头顶", "arms stretched above the head"),
-      pair("手撑床面", "one hand supporting the body on the bed"),
-      pair("手扶椅背", "one hand resting on the back of a chair"),
-      pair("手扶墙面", "one hand resting against the wall"),
-      pair("手持布料边缘", "fingers lightly holding the edge of the fabric"),
-      pair("手托下巴", "chin resting lightly on one hand"),
-      pair("手指轻触双唇", "fingertip resting near the lips"),
-      pair("双手轻握", "hands gently clasped"),
-      pair("一只手伸向镜头", "one hand reaching toward the camera"),
-      pair("手放桌面", "one hand resting on the table"),
-      pair("手持道具", "one hand holding a visible prop"),
-      pair("手搭肩头", "one hand resting on the partner's shoulder")
-    ],
-    legPose: [
-      pair("不指定", ""),
-      pair("双脚自然站立", "standing with feet naturally placed"),
-      pair("重心落在一条腿", "weight shifted onto one leg"),
-      pair("脚踝轻交叉", "ankles lightly crossed"),
-      pair("双腿并拢", "legs held together"),
-      pair("双膝并拢", "knees kept together"),
-      pair("双腿自然交叉", "legs casually crossed"),
-      pair("一腿向前", "one leg placed forward"),
-      pair("一膝抬起", "one knee drawn upward"),
-      pair("双腿侧向摆放", "legs arranged to one side"),
-      pair("双腿向前伸展", "legs extended forward"),
-      pair("侧卧双腿并拢", "legs held together while lying on one side"),
-      pair("跪坐正姿", "upright kneeling posture"),
-      pair("单膝点地", "one knee resting on the floor"),
-      pair("蜷腿侧坐", "seated with legs curled to one side"),
-      pair("一脚轻点地面", "one foot lightly touching the floor"),
-      pair("赤足自然摆放", "bare feet resting naturally")
-    ],
-    postureLine: [
-      pair("不指定", ""),
-      pair("自然放松", "relaxed natural posture"),
-      pair("优雅挺立", "elegant upright posture"),
-      pair("纵向拉长", "elongated vertical silhouette"),
-      pair("柔和 S 形线条", "soft S-curve body line"),
-      pair("轻微侧弯", "subtle lateral curve"),
-      pair("克制后仰", "gently leaning back"),
-      pair("躯干斜向延伸", "diagonal torso line"),
-      pair("肩部放松", "relaxed shoulders"),
-      pair("身体重心下沉", "lowered relaxed center of gravity"),
-      pair("扭转体态", "subtle torso twist"),
-      pair("舒展拉伸", "open extended posture"),
-      pair("身体蜷曲", "tucked curled posture")
-    ],
-    adultArchetype: [
-      pair("不指定", ""),
-      pair("优雅酒店客人", "elegant boutique-hotel guest"),
-      pair("电影感女主角", "cinematic lead character"),
-      pair("奢华广告缪斯", "luxury campaign muse"),
-      pair("黑色电影人物", "film-noir protagonist"),
-      pair("私人画室模特", "adult private-studio model"),
-      pair("成熟魅力角色", "confident mature adult character"),
-      pair("浪漫伴侣", "romantic adult partner"),
-      pair("时尚名伶", "fashion muse"),
-      pair("清晨慵懒角色", "relaxed adult morning character"),
-      pair("神秘夜行者", "mysterious nocturnal adult character"),
-      pair("舞蹈演员", "adult dancer"),
-      pair("游泳与度假角色", "adult resort character"),
-      pair("温泉访客", "adult spa guest"),
-      pair("私人俱乐部客人", "member of a luxury private club"),
-      pair("复古银幕明星", "vintage screen star"),
-      pair("中世纪贵族", "adult aristocratic character"),
-      pair("赛博都市人物", "cyber-city adult character"),
-      pair("幻想宫廷角色", "fantasy court adult character")
-    ],
-    adultStyling: [
-      pair("不指定", ""),
-      pair("高级私房写真", "tasteful boudoir editorial styling"),
-      pair("奢华酒店晨光", "luxury hotel-morning styling"),
-      pair("丝质与阴影", "silk-and-shadow styling"),
-      pair("晨起微乱发型", "softly tousled morning hair"),
-      pair("湿润柔光妆", "dewy soft-focus makeup"),
-      pair("淡香水与珠宝", "perfume and delicate jewelry"),
-      pair("赤足优雅", "barefoot elegance"),
-      pair("黑色电影造型", "film-noir glamour"),
-      pair("极简性感", "minimal sophisticated allure"),
-      pair("浪漫花边", "romantic lace details"),
-      pair("高定晚装", "haute-couture evening styling"),
-      pair("度假奢华", "resort-luxe styling"),
-      pair("复古好莱坞", "vintage Hollywood styling"),
-      pair("舞蹈演员热身服", "dancer warm-up styling"),
-      pair("居家高级感", "polished at-home styling"),
-      pair("自然真实感", "natural realistic adult styling")
-    ],
-    intimacyLevel: [
-      pair("不指定", ""),
-      pair("独处安静", "quiet private solitude"),
-      pair("浪漫期待", "romantic anticipation"),
-      pair("亲密距离", "close personal distance"),
-      pair("温柔相拥", "tender embrace"),
-      pair("额头相触", "foreheads touching"),
-      pair("手抚面部", "gentle hand-to-face contact"),
-      pair("靠近耳边低语", "whispering close to the ear"),
-      pair("并肩依偎", "leaning together side by side"),
-      pair("轻柔亲吻", "a gentle closed-mouth kiss"),
-      pair("亲密信任", "intimate trust and emotional closeness"),
-      pair("克制暧昧", "restrained romantic tension"),
-      pair("高级时装式亲密", "fashion-editorial intimacy")
-    ],
-    adultScene: [
-      pair("不指定", ""),
-      pair("精品酒店套房", "a boutique hotel suite"),
-      pair("丝质床品卧室", "a bedroom with silk bedding"),
-      pair("大理石浴室蒸汽", "a marble bathroom filled with soft steam"),
-      pair("私人温泉房", "a private spa room"),
-      pair("壁炉休息室", "a fireplace lounge"),
-      pair("镜前化妆间", "a vanity room with mirrors"),
-      pair("纱帘卧室", "a bedroom with layered sheer curtains"),
-      pair("清晨私人阳台", "a private balcony at dawn"),
-      pair("深色奢华公寓", "a dark luxury apartment"),
-      pair("复古更衣室", "a vintage dressing room"),
-      pair("湖畔度假屋", "a lakeside vacation home"),
-      pair("沙漠别墅", "a private desert villa"),
-      pair("摄影棚沙发区", "a studio lounge with a large sofa"),
-      pair("船舱私人卧室", "a private cabin bedroom on a yacht"),
-      pair("花园玻璃房", "a glass conservatory beside a garden"),
-      pair("雨夜卧室", "a bedroom during a quiet rainy night")
-    ],
-    adultLighting: [
-      pair("不指定", ""),
-      pair("薄纱晨光", "soft morning light filtered through sheer curtains"),
-      pair("百叶窗条光", "striped window light through blinds"),
-      pair("暖色床头灯", "warm bedside lamp light"),
-      pair("壁炉火光", "warm firelight"),
-      pair("柔和顶光", "soft low overhead light"),
-      pair("明暗对比", "quiet chiaroscuro lighting"),
-      pair("霓虹窗外光", "neon glow entering from outside"),
-      pair("烛光群", "clustered candlelight"),
-      pair("蒸汽柔光", "diffused steam-filled light"),
-      pair("清晨余晖", "soft dawn glow"),
-      pair("侧窗轮廓光", "side-window rim light"),
-      pair("金色实用光", "warm practical golden light"),
-      pair("低饱和夜灯", "muted low-light bedside glow"),
-      pair("镜面反射光", "soft reflected mirror light")
-    ],
-    adultCameraStyle: [
-      pair("不指定", ""),
-      pair("高级私房摄影", "tasteful boudoir photography"),
-      pair("亲密编辑人像", "intimate editorial portrait"),
-      pair("奢华魅力人像", "premium glamour portrait"),
-      pair("黑色电影人像", "film-noir portrait"),
-      pair("浪漫电影剧照", "romantic cinematic still"),
-      pair("纪实式亲密感", "documentary-style intimacy"),
-      pair("镜面人像", "mirror portrait"),
-      pair("酒店广告摄影", "luxury hotel campaign photography"),
-      pair("复古胶片人像", "vintage film portrait"),
-      pair("低调情绪摄影", "low-key mood photography"),
-      pair("生活化私密感", "natural intimate lifestyle photography"),
-      pair("时尚双人肖像", "fashion editorial couples portrait"),
-      pair("晨光环境人像", "morning-light environmental portrait"),
-      pair("电影近景肖像", "cinematic close-up portrait")
-    ],
-    adultFraming: [
-      pair("不指定", ""),
-      pair("眼神特写", "intimate eye-level close-up"),
-      pair("面部与锁骨", "face-and-collarbone framing"),
-      pair("半身私密构图", "intimate medium framing"),
-      pair("七分身姿态", "cowboy-shot framing"),
-      pair("全身环境关系", "full-body environmental framing"),
-      pair("越过织物", "framed through soft fabric"),
-      pair("镜面双重构图", "dual reflection composition"),
-      pair("前景遮挡", "layered foreground framing"),
-      pair("略微俯拍", "slightly elevated framing"),
-      pair("略低机位", "slightly low camera framing"),
-      pair("宽银幕留白", "widescreen negative-space framing"),
-      pair("局部细节构图", "selective detail framing")
-    ],
-    adultAtmosphere: [
-      pair("不指定", ""),
-      pair("柔和浪漫", "soft romantic atmosphere"),
-      pair("安静暧昧", "quiet suggestive atmosphere"),
-      pair("奢华私密", "luxurious private atmosphere"),
-      pair("清晨慵懒", "lazy morning atmosphere"),
-      pair("夜色神秘", "mysterious night atmosphere"),
-      pair("温暖信任", "warm trusting atmosphere"),
-      pair("克制渴望", "restrained longing atmosphere"),
-      pair("电影张力", "cinematic tension"),
-      pair("雨声包围", "rain-wrapped intimacy"),
-      pair("蒸汽朦胧", "steamy diffused atmosphere"),
-      pair("复古精致", "polished vintage atmosphere"),
-      pair("海滩度假", "private resort atmosphere"),
-      pair("高定秀场后台", "couture backstage atmosphere"),
-      pair("梦幻朦胧", "dreamlike soft atmosphere")
-    ],
-    adultRelationship: [
-      pair("不指定", ""),
-      pair("独自一人", "alone and self-assured"),
-      pair("双方自愿的伴侣", "consenting adult partners"),
-      pair("浪漫情侣", "romantic adult couple"),
-      pair("新婚伴侣", "newly partnered adults"),
-      pair("长期伴侣", "long-term adult partners"),
-      pair("互相尊重", "mutual respect and trust"),
-      pair("亲密朋友", "close adult companions"),
-      pair("初次约会", "adult first-date atmosphere"),
-      pair("久别重逢", "adult reunion after time apart"),
-      pair("安静陪伴", "quiet companionship"),
-      pair("双向吸引", "mutual adult attraction"),
-      pair("平等关系", "equal and mutually consenting relationship")
-    ],
-    audioMode: [
-      pair("仅环境音", "ambient sound only, no dialogue"),
-      pair("单人画外音", "one character provides voice-over"),
-      pair("单人现场对白", "one character speaks on camera"),
-      pair("双人现场对白", "two characters exchange dialogue"),
-      pair("对白加画外音", "on-camera dialogue with additional voice-over"),
-      pair("自然声音优先", "natural ambience with restrained vocal performance")
-    ],
-    voiceTone: [
-      pair("自然平实", "natural conversational delivery"),
-      pair("安静温柔", "quiet gentle delivery"),
-      pair("克制低沉", "restrained low-volume delivery"),
-      pair("自信清晰", "confident articulate delivery"),
-      pair("紧张急促", "tense quickened delivery"),
-      pair("轻柔耳语", "soft whispered delivery"),
-      pair("含笑说话", "gently smiling speech"),
-      pair("情绪压抑", "emotionally restrained delivery"),
-      pair("画外叙述", "calm voice-over narration")
-    ],
-    consistencyFocus: [
-      pair("全部保持一致", "preserve identity, outfit, environment, framing, and lighting"),
-      pair("人物身份优先", "prioritize facial identity and body proportions"),
-      pair("服装与发型优先", "prioritize outfit, hairstyle, and accessories"),
-      pair("场景与背景优先", "prioritize environment, background layout, and object positions"),
-      pair("构图与机位优先", "prioritize camera framing, angle, and composition"),
-      pair("动作连贯优先", "prioritize continuous motion and realistic physical interaction")
-    ],
-    sound: [
-      pair("安静室内环境声", "quiet indoor room tone"),
-      pair("雨声", "steady rain against the windows"),
-      pair("城市远处环境声", "distant city ambience"),
-      pair("轻柔呼吸", "soft natural breathing"),
-      pair("布料摩擦", "subtle fabric movement"),
-      pair("脚步声", "soft measured footsteps"),
-      pair("咖啡厅低语", "quiet cafe chatter"),
-      pair("森林鸟鸣", "distant forest birds"),
-      pair("海浪", "gentle ocean waves"),
-      pair("机械低频", "low mechanical hum"),
-      pair("音乐氛围", "soft ambient music atmosphere"),
-      pair("无人声", "no voices")
-    ]
-  };
-
-  const ROLE_PRESETS = {
-    "urban everyday": {
-      gender: "adult woman",
-      hairStyle: "long wavy hair with natural texture",
-      hairColor: "dark brown",
-      outfit: "oversized white shirt",
-      fabric: "soft cotton and linen",
-      accessories: "minimal silver earrings",
-      pose: "standing beside a window",
-      scene: "a quiet cafe beside a large window",
-      lighting: "large soft window light",
-      visualStyle: "Japanese portrait photography"
-    },
-    "fashion editorial": {
-      gender: "adult woman",
-      body: "runway model proportions",
-      face: "defined cheekbones",
-      hairStyle: "layered medium-length hair",
-      outfit: "tailored black suit",
-      fabric: "matte leather",
-      accessories: "metal wristwatch",
-      pose: "turning back over the shoulder",
-      scene: "a minimalist photography studio",
-      lighting: "controlled three-point studio lighting",
-      visualStyle: "high-fashion editorial"
-    },
-    "modern professional": {
-      gender: "adult man",
-      hairStyle: "short textured crop",
-      outfit: "tailored black suit",
-      accessories: "reading glasses",
-      pose: "standing naturally",
-      scene: "an apartment with floor-to-ceiling windows",
-      lighting: "soft side backlight",
-      visualStyle: "premium commercial photography"
-    },
-    "vintage screen siren": {
-      gender: "adult woman",
-      hairStyle: "soft French braid",
-      hairColor: "auburn",
-      expression: "subtle closed-mouth smile",
-      outfit: "floor-length silk evening gown",
-      fabric: "rich velvet",
-      grooming: "vintage red lip",
-      pose: "leaning on a railing",
-      scene: "a luxurious hotel corridor",
-      lighting: "warm practical lamp light",
-      palette: "muted vintage film colors",
-      visualStyle: "vintage film aesthetic"
-    },
-    "cyberpunk investigator": {
-      gender: "adult androgynous person",
-      hairStyle: "short textured crop",
-      hairColor: "blue-black",
-      outfit: "futuristic utility suit",
-      fabric: "technical performance fabric",
-      accessories: "compact tactical gear",
-      pose: "leaning against a wall",
-      scene: "a neon-lit urban alley",
-      lighting: "colorful practical neon lighting",
-      palette: "neon pink and cyan palette",
-      visualStyle: "cyberpunk visual style"
-    },
-    "fantasy traveler": {
-      gender: "adult woman",
-      hairStyle: "soft French braid",
-      hairColor: "platinum blonde",
-      outfit: "fantasy leather armor",
-      fabric: "brushed wool",
-      accessories: "small mechanical device",
-      pose: "walking toward the camera",
-      scene: "an enchanted fantasy forest",
-      lighting: "volumetric light rays",
-      visualStyle: "fantasy concept art"
-    },
-    "classical martial hero": {
-      gender: "adult man",
-      hairStyle: "high ponytail",
-      hairColor: "natural black",
-      outfit: "layered traditional Hanfu robe",
-      fabric: "fluid silk",
-      accessories: "hat",
-      pose: "mid-turn movement",
-      scene: "a classical courtyard",
-      lighting: "soft overcast diffusion",
-      palette: "earth-tone palette",
-      visualStyle: "modern East Asian aesthetic"
-    },
-    "sci-fi pilot": {
-      gender: "adult woman",
-      hairStyle: "low ponytail",
-      hairColor: "blue-black",
-      outfit: "sci-fi pilot flight suit",
-      fabric: "technical performance fabric",
-      accessories: "metal wristwatch",
-      pose: "seated on a chair",
-      scene: "a spacecraft interior",
-      lighting: "cool screen glow",
-      palette: "deep ocean-blue palette",
-      visualStyle: "cinematic photorealism"
-    },
-    musician: {
-      gender: "adult man",
-      hairStyle: "messy natural short hair",
-      outfit: "black leather biker jacket",
-      accessories: "over-ear headphones",
-      pose: "seated on a chair",
-      scene: "a theater backstage area",
-      lighting: "low-key cinematic lighting",
-      visualStyle: "documentary photography"
-    },
-    artist: {
-      gender: "adult woman",
-      hairStyle: "loose updo",
-      outfit: "oversized hoodie",
-      accessories: "",
-      props: "brushes and a canvas",
-      pose: "standing naturally",
-      scene: "a contemporary art gallery",
-      lighting: "soft overcast diffusion",
-      visualStyle: "documentary photography"
-    },
-    athlete: {
-      gender: "adult man",
-      body: "athletic build",
-      hairStyle: "buzz cut",
-      outfit: "athletic yoga wear",
-      fabric: "technical performance fabric",
-      pose: "gently stretching",
-      scene: "a modern gym",
-      lighting: "large soft window light",
-      visualStyle: "premium commercial photography"
-    },
-    scholar: {
-      gender: "adult woman",
-      face: "soft facial contours",
-      hairStyle: "low ponytail",
-      outfit: "soft gray knit sweater",
-      accessories: "reading glasses",
-      pose: "seated on a chair",
-      scene: "a quiet library with tall bookshelves",
-      lighting: "large soft window light",
-      visualStyle: "cinematic film still"
-    },
-    "aristocratic character": {
-      gender: "adult man",
-      face: "mature facial structure",
-      hairStyle: "layered medium-length hair",
-      outfit: "vintage plaid suit",
-      fabric: "rich velvet",
-      accessories: "brooch",
-      pose: "leaning on a railing",
-      scene: "a medieval castle hall",
-      lighting: "low-key cinematic lighting",
-      visualStyle: "dark cinematic aesthetic"
-    }
-  };
-
-  const QUICK_PRESETS = [
-    {
-      icon: "◐",
-      name: "清晨酒店",
-      sub: "柔光 / 人像 / 安静",
-      state: {
-        model: "zimage_turbo",
-        subjectType: "person",
-        gender: "adult woman",
-        age: "in their thirties",
-        outfit: "oversized white shirt",
-        pose: "standing beside a window",
-        action: "subtle breathing and natural blinking",
-        scene: "a quiet hotel room in the morning",
-        timeOfDay: "early morning",
-        weather: "controlled indoor atmosphere",
-        lighting: "large soft window light",
-        palette: "low-saturation cream palette",
-        filmLook: "35mm film look",
-        visualStyle: "cinematic photorealism"
-      }
-    },
-    {
-      icon: "☂",
-      name: "雨夜电影",
-      sub: "霓虹 / 街头 / 情绪",
-      state: {
-        model: "zimage_turbo",
-        subjectType: "person",
-        gender: "adult man",
-        age: "in their thirties",
-        outfit: "long trench coat",
-        pose: "walking toward the camera",
-        action: "walking with natural motion",
-        scene: "a rain-soaked city street at night",
-        timeOfDay: "late night",
-        weather: "light rain",
-        props: "a black umbrella",
-        lighting: "colorful practical neon lighting",
-        palette: "cool teal-blue palette",
-        atmosphere: "rain mist",
-        visualStyle: "cinematic film still"
-      }
-    },
-    {
-      icon: "◇",
-      name: "时尚编辑",
-      sub: "棚拍 / 造型 / 高级感",
-      state: {
-        model: "flux2",
-        subjectType: "person",
-        gender: "adult woman",
-        age: "in their twenties",
-        body: "runway model proportions",
-        outfit: "tailored black suit",
-        pose: "turning back over the shoulder",
-        scene: "a minimalist photography studio",
-        lighting: "controlled three-point studio lighting",
-        visualStyle: "high-fashion editorial"
-      }
-    },
-    {
-      icon: "⌁",
-      name: "赛博城市",
-      sub: "未来 / 霓虹 / 动作",
-      state: {
-        model: "h3_t2v",
-        subjectType: "person",
-        gender: "adult androgynous person",
-        age: "in their thirties",
-        outfit: "futuristic utility suit",
-        pose: "leaning against a wall",
-        action: "slowly turning around",
-        scene: "a neon-lit urban alley",
-        timeOfDay: "night",
-        lighting: "colorful practical neon lighting",
-        visualStyle: "cyberpunk visual style",
-        cameraMove: "slow steady push-in"
-      }
-    },
-    {
-      icon: "✦",
-      name: "奇幻旅者",
-      sub: "森林 / 冒险 / 电影感",
-      state: {
-        model: "h3_t2v",
-        subjectType: "person",
-        gender: "adult woman",
-        age: "in their thirties",
-        outfit: "fantasy leather armor",
-        pose: "walking toward the camera",
-        action: "taking one deliberate step forward",
-        scene: "an enchanted fantasy forest",
-        lighting: "volumetric light rays",
-        atmosphere: "thin atmospheric haze",
-        visualStyle: "fantasy concept art",
-        motionLevel: "clear moderate motion"
-      }
-    },
-    {
-      icon: "▣",
-      name: "产品广告",
-      sub: "棚拍 / 微距 / 商业",
-      state: {
-        model: "flux2",
-        subjectType: "object",
-        objectDescription: "精密黑色机械腕表",
-        scene: "a minimalist photography studio",
-        lighting: "controlled three-point studio lighting",
-        shotSize: "macro detail shot",
-        composition: "centered symmetrical composition",
-        palette: "warm golden palette",
-        visualStyle: "premium commercial photography"
-      }
-    },
-    {
-      icon: "◒",
-      name: "日系人像",
-      sub: "窗光 / 通透 / 清新",
-      state: {
-        model: "zimage_turbo",
-        subjectType: "person",
-        gender: "adult woman",
-        age: "in their twenties",
-        expression: "gentle expression",
-        skin: "soft translucent skin",
-        outfit: "relaxed t-shirt and trousers",
-        pose: "standing beside a window",
-        scene: "a quiet cafe beside a large window",
-        timeOfDay: "late morning",
-        lighting: "large soft window light",
-        palette: "soft rose and skin-tone palette",
-        atmosphere: "airy atmospheric depth",
-        visualStyle: "Japanese portrait photography"
-      }
-    },
-    {
-      icon: "▶",
-      name: "短视频分镜",
-      sub: "Wan / 单动作 / 竖屏",
-      state: {
-        model: "wan_ti2v_5b",
-        subjectType: "person",
-        gender: "adult woman",
-        age: "in their twenties",
-        outfit: "relaxed t-shirt and trousers",
-        pose: "standing naturally",
-        action: "looking back",
-        interaction: "standing shoulder to shoulder",
-        scene: "a city street",
-        timeOfDay: "golden hour",
-        lighting: "warm golden-hour sunlight",
-        aspectRatio: "aspect ratio 9:16, vertical short video",
-        cameraMove: "subtle handheld follow",
-        visualStyle: "cinematic photorealism"
-      }
-    }
-  ];
-
+  const PS = window.PS_DATA;
+  if (!PS) {
+    throw new Error("词库数据没有加载：请确认 index.html 中 data/prompts.js 在 app.js 之前引入。");
+  }
+  const { MODELS, O, ROLE_PRESETS, LORA_CATALOG = [] } = PS;
   const FIELD_TO_OPTIONS = {
     gender: "gender",
     age: "age",
@@ -1362,6 +28,8 @@
     fit: "fit",
     accessories: "accessories",
     footwear: "footwear",
+    hosiery: "hosiery",
+    hosieryMaterial: "hosieryMaterial",
     grooming: "grooming",
     pose: "pose",
     action: "action",
@@ -1414,6 +82,10 @@
     model: "zimage_turbo",
     language: "en",
     detailLevel: "balanced",
+    contentScale: "sfw",
+    loraTrigger: "",
+    imageWidth: "1024",
+    imageHeight: "1024",
     subjectType: "person",
     rolePreset: "urban everyday",
     gender: "adult woman",
@@ -1432,6 +104,8 @@
     fit: "relaxed oversized fit",
     accessories: "minimal silver earrings",
     footwear: "barefoot",
+    hosiery: "",
+    hosieryMaterial: "",
     grooming: "light natural makeup",
     pose: "standing beside a window",
     action: "subtle breathing and natural blinking",
@@ -1463,14 +137,7 @@
     aspectRatio: "aspect ratio 4:5, vertical portrait",
     creatureType: "elegant elf-like fantasy being",
     adultArchetype: "",
-    adultStyling: "",
     intimacyLevel: "",
-    adultScene: "",
-    adultLighting: "",
-    adultCameraStyle: "",
-    adultFraming: "",
-    adultAtmosphere: "",
-    adultRelationship: "",
     audioMode: "ambient sound only, no dialogue",
     voiceTone: "natural conversational delivery",
     consistencyFocus: "preserve identity, outfit, environment, framing, and lighting",
@@ -1485,18 +152,525 @@
   let formSaveTimer = null;
   let latestOutput = null;
 
-  function currentAdultMode() {
-    return Boolean($("adultMode")?.checked);
+  const ADULT_GROUP_LABEL = "扩展 · 18+";
+
+  // 内容尺度：只影响「成人向分组的展开状态」「负面词库」和「随机时抽成人向的比例」，不过滤任何选项
+  const NEGATIVE_SCALES = {
+    sfw: "",
+    suggestive:
+      "explicit nudity, exposed genitalia, sexual act, minors, child, underage, real person likeness, celebrity likeness, plastic skin, heavy airbrushing",
+    boudoir:
+      "exposed genitalia, explicit sexual act, minors, child, underage, real person likeness, celebrity likeness, distorted anatomy, plastic skin, over-smoothed skin, heavy airbrushing",
+    adult:
+      "explicit sexual act, exposed genitalia, minors, child, underage, real person likeness, celebrity likeness, distorted anatomy, extra legs, fused toes, plastic skin, over-smoothed skin, heavy airbrushing"
+  };
+
+  const ADULT_RANDOM_RATE = { sfw: 0, suggestive: 0.2, boudoir: 0.4, adult: 1 };
+
+  function contentScale() {
+    return $("contentScale")?.value || "sfw";
+  }
+
+  function syncScaleSwitch() {
+    const scale = contentScale();
+    $$("#scaleSwitch button").forEach((button) => {
+      const on = button.dataset.scale === scale;
+      button.classList.toggle("is-on", on);
+      button.setAttribute("aria-pressed", String(on));
+    });
+  }
+
+  function setContentScale(scale) {
+    const input = $("contentScale");
+    if (!input) return;
+    input.value = scale;
+    syncScaleSwitch();
+    refreshSelectsForSubject();
+    let applied = 0;
+    if (scale === "adult") applied = applyAdultStarter();
+    if (applied) syncSizeFromAspectRatio();
+    applyContentScale();
+    updateOutput();
+    saveAutosave();
+    const label = { sfw: "日常", suggestive: "暗示", boudoir: "私房", adult: "扩展" }[scale] || scale;
+    showToast(applied ? `${label}档 · 已套用 ${applied} 项私房基础值` : `${label}档`);
+  }
+
+  // 切到「成人向」档时，只替换用户没动过的字段，给一套能直接出片的起点
+  const ADULT_STARTER = [
+    ["scene", "精品酒店套房"],
+    ["lighting", "暖色床头灯"],
+    ["mood", "安静暧昧"],
+    ["visualStyle", "高级私房摄影"],
+    ["composition", "半身私密构图"],
+    ["grooming", "高级私房写真"],
+    ["outfit", "丝质系带睡袍"],
+    ["pose", "侧卧手撑头"],
+    ["expression", "柔和微张双唇"],
+    ["shotSize", "半身像"],
+    ["depthOfField", "浅景深"],
+    ["timeOfDay", "夜晚"],
+    ["aspectRatio", "4:5 竖版人像"]
+  ];
+
+  function applyAdultStarter() {
+    let changed = 0;
+    for (const [field, zh] of ADULT_STARTER) {
+      if (!fieldAppliesTo(field)) continue;
+      if (fieldModified(field)) continue;
+      const option = getOptionPairs(field).find((item) => item.zh === zh);
+      if (!option) continue;
+      setSelectValue(field, option.en);
+      changed += 1;
+    }
+    return changed;
+  }
+
+  function setAdultGroupExpanded(open) {
+    for (const combo of combos.values()) {
+      combo.overrides.set(ADULT_GROUP_LABEL, open);
+    }
+  }
+
+  function applyContentScale() {
+    setAdultGroupExpanded(contentScale() !== "sfw");
+  }
+
+  // 主体分组：以后加「动物 / 植物」只要在这里和 FIELD_SUBJECT_GROUPS 里各补一行
+  const SUBJECT_GROUPS = {
+    person: "human",
+    couple: "human",
+    group: "human",
+    creature: "creature",
+    object: "object"
+  };
+
+  // 字段适用于哪些主体分组；没列出来的字段对所有主体都显示
+  const FIELD_SUBJECT_GROUPS = {
+    rolePreset: ["human"],
+    gender: ["human"],
+    age: ["human"],
+    appearance: ["human"],
+    body: ["human"],
+    face: ["human"],
+    hairStyle: ["human"],
+    hairColor: ["human"],
+    eyes: ["human"],
+    expression: ["human"],
+    skin: ["human"],
+    adultArchetype: ["human"],
+    outfit: ["human"],
+    fabric: ["human"],
+    outfitColor: ["human"],
+    fit: ["human"],
+    accessories: ["human"],
+    footwear: ["human"],
+    hosiery: ["human"],
+    hosieryMaterial: ["human"],
+    grooming: ["human"],
+    pose: ["human", "creature"],
+    bodyOrientation: ["human"],
+    gaze: ["human", "creature"],
+    handPose: ["human", "creature"],
+    legPose: ["human", "creature"],
+    postureLine: ["human"],
+    interaction: ["human"],
+    intimacyLevel: ["human"],
+    characterCustom: ["human"],
+    creatureType: ["creature"],
+    objectDescription: ["object"]
+  };
+
+  function subjectGroup() {
+    return SUBJECT_GROUPS[currentSubjectType()] || "human";
+  }
+
+  function fieldAppliesTo(field, group = subjectGroup()) {
+    const groups = FIELD_SUBJECT_GROUPS[field];
+    return !groups || groups.includes(group);
+  }
+
+  // 简洁模式：只显示这些常用字段，以及你已经改动过的字段
+  const CORE_FIELDS = new Set([
+    "model",
+    "customModelName",
+    "customFormat",
+    "language",
+    "detailLevel",
+    "contentScale",
+    "aspectRatio",
+    "subjectType",
+    "rolePreset",
+    "gender",
+    "outfit",
+    "pose",
+    "interaction",
+    "scene",
+    "shotSize",
+    "lighting",
+    "visualStyle",
+    "customDetails",
+    "customNegative"
+  ]);
+
+  let compactMode = true;
+
+  function fieldModified(field) {
+    const element = $(field);
+    if (!element) return false;
+    const fallback = DEFAULTS[field];
+    if (element.type === "checkbox") return element.checked !== Boolean(fallback);
+    const value = String(element.value || "");
+    return value !== String(fallback === undefined ? "" : fallback);
+  }
+
+  // 给字段打标记，CSS 据此在简洁模式下隐藏“没动过的高级字段”
+  function refreshFieldMarks() {
+    const fields = new Set([...Object.keys(FIELD_TO_OPTIONS), ...Object.keys(FIELD_SUBJECT_GROUPS)]);
+    for (const field of fields) {
+      const wrap = $(field)?.closest("label");
+      if (!wrap) continue;
+      wrap.classList.toggle("is-advanced", !CORE_FIELDS.has(field));
+      wrap.classList.toggle("is-modified", fieldModified(field));
+    }
+  }
+
+  function applyCompactMode() {
+    document.body.classList.toggle("compact", Boolean(compactMode));
+    const button = $("compactButton");
+    if (!button) return;
+    button.classList.toggle("is-on", Boolean(compactMode));
+    button.setAttribute("aria-pressed", String(Boolean(compactMode)));
+    button.textContent = compactMode ? "简洁" : "全部";
+  }
+
+  // ---------- 一句话预填 ----------
+  // 常见说法 → 已存在的选项（中文标签）。找不到对应标签的提示会被跳过。
+  const SENTENCE_HINTS = [
+    [/女孩|女生|姑娘|女人|女性|美女/, "gender", "成年女性"],
+    [/男孩|男生|小伙|男人|男性|帅哥/, "gender", "成年男性"],
+    [/中性|androgynous/, "gender", "中性气质成年人"],
+    [/情侣|双人|两个人|两人|一对|伴侣/, "subjectType", "couple"],
+    [/群像|一群人|几个人|三人/, "subjectType", "group"],
+    [/精灵|奇幻生物|妖怪|龙/, "subjectType", "creature"],
+    [/产品|物体|静物|手表|香水|鞋|包/, "subjectType", "object"],
+    [/雨夜/, "scene", "雨夜街道"],
+    [/霓虹/, "scene", "霓虹后巷"],
+    [/咖啡厅|咖啡馆/, "scene", "咖啡厅窗边"],
+    [/街头|城市|街拍/, "scene", "城市街头"],
+    [/天台|屋顶/, "scene", "天台夜景"],
+    [/地铁/, "scene", "地铁车厢"],
+    [/酒店/, "scene", "清晨酒店房间"],
+    [/卧室|床上/, "scene", "暖光卧室"],
+    [/客厅|公寓/, "scene", "现代公寓客厅"],
+    [/图书馆/, "scene", "图书馆"],
+    [/展厅|美术馆|画廊/, "scene", "艺术展厅"],
+    [/舞台/, "scene", "舞台后台"],
+    [/森林/, "scene", "森林空地"],
+    [/雪山/, "scene", "雪山木屋"],
+    [/海边|海滩|沙滩/, "scene", "热带海滩"],
+    [/湖边|湖畔/, "scene", "湖边长椅"],
+    [/花田|花海/, "scene", "花田"],
+    [/沙漠/, "scene", "沙漠公路"],
+    [/赛博/, "scene", "赛博城市"],
+    [/太空|飞船/, "scene", "太空舱"],
+    [/城堡/, "scene", "中世纪城堡"],
+    [/庭院|园林/, "scene", "古典庭院"],
+    [/清晨|早晨|早上/, "timeOfDay", "清晨"],
+    [/正午|中午/, "timeOfDay", "正午"],
+    [/午后|下午/, "timeOfDay", "午后"],
+    [/黄昏|傍晚|日落/, "timeOfDay", "黄昏"],
+    [/夜晚|晚上|夜里|深夜|夜景/, "timeOfDay", "夜晚"],
+    [/蓝调时刻/, "timeOfDay", "蓝调时刻"],
+    [/黄金时刻/, "timeOfDay", "黄金时刻"],
+    [/下雨|雨中|雨天/, "weather", "小雨"],
+    [/暴雨|大雨/, "weather", "大雨"],
+    [/下雪|雪天/, "weather", "小雪"],
+    [/起雾|薄雾|雾中/, "weather", "薄雾"],
+    [/阴天/, "weather", "多云"],
+    [/窗光|自然光/, "lighting", "柔和窗光"],
+    [/逆光/, "lighting", "侧逆光"],
+    [/轮廓光/, "lighting", "轮廓光"],
+    [/烛光/, "lighting", "烛光"],
+    [/台灯/, "lighting", "暖色台灯"],
+    [/霓虹光|霓虹灯/, "lighting", "霓虹实用光"],
+    [/三点布光|棚拍光/, "lighting", "三点布光"],
+    [/特写/, "shotSize", "面部特写"],
+    [/大特写|极近/, "shotSize", "极近特写"],
+    [/半身/, "shotSize", "半身像"],
+    [/全身|全景/, "shotSize", "全身"],
+    [/远景|大全景/, "shotSize", "大全景"],
+    [/微距/, "shotSize", "细节微距"],
+    [/浅景深|背景虚化|虚化/, "depthOfField", "浅景深"],
+    [/极浅景深/, "depthOfField", "极浅景深"],
+    [/大景深|背景清晰/, "depthOfField", "大景深"],
+    [/电影感|电影|cinematic/, "visualStyle", "电影写实"],
+    [/时尚|杂志/, "visualStyle", "时尚编辑"],
+    [/纪实/, "visualStyle", "纪实摄影"],
+    [/广告/, "visualStyle", "广告摄影"],
+    [/剧照/, "visualStyle", "电影剧照"],
+    [/日系/, "visualStyle", "日系人像"],
+    [/国风|东方/, "visualStyle", "东方美学"],
+    [/暗黑/, "visualStyle", "暗黑电影"],
+    [/复古|胶片感/, "visualStyle", "复古胶片"],
+    [/赛博朋克/, "visualStyle", "赛博朋克"],
+    [/奇幻|概念艺术/, "visualStyle", "奇幻概念艺术"],
+    [/3d|三维/, "visualStyle", "3D动画"],
+    [/动漫|二次元/, "visualStyle", "动漫插画"],
+    [/水彩/, "visualStyle", "水彩插画"],
+    [/漫画/, "visualStyle", "漫画分镜"],
+    [/极简/, "visualStyle", "极简设计"],
+    [/35mm/, "filmLook", "35mm胶片"],
+    [/颗粒/, "filmLook", "16mm颗粒"],
+    [/宝丽来/, "filmLook", "复古宝丽来"],
+    [/微笑|笑/, "expression", "轻微微笑"],
+    [/回头|回眸/, "expression", "回眸"],
+    [/自信/, "expression", "自信"],
+    [/忧郁|难过|悲伤/, "expression", "忧郁"],
+    [/神秘/, "expression", "神秘"],
+    [/害羞/, "expression", "害羞偏头"],
+    [/看镜头|直视镜头/, "expression", "看向镜头"],
+    [/靠窗/, "pose", "靠窗站立"],
+    [/站立|站着/, "pose", "自然站立"],
+    [/坐着|坐姿/, "pose", "坐在椅子上"],
+    [/行走|走动|走路/, "pose", "向前行走"],
+    [/躺着|平躺/, "pose", "仰卧"],
+    [/白衬衫|衬衫/, "outfit", "白色宽松衬衫"],
+    [/西装/, "outfit", "黑色修身西装"],
+    [/连衣裙|长裙/, "outfit", "极简连衣裙"],
+    [/晚礼服/, "outfit", "丝质晚礼服"],
+    [/旗袍/, "outfit", "改良旗袍"],
+    [/汉服/, "outfit", "汉服长袍"],
+    [/浴衣/, "outfit", "和风浴衣"],
+    [/浴袍/, "outfit", "白色浴袍"],
+    [/牛仔/, "outfit", "牛仔夹克"],
+    [/风衣/, "outfit", "长风衣"],
+    [/针织/, "outfit", "灰色针织衫"],
+    [/卫衣/, "outfit", "连帽卫衣"],
+    [/睡衣/, "outfit", "缎面睡衣套装"],
+    [/皮衣|机车/, "outfit", "皮质机车夹克"],
+    [/长发/, "hairStyle", "黑色长直发"],
+    [/短发/, "hairStyle", "齐肩短发"],
+    [/马尾/, "hairStyle", "高马尾"],
+    [/卷发/, "hairStyle", "卷发"],
+    [/温暖|温馨/, "mood", "温暖"],
+    [/孤独|寂寞/, "mood", "孤独"],
+    [/宁静|安静/, "mood", "宁静"],
+    [/浪漫/, "mood", "浪漫"],
+    [/紧张/, "mood", "紧张"],
+    [/未来感/, "mood", "未来感"],
+    [/梦幻/, "mood", "梦幻"],
+    [/高级感/, "mood", "高级感"],
+    [/竖版|海报|封面/, "aspectRatio", "4:5 竖版人像"],
+    [/横版|宽屏/, "aspectRatio", "16:9 电影横向"],
+    [/方形|方图/, "aspectRatio", "1:1 方形"],
+    [/金发|blonde/i, "hairColor", "金色"],
+    [/银发|白发/, "hairColor", "银灰"],
+    [/红发|红棕/, "hairColor", "红棕"],
+    [/黑发|黑长直/, "hairColor", "自然黑"],
+    [/蓝眼/, "eyes", "蓝色眼睛"],
+    [/绿眼/, "eyes", "绿色眼睛"],
+    [/灰眼/, "eyes", "灰色眼睛"],
+    [/棕眼|褐眼/, "eyes", "深棕眼"],
+    [/圆脸/, "face", "圆脸"],
+    [/方脸/, "face", "方脸"],
+    [/酒窝/, "face", "酒窝"],
+    [/雀斑/, "face", "雀斑"],
+    [/下颌线|下颌骨/, "face", "下颌线清晰"],
+    [/混血/, "appearance", "多元混血外貌"],
+    [/日韩|韩国|日本/, "appearance", "日韩外貌"],
+    [/北欧/, "appearance", "北欧外貌"],
+    [/地中海/, "appearance", "地中海外貌"]
+  ];
+
+  const SENTENCE_MAX_FIELDS = 8;
+  let sentenceSnapshot = null;
+
+  function sentenceOption(field, value) {
+    const key = FIELD_TO_OPTIONS[field];
+    if (!key) return null;
+    return (O[key] || []).find((item) => item.zh === value || item.en === value) || null;
+  }
+
+  function sentenceFieldLabel(field) {
+    const wrap = $(field)?.closest("label");
+    const span = wrap ? wrap.querySelector("span") : null;
+    return span ? span.textContent.trim() : field;
+  }
+
+  function sentenceCandidates(text) {
+    const lower = String(text || "").trim().toLowerCase();
+    if (!lower) return [];
+    const picked = new Map();
+    const put = (field, en, zh, score, via) => {
+      if (!en) return;
+      const prev = picked.get(field);
+      if (!prev || score > prev.score) picked.set(field, { field, en, zh, score, via });
+    };
+
+    // 1) 关键词提示（同义词）
+    for (const [re, field, target] of SENTENCE_HINTS) {
+      if (!re.test(lower)) continue;
+      if (field === "subjectType") {
+        put(field, target, target, 100 + String(target).length, "hint");
+      } else {
+        const item = sentenceOption(field, target);
+        if (item) put(field, item.en, item.zh, 100 + item.zh.length, "hint");
+      }
+    }
+
+    // 2) 字面匹配：整条标签出现在句子里（强），或句子片段出现在标签里（弱，需 >=3 字）
+    const grams = new Set();
+    for (const run of lower.match(/[\u4e00-\u9fa5]{3,}/g) || []) {
+      for (let n = 3; n <= 4; n += 1) {
+        for (let i = 0; i + n <= run.length; i += 1) grams.add(run.slice(i, i + n));
+      }
+    }
+    const words = lower.match(/[a-z]{4,}/g) || [];
+    for (const [field, key] of Object.entries(FIELD_TO_OPTIONS)) {
+      for (const item of O[key] || []) {
+        if (!item.en || !item.zh) continue;
+        if (item.adultOnly && contentScale() === "sfw") continue; // 日常档不主动预填成人向
+        if (lower.includes(item.zh)) {
+          put(field, item.en, item.zh, 60 + item.zh.length, "label");
+          continue;
+        }
+        let best = 0;
+        let via = "";
+        for (const gram of grams) {
+          if (item.zh.includes(gram) && gram.length > best) {
+            best = gram.length;
+            via = gram;
+          }
+        }
+        for (const word of words) {
+          if (item.en.toLowerCase().includes(word) && word.length > best) {
+            best = word.length;
+            via = word;
+          }
+        }
+        if (best >= 3) put(field, item.en, item.zh, best, via);
+      }
+    }
+
+    // 3) 人数不匹配的不要（单人主体不预填“成对”类选项）
+    const subject = picked.get("subjectType")?.en || currentSubjectType();
+    const limit = subject === "couple" ? 2 : subject === "group" ? 3 : 1;
+    const fits = (item) => {
+      const option = sentenceOption(item.field, item.en);
+      return !option || (option.people || 1) <= limit;
+    };
+    let sorted = [...picked.values()].filter(fits).sort((a, b) => b.score - a.score);
+
+    // 4) 弱匹配如果只是被强匹配的片段包含（例如“浅景深背景”里的“浅景深”），丢掉
+    const strong = sorted.filter((item) => item.score >= 60);
+    sorted = sorted.filter((item) => {
+      if (item.score >= 60) return true;
+      if (item.zh && item.zh.length > item.score + 1) return false; // 只匹配到标签的一小段，可信度低
+      return !strong.some((s) => s.zh && s.zh.includes(item.via));
+    });
+
+    const subjectItem = sorted.find((item) => item.field === "subjectType");
+    const others = sorted.filter((item) => item.field !== "subjectType");
+    const result = subjectItem ? [subjectItem, ...others] : others;
+    return result.slice(0, SENTENCE_MAX_FIELDS);
+  }
+
+  function renderSentenceChips(items) {
+    const root = $("sentenceChips");
+    root.innerHTML = "";
+    for (const item of items) {
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "sentence-chip";
+      chip.title = "点击取消这一项";
+      const label = sentenceFieldLabel(item.field);
+      let valueText = item.zh || item.en;
+      if (item.field === "subjectType") {
+        const option = [...$("subjectType").options].find((entry) => entry.value === item.en);
+        if (option) valueText = option.textContent;
+      }
+      chip.textContent = `${label} · ${valueText}`;
+      chip.addEventListener("click", () => {
+        const snapshot = sentenceSnapshot ? sentenceSnapshot[item.field] : undefined;
+        if (snapshot !== undefined) {
+          if (item.field === "subjectType") {
+            $("subjectType").value = snapshot;
+            refreshSelectsForSubject();
+          } else {
+            setSelectValue(item.field, snapshot);
+          }
+        }
+        chip.disabled = true;
+        chip.classList.add("removed");
+        updateVisibility();
+        updateOutput();
+        saveAutosave();
+      });
+      root.append(chip);
+    }
+  }
+
+  function applySentence(items) {
+    if (!items.length) return;
+    sentenceSnapshot = collectState();
+    const subject = items.find((item) => item.field === "subjectType");
+    if (subject) {
+      $("subjectType").value = subject.en;
+      refreshSelectsForSubject();
+    }
+    for (const item of items) {
+      if (item.field === "subjectType") continue;
+      setSelectValue(item.field, item.en);
+    }
+    resolveConflicts(null);
+    if (items.some((item) => item.field === "aspectRatio")) syncSizeFromAspectRatio();
+    updateVisibility();
+    updateOutput();
+    saveAutosave();
+    renderSentenceChips(items);
+    $("sentenceEmpty").hidden = true;
+    $("sentenceResult").hidden = false;
+    $("sentenceSummary").textContent = items.length >= SENTENCE_MAX_FIELDS
+      ? `已预填 ${items.length} 个字段（最多 ${SENTENCE_MAX_FIELDS} 项，点下面的标签可单项取消）`
+      : `已预填 ${items.length} 个字段（点标签可单项取消）`;
+  }
+
+  // 当前主体能容纳的人数上限：单人 1、双人 2、群像不限
+  function currentSubjectType() {
+    return $("subjectType")?.value || "person";
+  }
+
+  function subjectPeopleLimit() {
+    const type = currentSubjectType();
+    if (type === "couple") return 2;
+    if (type === "group") return 3;
+    return 1;
   }
 
   function getOptionPairs(field) {
     const key = FIELD_TO_OPTIONS[field];
     const list = O[key] || [];
-    const base = currentAdultMode() ? list : list.filter((item) => !item.adultOnly);
     const mergeKey = ADULT_OPTION_MERGES[field];
-    if (!currentAdultMode() || !mergeKey) return base;
-    const merged = [...base, ...(O[mergeKey] || []).filter((item) => item.en)];
-    return [...new Map(merged.map((item) => [item.en.toLowerCase(), item])).values()];
+    const merged = mergeKey ? [...list, ...(O[mergeKey] || []).filter((item) => item.en)] : list;
+    const unique = [...new Map(merged.map((item) => [item.en.toLowerCase(), item])).values()];
+    const type = currentSubjectType();
+    const limit = subjectPeopleLimit();
+    let fits = unique.filter((item) => (item.people || 1) <= limit);
+    // 双人主体时，性别只保留“成对”选项，避免拼出一个人的描述
+    if (field === "gender" && type === "couple") {
+      const pairOnly = fits.filter((item) => item.people === 2);
+      if (pairOnly.length) fits = pairOnly;
+    }
+    // 成人向条目不隐藏，只是排到最后并归入「成人向 · 18+」分组
+    return [...fits.filter((item) => !item.adultOnly), ...fits.filter((item) => item.adultOnly)];
+  }
+
+  // 主体类型变了，所有下拉要重算（原来能选的“成对”选项要消失）
+  function refreshSelectsForSubject() {
+    for (const field of Object.keys(FIELD_TO_OPTIONS)) {
+      fillSelect(field, getOptionPairs(field));
+    }
   }
 
   function fillSelect(id, items, placeholder) {
@@ -1505,18 +679,48 @@
     const previous = select.value;
     const hasPlaceholder = placeholder !== undefined;
     const allItems = hasPlaceholder ? [pair(placeholder, ""), ...items] : items;
+    const general = allItems.filter((item) => !item.adultOnly);
+    const adult = allItems.filter((item) => item.adultOnly);
     select.innerHTML = "";
-    for (const item of allItems) {
+    const addOption = (parent, item, tagged) => {
       const option = document.createElement("option");
       option.value = item.en;
-      option.textContent = item.zh;
-      select.append(option);
+      option.textContent = tagged ? `·AD ${item.zh}` : item.zh;
+      parent.append(option);
+    };
+    // 按 group 归类；没有 group 的排在最前面
+    const groups = new Map();
+    for (const item of general) {
+      const key = item.group || "";
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(item);
     }
+    const adultFirst = contentScale() === "adult";
+    const appendAdultGroup = () => {
+      if (!adult.length) return;
+      const group = document.createElement("optgroup");
+      group.label = ADULT_GROUP_LABEL;
+      for (const item of adult) addOption(group, item, true);
+      select.append(group);
+    };
+    if (adultFirst) appendAdultGroup();
+    if (groups.has("")) {
+      for (const item of groups.get("")) addOption(select, item, false);
+    }
+    for (const [key, items] of groups) {
+      if (!key) continue;
+      const group = document.createElement("optgroup");
+      group.label = key;
+      for (const item of items) addOption(group, item, false);
+      select.append(group);
+    }
+    if (!adultFirst) appendAdultGroup();
     if ([...select.options].some((option) => option.value === previous)) {
       select.value = previous;
     } else if (select.options.length) {
       select.selectedIndex = 0;
     }
+    syncCombo(id);
   }
 
   function populateSelects({ preserve = true } = {}) {
@@ -1530,6 +734,7 @@
       modelSelect.append(option);
     }
     modelSelect.value = preserve && MODELS[oldModel] ? oldModel : DEFAULTS.model;
+    syncCombo("model");
 
     for (const field of Object.keys(FIELD_TO_OPTIONS)) {
       fillSelect(field, getOptionPairs(field));
@@ -1557,6 +762,256 @@
     if ([...select.options].some((option) => option.value === value)) {
       select.value = value;
     }
+    syncCombo(id);
+  }
+
+  // ---------- 可搜索下拉 ----------
+  // 原生 select 仍然是“真相”，只是被隐藏；外面套一个能搜索的输入框 + 列表。
+  const combos = new Map();
+
+  function comboEntries(select, query, overrides) {
+    const q = String(query || "").trim().toLowerCase();
+    const entries = [];
+    const match = (text, value) =>
+      !q || String(text).toLowerCase().includes(q) || String(value || "").toLowerCase().includes(q);
+    for (const child of select.children) {
+      if (child.tagName === "OPTGROUP") {
+        const options = [...child.children].filter((option) => match(option.textContent, option.value));
+        if (!options.length) continue;
+        // 分组默认全部展开（不再需要多点一次）；用户手动点分组标题才收起
+        const fallbackOpen = true;
+        const isOpen = overrides && overrides.has(child.label) ? overrides.get(child.label) : fallbackOpen;
+        if (!q) entries.push({ group: child.label, collapsed: !isOpen, count: options.length });
+        if (q || isOpen) {
+          for (const option of options) entries.push({ value: option.value, text: option.textContent });
+        }
+      } else if (child.tagName === "OPTION") {
+        if (match(child.textContent, child.value)) {
+          entries.push({ value: child.value, text: child.textContent });
+        }
+      }
+    }
+    return entries.slice(0, 240);
+  }
+
+  function syncCombo(field) {
+    const combo = combos.get(field);
+    if (!combo) return;
+    const selected = combo.select.selectedOptions[0];
+    const text = selected ? selected.textContent : "";
+    combo.input.value = text;
+    combo.input.title = text;
+  }
+
+  function syncAllCombos() {
+    for (const field of combos.keys()) syncCombo(field);
+  }
+
+  function setComboActive(field, index) {
+    const combo = combos.get(field);
+    if (!combo) return;
+    const rows = [...combo.list.querySelectorAll(".combo-option")];
+    rows.forEach((row) => row.classList.remove("is-active"));
+    const entry = combo.items[index];
+    if (!entry || entry.group) {
+      combo.active = -1;
+      return;
+    }
+    combo.active = index;
+    const target = rows.find((row) => row.dataset.comboValue === entry.value);
+    if (target) {
+      target.classList.add("is-active");
+      target.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function renderComboList(field, query) {
+    const combo = combos.get(field);
+    if (!combo) return;
+    combo.list.innerHTML = "";
+    combo.query = String(query || "");
+    // 当前选中项所在的分组，打开时自动展开
+    const selectedOption = combo.select.selectedOptions[0];
+    if (selectedOption && selectedOption.parentElement && selectedOption.parentElement.tagName === "OPTGROUP") {
+      const label = selectedOption.parentElement.label;
+      if (combo.overrides.get(label) === false) combo.overrides.set(label, true);
+    }
+    combo.items = comboEntries(combo.select, combo.query, combo.overrides);
+    if (!combo.items.length) {
+      const empty = document.createElement("div");
+      empty.className = "combo-empty";
+      empty.textContent = "没有匹配的选项";
+      combo.list.append(empty);
+      combo.active = -1;
+      return;
+    }
+    combo.items.forEach((entry, index) => {
+      const row = document.createElement("div");
+      if (entry.group) {
+        row.className = "combo-group";
+        row.dataset.comboGroup = entry.group;
+        row.textContent = entry.collapsed
+          ? `${entry.group} ▸ ${entry.count} 项`
+          : `${entry.group} ▾`;
+      } else {
+        row.className = "combo-option";
+        row.textContent = entry.text;
+        row.dataset.comboValue = entry.value;
+        row.dataset.index = String(index);
+      }
+      combo.list.append(row);
+    });
+    const current = combo.items.findIndex((entry) => !entry.group && entry.value === combo.select.value);
+    if (current >= 0) setComboActive(field, current);
+  }
+
+  function closeCombo(field) {
+    const combo = combos.get(field);
+    if (!combo || !combo.open) return;
+    combo.open = false;
+    combo.list.hidden = true;
+    combo.input.setAttribute("aria-expanded", "false");
+    combo.input.readOnly = true;
+    combo.input.classList.remove("is-editing");
+    syncCombo(field);
+  }
+
+  function closeAllCombos(except) {
+    for (const field of combos.keys()) {
+      if (field !== except) closeCombo(field);
+    }
+  }
+
+  function openCombo(field, query) {
+    const combo = combos.get(field);
+    if (!combo) return;
+    closeAllCombos(field);
+    combo.open = true;
+    combo.list.hidden = false;
+    combo.input.setAttribute("aria-expanded", "true");
+    renderComboList(field, query);
+  }
+
+  function chooseCombo(field, value) {
+    const combo = combos.get(field);
+    if (!combo) return;
+    const options = [...combo.select.options];
+    if (options.some((option) => option.value === value)) {
+      combo.select.value = value;
+    } else {
+      // 选项被重建/过滤掉时兜底：按标签文本再找一次
+      const byText = options.find((option) => option.textContent === value);
+      if (!byText) {
+        closeCombo(field);
+        return;
+      }
+      combo.select.value = byText.value;
+    }
+    syncCombo(field);
+    closeCombo(field);
+    combo.input.blur();
+    combo.select.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function enhanceSelect(select) {
+    if (!select || select.dataset.comboReady === "1") return;
+    const field = select.id;
+    if (!field) return;
+    select.dataset.comboReady = "1";
+    const wrap = document.createElement("div");
+    wrap.className = "combo";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "combo-input";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.setAttribute("role", "combobox");
+    input.setAttribute("aria-expanded", "false");
+    input.readOnly = true;
+    const list = document.createElement("div");
+    list.className = "combo-list";
+    list.hidden = true;
+    list.setAttribute("role", "listbox");
+    select.parentNode.insertBefore(wrap, select);
+    wrap.append(input, list, select);
+    select.classList.add("combo-native");
+    select.tabIndex = -1;
+    const combo = { field, select, wrap, input, list, open: false, active: -1, items: [], overrides: new Map(), query: "" };
+    combos.set(field, combo);
+    syncCombo(field);
+
+    input.addEventListener("focus", () => {
+      openCombo(field, "");
+    });
+    input.addEventListener("input", () => openCombo(field, input.value));
+    input.addEventListener("keydown", (event) => {
+      // 只有真正开始打字时才进入编辑状态（平时像一个按钮，不出现文本光标）
+      const printable = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
+      const erasing = event.key === "Backspace" || event.key === "Delete";
+      if ((printable || erasing) && input.readOnly) {
+        input.readOnly = false;
+        input.classList.add("is-editing");
+        input.select();
+        openCombo(field, "");
+      }
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (!combo.open) openCombo(field, "");
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        let index = combo.active;
+        for (let i = 0; i < combo.items.length; i += 1) {
+          index += step;
+          if (index < 0) index = combo.items.length - 1;
+          if (index >= combo.items.length) index = 0;
+          if (!combo.items[index].group) break;
+        }
+        setComboActive(field, index);
+        return;
+      }
+      if (event.key === "Enter") {
+        event.preventDefault();
+        const entry = combo.items[combo.active];
+        if (entry && !entry.group) chooseCombo(field, entry.value);
+        else closeCombo(field);
+        return;
+      }
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeCombo(field);
+        input.blur();
+      }
+    });
+    input.addEventListener("click", () => {
+      if (!combo.open) openCombo(field, "");
+    });
+    input.addEventListener("blur", () => window.setTimeout(() => closeCombo(field), 120));
+    list.addEventListener("mousedown", (event) => event.preventDefault());
+    list.addEventListener("click", (event) => {
+      // 列表在 label 内部：必须阻止默认行为，否则点选项会把焦点踢回输入框、立刻重新展开
+      event.preventDefault();
+      event.stopPropagation();
+      const groupRow = event.target.closest("[data-combo-group]");
+      if (groupRow) {
+        const label = groupRow.getAttribute("data-combo-group");
+        const current = combo.overrides.has(label)
+          ? combo.overrides.get(label)
+          : label !== ADULT_GROUP_LABEL || contentScale() !== "sfw";
+        combo.overrides.set(label, !current);
+        renderComboList(field, combo.query);
+        return;
+      }
+      const row = event.target.closest("[data-combo-value]");
+      if (row) chooseCombo(field, row.getAttribute("data-combo-value"));
+    });
+  }
+
+  function enhanceAllSelects() {
+    for (const select of $$(".form-card select")) enhanceSelect(select);
+    document.addEventListener("click", (event) => {
+      for (const combo of combos.values()) {
+        if (combo.open && !combo.wrap.contains(event.target)) closeCombo(combo.field);
+      }
+    });
   }
 
   function selectedPair(field, lang = "en") {
@@ -1584,13 +1039,18 @@
 
   function applyState(state, { generate = true } = {}) {
     if (!state) return;
-    if (state.adultMode !== undefined) $("adultMode").checked = Boolean(state.adultMode);
+    // 先切主体类型，否则双人预设里的“成对”选项会因为还没重算而下拉里不存在
+    if (state.subjectType) $("subjectType").value = state.subjectType;
     populateSelects();
 
     $$("[data-state]").forEach((element) => {
       if (state[element.id] === undefined) return;
       if (element.type === "checkbox") {
         element.checked = Boolean(state[element.id]);
+      } else if (element.tagName === "SELECT") {
+        // 只设置仍然存在的选项，避免词库变动后把下拉设成空值
+        const value = String(state[element.id]);
+        if ([...element.options].some((option) => option.value === value)) element.value = value;
       } else {
         element.value = String(state[element.id]);
       }
@@ -1600,12 +1060,15 @@
     $$("[data-quality]").forEach((checkbox) => {
       checkbox.checked = qualityValues.has(checkbox.value);
     });
+    // 尺度可能随状态变化（成人向要把成人向分组排到最前）
+    refreshSelectsForSubject();
+    syncAllCombos();
+    syncScaleSwitch();
     updateVisibility();
     if (generate) updateOutput();
   }
 
   function applyDefaults() {
-    $("adultMode").checked = false;
     populateSelects({ preserve: false });
     for (const [id, value] of Object.entries(DEFAULTS)) {
       const element = $(id);
@@ -1625,19 +1088,39 @@
     $$("[data-quality]").forEach((checkbox) => {
       checkbox.checked = ["natural skin texture", "sharp focus", "realistic fabric folds", "cinematic atmosphere"].includes(checkbox.value);
     });
+    syncAllCombos();
+    syncScaleSwitch();
+    applyContentScale();
     updateVisibility();
   }
+
+  // 每个模型的工程参数（来自本机模型参数表：分辨率 / 词数 / 负面通道 / 机位约束 / 自动触发词）
+  const MODEL_TUNING = {
+    zimage_turbo: { size: [1024, 1024], file: "z_image_turbo_bf16.safetensors", loras: ["主 LoRA（0.8）"] },
+    zimage_int8: { size: [1024, 1024], file: "z_image_int8_convrot.safetensors", loras: ["主 LoRA（0.8）"] },
+    flux2: { size: [1024, 1024], file: "flux-2-klein-4b-fp8.safetensors" },
+    moss: { size: [1024, 1024], trigger: "moss_xvstyle", file: "moss_image_sft_int8_convrot.safetensors", loras: ["Moss xvstyle LoRA（0.8）"] },
+    moss_edit: { size: [1024, 1024], file: "moss_image_sft_int8_convrot.safetensors" },
+    h3_t2v: { size: [864, 480], minWords: 120, maxWords: 280, noNegative: true, cameraLocked: true, trigger: "hmmotion", file: "minimax_h3_fl2va_pruned_w6a8.safetensors" },
+    h3_i2v: { size: [864, 480], minWords: 120, maxWords: 280, noNegative: true, cameraLocked: true, trigger: "hmmotion", file: "minimax_h3_fl2va_pruned_w6a8.safetensors" },
+    h3_fast: { size: [864, 480], minWords: 120, maxWords: 280, noNegative: true, cameraLocked: true, trigger: "hmmotion", file: "minimax_h3_fl2va_pruned_w6a8.safetensors", loras: ["MiniMaxH3 turbo 4-step 加速 LoRA"] },
+    wan_ti2v_5b: { size: [768, 768], cameraLocked: true, maxWords: 180, file: "wan2.2_ti2v_5B_fp16.safetensors", loras: ["lightx2v 4 步加速 LoRA"] },
+    wan_i2v_a14b: { size: [640, 640], cameraLocked: true, maxWords: 180, file: "Wan2.2-I2V-A14B High/Low Q4_K_M.gguf", loras: ["lightx2v 4 步加速 LoRA（high / low 两份）"] },
+    wan_i2v_fast: { size: [640, 640], cameraLocked: true, maxWords: 180, file: "Wan2.2-I2V-A14B High/Low Q4_K_M.gguf", loras: ["lightx2v 4 步加速 LoRA（high / low 两份）"] }
+  };
 
   function getModel() {
     const key = $("model").value || DEFAULTS.model;
     const base = MODELS[key] || MODELS[DEFAULTS.model];
-    if (key !== "custom") return { key, ...base };
+    const tuning = MODEL_TUNING[key] || {};
+    if (key !== "custom") return { key, ...base, ...tuning };
 
     const format = $("customFormat").value;
     const type = format === "h3" || format === "i2v" ? "video" : "image";
     return {
       key,
       ...base,
+      ...tuning,
       format,
       type,
       i2v: format === "i2v",
@@ -1648,12 +1131,323 @@
     };
   }
 
+  // ---------- 画面尺寸（像素） ----------
+  const IMAGE_SIZE_PRESETS = [
+    [1024, 1024, "1:1 方图"],
+    [1024, 1280, "4:5 竖版"],
+    [1280, 1024, "5:4 横版"],
+    [832, 1216, "2:3 竖版"],
+    [1216, 832, "3:2 横版"],
+    [896, 1152, "竖版近似"],
+    [1152, 896, "横版近似"],
+    [768, 1344, "9:16 竖屏"],
+    [1344, 768, "16:9 宽屏"],
+    [1024, 768, "4:3 经典"],
+    [768, 1024, "3:4 竖版经典"],
+    [1024, 1536, "2:3 竖长"],
+    [1536, 1024, "3:2 横长"],
+    [1536, 960, "16:10 宽屏"],
+    [1344, 576, "21:9 超宽"],
+    [512, 512, "小图草稿"]
+  ];
+  const VIDEO_SIZE_PRESETS = [
+    [832, 480, "16:9 标清"],
+    [480, 832, "9:16 竖屏"],
+    [1280, 720, "16:9 HD"],
+    [720, 1280, "9:16 HD"],
+    [1024, 576, "16:9"],
+    [576, 1024, "9:16"]
+  ];
+  const RATIO_TARGETS = [
+    [1, "1:1 方形"],
+    [0.8, "4:5 竖版人像"],
+    [1.5, "3:2 横向摄影"],
+    [16 / 9, "16:9 电影横向"],
+    [9 / 16, "9:16 竖屏视频"],
+    [2.39, "2.39:1 宽银幕"],
+    [4 / 3, "4:3 经典比例"],
+    [3 / 4, "3:4 竖版经典"],
+    [2 / 3, "2:3 竖版人像"],
+    [5 / 4, "5:4 中画幅"],
+    [16 / 10, "16:10 宽屏"],
+    [21 / 9, "21:9 超宽银幕"]
+  ];
+  const COMMON_RATIOS = [
+    [1, "1:1"],
+    [0.8, "4:5"],
+    [1.25, "5:4"],
+    [1.5, "3:2"],
+    [2 / 3, "2:3"],
+    [4 / 3, "4:3"],
+    [0.75, "3:4"],
+    [16 / 9, "16:9"],
+    [9 / 16, "9:16"],
+    [2.39, "2.39:1"],
+    [16 / 10, "16:10"],
+    [21 / 9, "21:9"]
+  ];
+
+  function ratioLabel(width, height) {
+    const ratio = width / height;
+    let best = null;
+    for (const [value, label] of COMMON_RATIOS) {
+      const diff = Math.abs(ratio - value) / value;
+      if (diff <= 0.03 && (!best || diff < best.diff)) best = { diff, label };
+    }
+    if (best) return best.label;
+    const g = gcd(width, height);
+    return `${Math.round(width / g)}:${Math.round(height / g)}`;
+  }
+
+  let sizeTouched = false;
+
+  function currentSizePresets() {
+    return getModel().type === "video" ? VIDEO_SIZE_PRESETS : IMAGE_SIZE_PRESETS;
+  }
+
+  function gcd(a, b) {
+    let x = Math.abs(a);
+    let y = Math.abs(b);
+    while (y) {
+      [x, y] = [y, x % y];
+    }
+    return x || 1;
+  }
+
+  function getSize() {
+    const width = Math.round(Number($("imageWidth")?.value) || 0);
+    const height = Math.round(Number($("imageHeight")?.value) || 0);
+    return { width, height, ratio: width && height ? ratioLabel(width, height) : "" };
+  }
+
+  function updateSizeHint() {
+    const hint = $("sizeHint");
+    if (!hint) return;
+    const { width, height, ratio } = getSize();
+    if (!width || !height) {
+      hint.textContent = "宽高都需要填写（256–4096）";
+      return;
+    }
+    const parts = [`${width} × ${height}`, ratio];
+    if (width < 256 || height < 256 || width > 4096 || height > 4096) parts.push("超出 256–4096 范围");
+    else if (width % 64 || height % 64) parts.push("建议宽高取 64 的倍数");
+    if (width * height > 2048 * 2048) parts.push("像素量偏大");
+    hint.textContent = parts.join(" · ");
+  }
+
+  function syncSizePreset() {
+    const select = $("sizePreset");
+    if (!select) return;
+    const { width, height } = getSize();
+    const match = currentSizePresets().find(([w, h]) => w === width && h === height);
+    select.value = match ? `${match[0]}x${match[1]}` : "";
+    syncCombo("sizePreset");
+    updateSizeHint();
+  }
+
+  function updateSizePresets() {
+    const select = $("sizePreset");
+    if (!select) return;
+    select.innerHTML = "";
+    const custom = document.createElement("option");
+    custom.value = "";
+    custom.textContent = "自定义";
+    select.append(custom);
+    for (const [w, h, note] of currentSizePresets()) {
+      const option = document.createElement("option");
+      option.value = `${w}x${h}`;
+      option.textContent = `${w} × ${h}（${note}）`;
+      select.append(option);
+    }
+    syncSizePreset();
+  }
+
+  function setSize(width, height, { syncRatio = true } = {}) {
+    const w = $("imageWidth");
+    const h = $("imageHeight");
+    if (!w || !h) return;
+    w.value = String(width);
+    h.value = String(height);
+    syncSizePreset();
+    if (syncRatio) syncAspectRatioFromSize();
+  }
+
+  function syncAspectRatioFromSize() {
+    const { width, height } = getSize();
+    if (!width || !height) return;
+    const ratio = width / height;
+    let best = null;
+    for (const [target, zh] of RATIO_TARGETS) {
+      const diff = Math.abs(ratio - target) / target;
+      if (diff <= 0.04 && (!best || diff < best.diff)) best = { diff, zh };
+    }
+    if (!best) {
+      setSelectValue("aspectRatio", "");
+      return;
+    }
+    const option = (O.aspectRatio || []).find((item) => item.zh === best.zh);
+    if (option) setSelectValue("aspectRatio", option.en);
+  }
+
+  // ---------- 分步向导 ----------
+  const WIZARD_STEPS = [
+    ["section-model", "01", "模型"],
+    ["section-character", "02", "角色"],
+    ["section-outfit", "03", "服装"],
+    ["section-action", "04", "动作"],
+    ["section-scene", "05", "场景"],
+    ["section-camera", "06", "镜头"],
+    ["section-style", "07", "风格"]
+  ];
+  let wizardIndex = 0;
+
+  function renderWizard() {
+    const root = $("wizardSteps");
+    if (!root) return;
+    root.innerHTML = "";
+    WIZARD_STEPS.forEach(([, num, label], index) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "wizard-step";
+      button.setAttribute("role", "tab");
+      button.dataset.index = String(index);
+      const number = document.createElement("span");
+      number.className = "wizard-step-num";
+      number.textContent = num;
+      const text = document.createElement("span");
+      text.className = "wizard-step-label";
+      text.textContent = label;
+      button.append(number, text);
+      button.addEventListener("click", () => goToWizardStep(index));
+      root.append(button);
+    });
+    applyWizardStep();
+  }
+
+  function applyWizardStep() {
+    WIZARD_STEPS.forEach(([id], index) => {
+      const section = $(id);
+      if (section) section.classList.toggle("is-active", index === wizardIndex);
+    });
+    $$("#wizardSteps .wizard-step").forEach((button, index) => {
+      const active = index === wizardIndex;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-selected", String(active));
+    });
+    const prev = $("wizardPrev");
+    const next = $("wizardNext");
+    if (prev) prev.disabled = wizardIndex === 0;
+    if (next) next.textContent = wizardIndex === WIZARD_STEPS.length - 1 ? "完成并检查" : "下一步";
+  }
+
+  function goToWizardStep(index) {
+    wizardIndex = Math.max(0, Math.min(WIZARD_STEPS.length - 1, index));
+    storageSet("promptStudio.wizardStep.v1", wizardIndex);
+    applyWizardStep();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // ---------- 选项冲突规则 ----------
+  // 结构：[字段A, 匹配A, 字段B, 匹配B, 自动修正目标, 说明]
+  const CONFLICT_RULES = [
+    ["timeOfDay", /^(night|late night)$/, "lighting", /^warm golden-hour sunlight$/, ["lighting", "low-key cinematic lighting"], "夜晚不搭配黄金时刻阳光，光线已改为低调电影光"],
+    ["timeOfDay", /^(midday|late morning)$/, "lighting", /^warm golden-hour sunlight$/, ["lighting", "high-key soft lighting"], "白天正午不搭配黄金时刻，光线已改为高调柔光"],
+    ["timeOfDay", /^warm indoor lighting$/, "lighting", /^(warm golden-hour sunlight|soft overcast diffusion)$/, ["lighting", "warm practical lamp light"], "室内暖光场景已把室外光改为暖色实用光"],
+    ["shotSize", /^(wide shot|full-body shot|environmental portrait)$/, "composition", /^intimate close framing$/, ["composition", "rule-of-thirds composition"], "远景不搭配私密特写构图，构图已改为三分法"],
+    ["shotSize", /^(extreme close-up|close-up portrait)$/, "composition", /^generous negative space$/, ["composition", "intimate close framing"], "特写不搭配大面积留白，构图已改为私密近景"],
+    ["pose", /^(lying|reclining|half-lying|seated|sitting|kneeling)/, "action", /^(walking with natural motion|taking one deliberate step forward|spinning in a controlled dance movement|slowly turning around)$/, ["action", "subtle breathing and natural blinking"], "卧/坐/跪姿不搭配行走类动作，动作已改为自然呼吸"],
+    ["pose", /^(standing|walking)/, "action", /^slowly sitting up$/, ["action", "subtle breathing and natural blinking"], "站姿不搭配“起身”动作，动作已改为自然呼吸"],
+    ["pose", /^(?!lying|reclining|half-lying)/, "bodyOrientation", /^lying on one side and facing the camera$/, ["bodyOrientation", "three-quarter view from the front left"], "站/坐姿不搭配躺卧朝向，朝向已改为四分之三侧面"],
+    ["bodyOrientation", /^viewed from behind$/, "gaze", /^(direct eye contact with the camera|an unblinking direct look|a slow steady look)$/, ["bodyOrientation", "viewed from behind while looking back"], "背对镜头无法直视镜头，朝向已改为“背对回望”"],
+    ["expression", /^looking directly at the camera$/, "gaze", /^looking off-camera$/, ["expression", "calm, natural expression"], "表情与视线方向矛盾，表情已改为平静自然"],
+    ["background", /^softly blurred background$/, "depthOfField", /^deep depth of field$/, ["depthOfField", "shallow depth of field"], "背景虚化与大景深矛盾，景深已改为浅景深"],
+    ["timeOfDay", /^(midday|late morning)$/, "lighting", /^colorful practical neon lighting$/, ["timeOfDay", "night"], "霓虹光通常出现在夜里，时间已改为夜晚"],
+    ["timeOfDay", /^(midday|late morning|afternoon)$/, "lighting", /^candlelight$/, ["lighting", "warm practical lamp light"], "白天正午不搭配烛光，光线已改为暖色实用光"],
+    ["lighting", /^warm golden-hour sunlight$/, "timeOfDay", /^blue hour$/, ["lighting", "soft overcast diffusion"], "蓝调时刻与黄金时刻阳光矛盾，光线已改为阴天漫射光"],
+    ["footwear", /^barefoot$/, "hosiery", /./, ["footwear", "minimal flats"], "穿了袜子就不能赤足，鞋履已改为平底鞋"],
+    ["gaze", /^(eyes gently closed|eyes closed, feeling the light)$/, "expression", /^looking directly at the camera$/, ["expression", "calm, natural expression"], "闭眼状态不搭配“看向镜头”的表情，表情已改为平静自然"],
+    ["scene", /beach|city street|forest|mountain cabin|desert road/, "timeOfDay", /^warm indoor lighting$/, ["timeOfDay", "dusk"], "室外场景不搭配室内暖光，时间已改为黄昏"],
+    ["bodyOrientation", /^viewed from behind$/, "expression", /^looking directly at the camera$/, ["bodyOrientation", "viewed from behind while looking back"], "背对镜头看不到“看向镜头”的表情，朝向已改为背对回望"]
+  ];
+
+  function currentFieldValue(field) {
+    return $(field)?.value || "";
+  }
+
+  function detectConflicts() {
+    return CONFLICT_RULES.filter(
+      ([fieldA, testA, fieldB, testB]) => testA.test(currentFieldValue(fieldA)) && testB.test(currentFieldValue(fieldB))
+    ).map(([fieldA, testA, fieldB, testB, fix, message]) => ({
+      fields: [fieldA, fieldB],
+      fixField: fix[0],
+      fixValue: fix[1],
+      message
+    }));
+  }
+
+  function optionExists(field, en) {
+    const select = $(field);
+    return Boolean(select) && [...select.options].some((option) => option.value === en);
+  }
+
+  // 改了一个字段后，如果和别的字段打架，自动把“可修正”的一侧改掉
+  function resolveConflicts(changedField) {
+    const applied = [];
+    for (const conflict of detectConflicts()) {
+      if (changedField && !conflict.fields.includes(changedField)) continue;
+      if (!optionExists(conflict.fixField, conflict.fixValue)) continue;
+      if (currentFieldValue(conflict.fixField) === conflict.fixValue) continue;
+      setSelectValue(conflict.fixField, conflict.fixValue);
+      applied.push(conflict.message);
+    }
+    if (applied.length) showToast(applied.join("；"));
+    return applied;
+  }
+
+  // 随机/预填时先判断候选值是否会和当前选择打架
+  function conflictsWithValue(field, en) {
+    return CONFLICT_RULES.some(([fieldA, testA, fieldB, testB]) => {
+      if (field === fieldA) return testA.test(en) && testB.test(currentFieldValue(fieldB));
+      if (field === fieldB) return testB.test(en) && testA.test(currentFieldValue(fieldA));
+      return false;
+    });
+  }
+
+  // 手动改「画面比例」时，把像素宽高跟着改到匹配的尺寸，避免比例和像素打架
+  const ASPECT_TO_RATIO = {
+    "aspect ratio 1:1": 1,
+    "aspect ratio 4:5, vertical portrait": 4 / 5,
+    "aspect ratio 3:2, horizontal photography": 3 / 2,
+    "aspect ratio 16:9, cinematic widescreen": 16 / 9,
+    "aspect ratio 9:16, vertical short video": 9 / 16,
+    "aspect ratio 2.39:1, anamorphic widescreen": 2.39,
+    "aspect ratio 4:3, classic photography": 4 / 3,
+    "aspect ratio 3:4, vertical classic": 3 / 4,
+    "aspect ratio 2:3, portrait photography": 2 / 3,
+    "aspect ratio 5:4, medium format": 5 / 4,
+    "aspect ratio 16:10, widescreen": 16 / 10,
+    "aspect ratio 21:9, ultrawide cinematic": 21 / 9
+  };
+
+  function syncSizeFromAspectRatio() {
+    const en = currentFieldValue("aspectRatio");
+    const target = ASPECT_TO_RATIO[en];
+    if (!target) return;
+    const preset = currentSizePresets().find(([w, h]) => Math.abs(w / h - target) / target < 0.02);
+    if (preset) {
+      setSize(preset[0], preset[1], { syncRatio: false });
+      return;
+    }
+    const area = 1024 * 1024;
+    const height = Math.round(Math.sqrt(area / target) / 8) * 8;
+    const width = Math.round((height * target) / 8) * 8;
+    setSize(width, height, { syncRatio: false });
+  }
+
   function updateVisibility() {
     const model = getModel();
     const subjectType = $("subjectType").value;
-    const hasHuman = ["person", "couple", "group"].includes(subjectType);
     const isCustom = model.key === "custom";
-    const adultVisible = currentAdultMode() && hasHuman;
 
     $$(".custom-only").forEach((element) => {
       element.hidden = !isCustom;
@@ -1664,20 +1458,16 @@
     $$(".h3-only").forEach((element) => {
       element.hidden = !["h3", "i2v"].includes(model.format);
     });
-    $$(".character-only").forEach((element) => {
-      element.hidden = !hasHuman;
+    const group = subjectGroup();
+    for (const field of Object.keys(FIELD_SUBJECT_GROUPS)) {
+      const wrap = $(field)?.closest("label");
+      if (wrap) wrap.hidden = !fieldAppliesTo(field, group);
+    }
+    $$(".multi-only").forEach((element) => {
+      element.hidden = !["couple", "group"].includes(subjectType);
     });
-    $$(".creature-only").forEach((element) => {
-      element.hidden = subjectType !== "creature";
-    });
-    $$(".object-only").forEach((element) => {
-      element.hidden = subjectType !== "object";
-    });
-    $$(".adult-card, .adult-nav").forEach((element) => {
-      element.hidden = !adultVisible;
-    });
-
     $("modeBadge").textContent = model.type === "video" ? "视频" : model.type === "edit" ? "编辑" : "图像";
+    updateSizePresets();
     $("outputModel").textContent = model.label;
     $("modelHint").textContent = model.note;
     $("modelSummary").textContent = model.note;
@@ -1686,13 +1476,36 @@
     if (model.i2v) {
       notice.textContent = "图生视频模式：人物、服装和构图来自首帧，输出会省略重复的外貌描述，重点描述动作、物理反馈和镜头。";
     } else if (model.format === "h3") {
-      notice.textContent = "MiniMax H3 模式：输出包含单一连续镜头、时间段拆分、机位和音频线索。";
+      notice.textContent = "MiniMax H3 模式：输出包含单一连续镜头、时间段拆分、机位和音频线索。提示词建议 120–280 词；该模型没有负面通道，排除项已写在正面句尾。";
     } else if (model.format === "edit") {
       notice.textContent = "编辑模式：输出会要求保持人物身份、姿势、构图和背景，只修改你选定的目标。";
     } else if (model.key === "custom") {
       notice.textContent = model.note;
     } else {
       notice.textContent = `${model.label} 将使用自然语言结构。所有字段都可留空，页面会自动省略空项。`;
+    }
+
+    const negativeHint = $("negativeHint");
+    if (negativeHint) {
+      negativeHint.textContent = model.noNegative
+        ? "该模型没有负面提示词通道：排除项（No text, no watermark, no cuts）已写在正面句尾。"
+        : "部分工作流没有负面提示词输入框，可忽略此结果。";
+    }
+
+    if (model.trigger) {
+      notice.textContent = `${notice.textContent} 已自动附加触发词 ${model.trigger}。`;
+    }
+    if (model.file) {
+      notice.textContent = `${notice.textContent} 模型文件：${model.file}。`;
+    }
+    if (Array.isArray(model.loras) && model.loras.length) {
+      notice.textContent = `${notice.textContent} 建议叠加：${model.loras.join(" / ")}。`;
+    }
+    const triggerHint = $("loraTriggerHint");
+    if (triggerHint) {
+      triggerHint.textContent = model.trigger
+        ? `该模型会自动在提示词最前面加「${model.trigger}」；这里填了会覆盖它`
+        : "只填你自己 LoRA 的触发词，留空则不写入";
     }
   }
 
@@ -1702,13 +1515,6 @@
     for (const [id, value] of Object.entries(preset)) {
       setSelectValue(id, value);
     }
-  }
-
-  function applyQuickPreset(preset) {
-    const state = { ...collectState(), ...preset.state };
-    applyState(state);
-    showToast(`已载入「${preset.name}」`);
-    document.querySelector(".output-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   function languageJoin(parts, lang) {
@@ -1810,20 +1616,29 @@
       }
     }
     if (grooming) details.push(lang === "zh" ? `妆发为${grooming}` : grooming);
+    const hosiery = pairText("hosiery", lang);
+    const hosieryMaterial = pairText("hosieryMaterial", lang);
+    if (hosiery) {
+      const hosieryText = languageJoin([hosieryMaterial, hosiery], lang);
+      details.push(lang === "zh" ? `搭配${hosieryText}` : `with ${hosieryText}`);
+    }
     return languageJoin(details, lang);
   }
 
   function motionText(lang) {
+    const subjectType = $("subjectType").value;
+    const action = pairText("action", lang);
+    const motion = pairText("motionLevel", lang);
+    const moving = getModel().type === "video" ? motion : "";
+    // 产品/物体没有身体姿势，只保留动作与运动强度
+    if (subjectType === "object") return languageJoin([action, moving], lang);
     const pose = pairText("pose", lang);
     const bodyOrientation = pairText("bodyOrientation", lang);
     const gaze = pairText("gaze", lang);
     const handPose = pairText("handPose", lang);
     const legPose = pairText("legPose", lang);
     const postureLine = pairText("postureLine", lang);
-    const action = pairText("action", lang);
     const interaction = pairText("interaction", lang);
-    const motion = pairText("motionLevel", lang);
-    const moving = getModel().type === "video" ? motion : "";
     return languageJoin([pose, bodyOrientation, gaze, handPose, legPose, postureLine, action, interaction, moving], lang);
   }
 
@@ -1898,11 +1713,10 @@
 
   function adultDetailsText(lang) {
     const type = $("subjectType").value;
-    if (!currentAdultMode() || !["person", "couple", "group"].includes(type)) return "";
+    if (!["person", "couple", "group"].includes(type)) return "";
     return languageJoin([
       pairText("adultArchetype", lang),
-      pairText("intimacyLevel", lang),
-      lang === "zh" ? "克制且非露骨" : "tasteful non-explicit presentation"
+      pairText("intimacyLevel", lang)
     ], lang);
   }
 
@@ -2054,7 +1868,7 @@
         voiceover ? `画外音：${voiceover}` : "",
         `风格：${style}`,
         inputValue("customDetails")
-      ].filter(Boolean).join("。") + "。";
+      ].filter(Boolean).join("。") + "。无文字、无水印、不切镜。";
     }
 
     return [
@@ -2067,7 +1881,7 @@
       voiceover ? `Voice-over: ${voiceover}` : "",
       `Style: ${style}`,
       inputValue("customDetails")
-    ].filter(Boolean).join(". ") + ".";
+    ].filter(Boolean).join(". ") + ". No text, no watermark, no cuts.";
   }
 
   function buildWanPrompt(lang, model) {
@@ -2109,7 +1923,216 @@
 
   function buildNegative(model) {
     const custom = inputValue("customNegative");
-    return languageJoin([model.negative, custom], "en");
+    const scale = NEGATIVE_SCALES[contentScale()] || "";
+    // H3 没有负面通道：排除项写进正面句尾，负面输出留空并给出提示
+    if (model.noNegative) return custom;
+    return languageJoin([model.negative, scale, custom], "en");
+  }
+
+  // ---------- 我的 LoRA 清单 ----------
+  const LORA_CATALOG_VERSION = PS.version || "1";
+
+  function getMyLoras() {
+    const list = storageGet("promptStudio.loras.v1", []);
+    return Array.isArray(list) ? list : [];
+  }
+
+  function mergeLoraCatalog({ force = false } = {}) {
+    const markerKey = "promptStudio.loraCatalogVersion.v1";
+    if (!force && localStorage.getItem(markerKey) === LORA_CATALOG_VERSION) return getMyLoras();
+    const existing = getMyLoras();
+    const names = new Set(existing.map((item) => String(item.name || "").toLowerCase()).filter(Boolean));
+    const ids = new Set(existing.map((item) => String(item.catalogId || item.id || "")).filter(Boolean));
+    const merged = [...existing];
+    for (const item of LORA_CATALOG) {
+      const nameKey = String(item.name || "").toLowerCase();
+      if (ids.has(item.catalogId) || names.has(nameKey)) continue;
+      merged.push({
+        ...item,
+        id: item.catalogId,
+        enabled: false
+      });
+      ids.add(item.catalogId);
+      names.add(nameKey);
+    }
+    storageSet("promptStudio.loras.v1", merged);
+    localStorage.setItem(markerKey, LORA_CATALOG_VERSION);
+    return merged;
+  }
+
+  function saveMyLoras(list) {
+    storageSet("promptStudio.loras.v1", list);
+    renderLoras();
+    updateOutput();
+    saveAutosave();
+  }
+
+  function enabledLoras() {
+    return getMyLoras().filter((item) => item.enabled && String(item.insert || item.trigger || "").trim());
+  }
+
+  function activeLoraTokens(model = getModel()) {
+    const tokens = [];
+    const push = (value) => {
+      const text = String(value || "").trim();
+      if (text && !tokens.includes(text)) tokens.push(text);
+    };
+    push(inputValue("loraTrigger"));
+    if (!tokens.length) push(model.trigger);
+    for (const item of enabledLoras()) push(item.insert || item.trigger);
+    return tokens;
+  }
+
+  function renderLoras() {
+    const root = $("loraList");
+    if (!root) return;
+    root.innerHTML = "";
+    const list = getMyLoras();
+    if (!list.length) {
+      const empty = document.createElement("div");
+      empty.className = "lora-empty";
+      empty.textContent = "还没有条目。点右上「＋ 添加」写一条，或先导入清单。";
+      root.append(empty);
+      return;
+    }
+    for (const item of list) {
+      const row = document.createElement("div");
+      row.className = `lora-row${item.enabled ? " is-on" : ""}`;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      const insertText = String(item.insert || item.trigger || "").trim();
+      checkbox.checked = Boolean(item.enabled && insertText);
+      checkbox.disabled = !insertText;
+      checkbox.title = insertText ? "勾选后拼进提示词" : "工作流设置项，不写入提示词";
+      checkbox.addEventListener("change", () => {
+        const next = getMyLoras().map((entry) =>
+          entry.id === item.id ? { ...entry, enabled: checkbox.checked } : entry
+        );
+        saveMyLoras(next);
+      });
+      const text = document.createElement("div");
+      text.className = "lora-text";
+      const title = document.createElement("strong");
+      title.textContent = item.name || item.trigger;
+      const sub = document.createElement("small");
+      sub.textContent = insertText
+        ? `${insertText} · 权重 ${item.weight}`
+        : `工作流设置项 · 权重 ${item.weight}`;
+      text.append(title, sub);
+      if (item.note) {
+        const note = document.createElement("small");
+        note.textContent = item.note;
+        note.title = [item.file, Array.isArray(item.models) ? item.models.join(" / ") : ""].filter(Boolean).join(" · ");
+        text.append(note);
+      }
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "text-button danger";
+      remove.textContent = "删除";
+      remove.addEventListener("click", () => {
+        saveMyLoras(getMyLoras().filter((entry) => entry.id !== item.id));
+      });
+      row.append(checkbox, text, remove);
+      root.append(row);
+    }
+  }
+
+  // 批量粘贴：每行一条，支持「触发词」「触发词,0.8」「名称,触发词,0.8」
+  function parseLoraLines(text) {
+    const existing = getMyLoras();
+    const seen = new Set(existing.map((item) => item.trigger));
+    const added = [];
+    for (const raw of String(text || "").split(/\r?\n/)) {
+      const line = raw.trim();
+      if (!line || line.startsWith("#")) continue;
+      const parts = line.split(/\s*[,，\t|]\s*/).filter((part) => part !== "");
+      if (!parts.length) continue;
+      let name = "";
+      let trigger = "";
+      let weight = 0.8;
+      if (parts.length === 1) {
+        trigger = parts[0];
+      } else if (parts.length === 2 && !Number.isNaN(Number(parts[1]))) {
+        trigger = parts[0];
+        weight = Number(parts[1]);
+      } else {
+        name = parts[0];
+        trigger = parts[1];
+        weight = Number(parts[2]);
+      }
+      trigger = String(trigger || "").trim();
+      if (!trigger || seen.has(trigger)) continue;
+      seen.add(trigger);
+      added.push({
+        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+        name,
+        trigger,
+        weight: Number.isNaN(weight) ? 0.8 : Math.min(2, Math.max(0.1, weight)),
+        enabled: true
+      });
+    }
+    return added;
+  }
+
+  function addLora() {
+    const trigger = inputValue("loraTriggerInput");
+    if (!trigger) {
+      showToast("先填触发词");
+      return;
+    }
+    const weight = Number($("loraWeight").value) || 0.8;
+    const list = getMyLoras();
+    list.push({
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      name: inputValue("loraName"),
+      trigger,
+      weight: Math.min(2, Math.max(0.1, weight)),
+      enabled: true
+    });
+    saveMyLoras(list);
+    $("loraName").value = "";
+    $("loraTriggerInput").value = "";
+    $("loraForm").hidden = true;
+    showToast("已加入清单，并勾选启用");
+  }
+
+  function exportLoras() {
+    const payload = { version: 1, loras: getMyLoras() };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `prompt-studio-loras-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  async function importLoras(file) {
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const incoming = Array.isArray(data) ? data : data.loras;
+      if (!Array.isArray(incoming)) throw new Error("格式不对");
+      const existing = getMyLoras();
+      const seen = new Set(existing.map((item) => item.trigger));
+      let added = 0;
+      for (const item of incoming) {
+        const trigger = String(item?.trigger || "").trim();
+        if (!trigger || seen.has(trigger)) continue;
+        existing.push({
+          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+          name: String(item.name || ""),
+          trigger,
+          weight: Math.min(2, Math.max(0.1, Number(item.weight) || 0.8)),
+          enabled: Boolean(item.enabled)
+        });
+        seen.add(trigger);
+        added += 1;
+      }
+      saveMyLoras(existing);
+      showToast(`已导入 ${added} 条`);
+    } catch (error) {
+      showToast("导入失败：文件格式不对");
+    }
   }
 
   function buildOutput() {
@@ -2124,6 +2147,9 @@
     }
     const negative = buildNegative(model);
     const state = collectState();
+    // 触发词顺序：手填 > 模型自带 > 清单里勾选的
+    const tokens = activeLoraTokens(model);
+    if (tokens.length) positive = `${tokens.join(", ")}, ${positive}`;
     const json = {
       version: 1,
       generatedAt: new Date().toISOString(),
@@ -2134,39 +2160,53 @@
         format: model.format
       },
       settings: state,
+      size: getSize(),
+      trigger: tokens.join(", "),
+      loras: enabledLoras().map((item) => ({ name: item.name, trigger: item.trigger, weight: item.weight })),
       prompt: positive,
       negativePrompt: negative
     };
     return { positive, negative, json, model };
   }
 
+  // 输出框可以直接改，复制/收藏/检查都以框里的文本为准
+  function currentPositive() {
+    const el = $("promptOutput");
+    if (el) return el.value;
+    return latestOutput ? latestOutput.positive : "";
+  }
+
+  function currentJson() {
+    if (!latestOutput) return "";
+    const json = { ...latestOutput.json, prompt: currentPositive() };
+    return JSON.stringify(json, null, 2);
+  }
+
+  function updatePromptStats() {
+    const text = currentPositive();
+    const characters = text.length;
+    const hanCount = (text.match(/[\u4e00-\u9fa5]/g) || []).length;
+    const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+    const size = getSize();
+    const sizeLabel = size.width && size.height ? ` · ${size.width}×${size.height}` : "";
+    $("promptStats").textContent = (hanCount > wordCount * 2
+      ? `${characters} 字符 · ${hanCount} 汉字`
+      : `${characters} 字符 · ${wordCount} 词`) + sizeLabel;
+    $("jsonOutput").value = currentJson();
+  }
+
   function updateOutput() {
     latestOutput = buildOutput();
     $("promptOutput").value = latestOutput.positive;
     $("negativeOutput").value = latestOutput.negative;
-    $("jsonOutput").value = JSON.stringify(latestOutput.json, null, 2);
     $("outputModel").textContent = latestOutput.model.label;
-    const characters = latestOutput.positive.length;
-    const words = latestOutput.positive.trim() ? latestOutput.positive.trim().split(/\s+/).length : 0;
-    $("promptStats").textContent = `${characters} 字符 · ${words} 词`;
-  }
-
-  function refreshAdultDependentFields() {
-    for (const field of [
-      "expression",
-      "outfit",
-      "grooming",
-      "pose",
-      "interaction",
-      "scene",
-      "lighting",
-      "composition",
-      "mood",
-      "visualStyle",
-      "intimacyLevel"
-    ]) {
-      fillSelect(field, getOptionPairs(field));
+    const outputSize = $("outputSize");
+    if (outputSize) {
+      const size = getSize();
+      outputSize.textContent = size.width && size.height ? `${size.width} × ${size.height}` : "";
     }
+    updatePromptStats();
+    refreshFieldMarks();
   }
 
   function showToast(message) {
@@ -2231,8 +2271,8 @@
     const item = {
       id: crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
       createdAt: Date.now(),
-      title: `${latestOutput.model.label} · ${latestOutput.positive.slice(0, 42)}`,
-      prompt: latestOutput.positive,
+      title: `${latestOutput.model.label} · ${currentPositive().slice(0, 42)}`,
+      prompt: currentPositive(),
       state: collectState()
     };
     const next = [item, ...history.filter((entry) => entry.prompt !== item.prompt)].slice(0, 20);
@@ -2251,7 +2291,7 @@
       name: name.trim(),
       createdAt: Date.now(),
       state: collectState(),
-      prompt: latestOutput.positive
+      prompt: currentPositive()
     });
     storageSet("promptStudio.saved.v1", saved.slice(0, 100));
     renderSaved();
@@ -2327,6 +2367,65 @@
     history.forEach((item) => root.append(createSavedItem(item, { history: true })));
   }
 
+  // ---------- 整机备份 / 恢复 ----------
+  function exportBackup() {
+    const payload = {
+      app: "ComfyUI Prompt Studio",
+      type: "full-backup",
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      saved: getSavedPresets(),
+      history: getHistory(),
+      loras: getMyLoras(),
+      state: collectState()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `prompt-studio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+    showToast("已导出完整备份");
+  }
+
+  async function importBackup(file) {
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (!data || (!data.saved && !data.history && !data.loras && !data.state)) {
+        showToast("这不是完整备份文件");
+        return;
+      }
+      const restored = [];
+      if (Array.isArray(data.saved)) {
+        storageSet("promptStudio.saved.v1", data.saved);
+        renderSaved();
+        restored.push(`收藏 ${data.saved.length} 条`);
+      }
+      if (Array.isArray(data.history)) {
+        storageSet("promptStudio.history.v1", data.history);
+        renderHistory();
+        restored.push(`历史 ${data.history.length} 条`);
+      }
+      if (Array.isArray(data.loras)) {
+        storageSet("promptStudio.loras.v1", data.loras);
+        renderLoras();
+        restored.push(`LoRA ${data.loras.length} 条`);
+      }
+      if (data.state) {
+        applyState(data.state);
+        restored.push("当前选项");
+      }
+      updateOutput();
+      saveAutosave();
+      showToast(`已恢复：${restored.join("、")}`);
+    } catch (error) {
+      showToast("恢复失败：文件格式不对");
+    }
+  }
+
   function exportPresets() {
     const payload = {
       app: "ComfyUI Prompt Studio",
@@ -2376,14 +2475,41 @@
     }, 250);
   }
 
+  let lastRandomState = null;
+
+  function updateUndoButton() {
+    const button = $("undoButton");
+    if (button) button.disabled = !lastRandomState;
+  }
+
   function randomize() {
-    const skip = new Set(["model", "language", "detailLevel", "subjectType", "customFormat", "rolePreset"]);
-    for (const [field, key] of Object.entries(FIELD_TO_OPTIONS)) {
+    const skip = new Set(["model", "language", "detailLevel", "contentScale", "subjectType", "customFormat", "rolePreset"]);
+    lastRandomState = collectState();
+    const rate = ADULT_RANDOM_RATE[contentScale()] ?? 0;
+    for (const [field] of Object.entries(FIELD_TO_OPTIONS)) {
       if (skip.has(field)) continue;
       const options = getOptionPairs(field).filter((item) => item.en);
       if (!options.length) continue;
-      setSelectValue(field, options[Math.floor(Math.random() * options.length)].en);
+      const adultPool = options.filter((item) => item.adultOnly);
+      const normalPool = options.filter((item) => !item.adultOnly);
+      let pool;
+      if (Math.random() < rate && adultPool.length) pool = adultPool;
+      else if (normalPool.length) pool = normalPool;
+      else pool = options;
+      let pick = "";
+      for (let attempt = 0; attempt < 8 && pool.length; attempt += 1) {
+        const candidate = pool[Math.floor(Math.random() * pool.length)].en;
+        if (!pick) pick = candidate;
+        if (!conflictsWithValue(field, candidate)) {
+          pick = candidate;
+          break;
+        }
+      }
+      if (pick) setSelectValue(field, pick);
     }
+    resolveConflicts(null);
+    // 随机到了新的画面比例时，像素尺寸要跟着变，否则比例和尺寸会对不上
+    syncSizeFromAspectRatio();
     const qualityOptions = $$("[data-quality]");
     qualityOptions.forEach((checkbox) => {
       checkbox.checked = Math.random() > 0.72;
@@ -2391,15 +2517,51 @@
     updateVisibility();
     updateOutput();
     saveAutosave();
-    showToast("已生成一组随机组合");
+    updateUndoButton();
+    const label = { sfw: "日常", suggestive: "暗示", boudoir: "私房", adult: "扩展" }[contentScale()] || "日常";
+    showToast(`已生成一组随机组合（${label}档）`);
+  }
+
+  function undoRandom() {
+    if (!lastRandomState) return;
+    applyState(lastRandomState);
+    lastRandomState = null;
+    updateUndoButton();
+    showToast("已撤销上一次随机");
+  }
+
+  function measurePrompt(prompt, model) {
+    const language = $("language").value;
+    const han = (prompt.match(/[\u4e00-\u9fa5]/g) || []).length;
+    const words = prompt.split(/\s+/).filter(Boolean).length;
+    const minWords = model.minWords || 20;
+    const maxWords = model.maxWords || (model.type === "video" ? 420 : 360);
+    if (language === "bilingual") {
+      const [enPart, zhPart = ""] = prompt.split("中文对照：");
+      const enWords = enPart.split(/\s+/).filter(Boolean).length;
+      const zhHan = (zhPart.match(/[\u4e00-\u9fa5]/g) || []).length;
+      return {
+        ok: enWords >= minWords && enWords <= maxWords && zhHan >= 40,
+        metric: `英文 ${enWords} 词 / 中文 ${zhHan} 汉字`,
+        hint: model.minWords ? `（该模型建议 ${minWords}–${maxWords} 词）` : ""
+      };
+    }
+    if (language === "zh") {
+      const maxHan = model.type === "video" ? 900 : 700;
+      return { ok: han >= 60 && han <= maxHan, metric: `${han} 汉字`, hint: "" };
+    }
+    return {
+      ok: words >= minWords && words <= maxWords,
+      metric: `${words} 词`,
+      hint: model.minWords ? `（该模型建议 ${minWords}–${maxWords} 词）` : ""
+    };
   }
 
   function analyzePrompt() {
     const model = getModel();
-    const prompt = latestOutput.positive.trim();
+    const prompt = currentPositive().trim();
     const lower = prompt.toLowerCase();
     const subjectType = $("subjectType").value;
-    const humanSubject = ["person", "couple", "group"].includes(subjectType);
     const clauses = prompt
       .split(/[,，\n]/)
       .map((part) => part.trim().toLowerCase().replace(/[.。;；]+$/g, ""))
@@ -2409,7 +2571,6 @@
     const duplicateClauses = [...clauseCounts.entries()].filter(([, count]) => count > 1);
     const placeholders = [...new Set(prompt.match(/\[[^\]\n]{2,120}\]/g) || [])]
       .filter((value) => !/^\[\d+(?:\.\d+)?s-\d+(?:\.\d+)?s\]$/i.test(value));
-    const words = prompt.split(/\s+/).filter(Boolean).length;
     const checks = [];
 
     const subjectReady = subjectType === "object"
@@ -2419,6 +2580,30 @@
       status: subjectReady ? "pass" : "fail",
       title: "主体信息",
       detail: subjectReady ? "主体类型、年龄或物体描述已填写。" : "请补充角色信息或物体描述。"
+    });
+
+    const genderOption = (O.gender || []).find((item) => item.en === $("gender").value);
+    const genderPeople = (genderOption && genderOption.people) || 1;
+    let peopleStatus = "pass";
+    let peopleDetail = "主体人数与性别描述一致。";
+    if (subjectType === "couple" && genderPeople < 2) {
+      peopleStatus = "warn";
+      peopleDetail = "主体是双人，但「性别与呈现」选的是单人描述，成片可能只出现一个人；建议选“成对…”选项。";
+    } else if (subjectType === "person" && genderPeople > 1) {
+      peopleStatus = "warn";
+      peopleDetail = "主体是单人，但「性别与呈现」选的是双人描述，可能画出两个人。";
+    }
+    checks.push({ status: peopleStatus, title: "主体人数", detail: peopleDetail });
+
+    const size = getSize();
+    const sizeInRange = size.width >= 256 && size.width <= 4096 && size.height >= 256 && size.height <= 4096;
+    const sizeBucket = size.width % 64 === 0 && size.height % 64 === 0;
+    checks.push({
+      status: sizeInRange ? (sizeBucket ? "pass" : "warn") : "fail",
+      title: "画面尺寸",
+      detail: sizeInRange
+        ? `${size.width} × ${size.height}（${size.ratio}）${sizeBucket ? "" : "，宽高建议取 64 的倍数"}`
+        : "宽高需要在 256–4096 之间"
     });
 
     const motionReady = Boolean($("pose").value || $("action").value || inputValue("characterCustom"));
@@ -2471,15 +2656,6 @@
       });
     }
 
-    if (currentAdultMode()) {
-      const safeText = lower.includes("non-explicit") || lower.includes("非露骨");
-      checks.push({
-        status: humanSubject && safeText ? "pass" : "warn",
-        title: "成人模式边界",
-        detail: humanSubject && safeText ? "已标记成年人、虚构角色和非露骨内容。" : "建议开启人物主体并保留安全边界说明。"
-      });
-    }
-
     checks.push({
       status: duplicateClauses.length ? "warn" : "pass",
       title: "重复短语",
@@ -2496,11 +2672,34 @@
         : "未发现未替换的方括号占位符。"
     });
 
-    const lengthOk = words >= 20 && words <= (model.type === "video" ? 420 : 360);
+    const conflicts = detectConflicts();
     checks.push({
-      status: lengthOk ? "pass" : "warn",
+      status: conflicts.length ? "warn" : "pass",
+      title: "选项冲突",
+      detail: conflicts.length
+        ? conflicts.map((conflict) => conflict.message).join("；")
+        : "未发现互相矛盾的选项组合。"
+    });
+
+    if (model.cameraLocked) {
+      const cameraMove = $("cameraMove").value;
+      const cameraLocked = !cameraMove || cameraMove === "static camera";
+      checks.push({
+        status: cameraLocked ? "pass" : "warn",
+        title: "机位约束",
+        detail: cameraLocked
+          ? "固定机位，符合该模型的单镜头约束。"
+          : "该模型建议固定机位（static camera），当前选择了运镜，容易画面不稳。"
+      });
+    }
+
+    const lengthReport = measurePrompt(prompt, model);
+    checks.push({
+      status: lengthReport.ok ? "pass" : "warn",
       title: "提示词长度",
-      detail: lengthOk ? `当前约 ${words} 词，长度适合。` : `当前约 ${words} 词，可能过短或过长，建议精简次要描述。`
+      detail: lengthReport.ok
+        ? `当前${lengthReport.metric}，长度适合。${lengthReport.hint || ""}`
+        : `当前${lengthReport.metric}，可能过短或过长，建议精简次要描述。${lengthReport.hint || ""}`
     });
 
     const points = checks.reduce((score, check) => {
@@ -2518,7 +2717,10 @@
     const score = $("reviewScore");
     const failed = review.checks.filter((check) => check.status === "fail").length;
     const warned = review.checks.filter((check) => check.status === "warn").length;
-    score.textContent = `${review.percent} 分 · ${review.checks.length - failed - warned}/${review.checks.length} 项通过`;
+    const passed = review.checks.filter((check) => check.status === "pass").length;
+    score.textContent = `${review.percent} 分 · 通过 ${passed}/${review.checks.length} 项${
+      warned ? ` · 提醒 ${warned} 项` : ""
+    }${failed ? ` · 未通过 ${failed} 项` : ""}`;
     score.className = `review-score ${failed ? "warn" : warned ? "warn" : "pass"}`;
     $("reviewSummary").textContent = failed
       ? "存在需要修正的项目。建议处理后再复制提示词。"
@@ -2567,6 +2769,24 @@
 
     document.addEventListener("change", (event) => {
       const target = event.target;
+      if (target.id === "sizePreset") {
+        const [w, h] = String(target.value || "").split("x").map(Number);
+        if (w && h) {
+          sizeTouched = true;
+          setSize(w, h);
+          updateOutput();
+          saveAutosave();
+        }
+        return;
+      }
+      if (target.id === "imageWidth" || target.id === "imageHeight") {
+        sizeTouched = true;
+        syncSizePreset();
+        syncAspectRatioFromSize();
+        updateOutput();
+        saveAutosave();
+        return;
+      }
       if (target.matches("[data-quality]")) {
         updateOutput();
         saveAutosave();
@@ -2574,27 +2794,32 @@
       }
       if (!target.matches("[data-state]")) return;
 
+      if (target.id === "aspectRatio") syncSizeFromAspectRatio();
+      if (FIELD_TO_OPTIONS[target.id]) resolveConflicts(target.id);
+
       if (target.id === "model" || target.id === "customFormat") {
+        // 换模型时套用该模型建议的像素尺寸（用户手动改过尺寸就不覆盖）
+        const nextModel = getModel();
+        if (target.id === "model" && nextModel.size && !sizeTouched) {
+          setSize(nextModel.size[0], nextModel.size[1]);
+          showToast(`已套用 ${nextModel.label} 建议尺寸 ${nextModel.size[0]}×${nextModel.size[1]}`);
+        }
         updateVisibility();
       }
       if (target.id === "subjectType") {
+        refreshSelectsForSubject();
         updateVisibility();
+      }
+      if (target.id === "contentScale") {
+        applyContentScale();
       }
       if (target.id === "rolePreset") {
         applyRolePreset();
-      }
-      if (target.id === "adultMode") {
-        refreshAdultDependentFields();
       }
       updateOutput();
       saveAutosave();
     });
 
-    $("generateButton").addEventListener("click", () => {
-      updateOutput();
-      showToast("提示词已更新");
-      document.querySelector(".output-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
     $("reviewButton").addEventListener("click", openReview);
     $("randomButton").addEventListener("click", randomize);
     $("resetButton").addEventListener("click", () => {
@@ -2603,13 +2828,18 @@
       saveAutosave();
       showToast("已恢复初始选项");
     });
-    $("copyPromptButton").addEventListener("click", () => copyText(latestOutput.positive, "正向提示词已复制"));
-    $("copyPromptLarge").addEventListener("click", () => copyText(latestOutput.positive, "正向提示词已复制"));
+    $("copyPromptLarge").addEventListener("click", () => copyText(currentPositive(), "提示词已复制"));
     $("copyNegativeButton").addEventListener("click", () => copyText(latestOutput.negative, "负面提示词已复制"));
     $("copyNegativeTabButton").addEventListener("click", () => copyText(latestOutput.negative, "负面提示词已复制"));
-    $("copyJsonButton").addEventListener("click", () => copyText($("jsonOutput").value, "JSON 已复制"));
+    $("copyJsonButton").addEventListener("click", () => copyText(currentJson(), "JSON 已复制"));
     $("saveButton").addEventListener("click", savePreset);
     $("exportButton").addEventListener("click", exportPresets);
+    $("backupExport").addEventListener("click", exportBackup);
+    $("backupImport").addEventListener("click", () => $("backupFile").click());
+    $("backupFile").addEventListener("change", () => {
+      importBackup($("backupFile").files[0]);
+      $("backupFile").value = "";
+    });
     $("importButton").addEventListener("click", () => $("importFile").click());
     $("importFile").addEventListener("change", () => importPresets($("importFile").files[0]));
     $("clearHistoryButton").addEventListener("click", () => {
@@ -2623,6 +2853,130 @@
       document.body.classList.toggle("light");
       storageSet("promptStudio.theme.v1", document.body.classList.contains("light") ? "light" : "dark");
     });
+    compactMode = storageGet("promptStudio.compact.v1", true);
+    applyCompactMode();
+    refreshFieldMarks();
+    $("compactButton").addEventListener("click", () => {
+      compactMode = !compactMode;
+      storageSet("promptStudio.compact.v1", compactMode);
+      applyCompactMode();
+      refreshFieldMarks();
+    });
+    $("promptOutput").addEventListener("input", updatePromptStats);
+    $("sentenceButton").addEventListener("click", () => {
+      const text = $("sentenceInput").value.trim();
+      const items = sentenceCandidates(text);
+      if (!items.length) {
+        $("sentenceResult").hidden = true;
+        $("sentenceEmpty").hidden = false;
+        return;
+      }
+      applySentence(items);
+    });
+    $("sentenceInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        $("sentenceButton").click();
+      }
+    });
+    $("sentenceUndo").addEventListener("click", () => {
+      if (sentenceSnapshot) applyState(sentenceSnapshot);
+      $("sentenceResult").hidden = true;
+      $("sentenceEmpty").hidden = true;
+      showToast("已撤销本次预填");
+    });
+    $$("#scaleSwitch button").forEach((button) => {
+      button.addEventListener("click", () => setContentScale(button.dataset.scale));
+    });
+    $("undoButton").addEventListener("click", undoRandom);
+    updateUndoButton();
+
+    const commandBar = document.querySelector(".command-bar");
+    if (commandBar) {
+      const syncCmdHeight = () => {
+        document.documentElement.style.setProperty("--cmd-h", `${Math.round(commandBar.offsetHeight)}px`);
+      };
+      syncCmdHeight();
+      window.addEventListener("resize", syncCmdHeight);
+      if ("ResizeObserver" in window) new ResizeObserver(syncCmdHeight).observe(commandBar);
+    }
+
+    let outputCollapsed = storageGet("promptStudio.outputCollapsed.v1", false);
+    const applyOutputCollapsed = () => {
+      document.body.classList.toggle("output-collapsed", Boolean(outputCollapsed));
+      const button = $("outputToggle");
+      if (button) button.textContent = outputCollapsed ? "⟨" : "⟩";
+    };
+    applyOutputCollapsed();
+    $("outputToggle").addEventListener("click", () => {
+      outputCollapsed = !outputCollapsed;
+      storageSet("promptStudio.outputCollapsed.v1", outputCollapsed);
+      applyOutputCollapsed();
+    });
+    // 收起后，点整条竖栏也能展开（避免找不到按钮）
+    document.querySelector(".output-panel").addEventListener("click", (event) => {
+      if (event.target.closest("#outputToggle")) return;
+      if (!document.body.classList.contains("output-collapsed")) return;
+      outputCollapsed = false;
+      storageSet("promptStudio.outputCollapsed.v1", false);
+      applyOutputCollapsed();
+    });
+
+    wizardIndex = Number(storageGet("promptStudio.wizardStep.v1", 0)) || 0;
+    wizardIndex = Math.max(0, Math.min(WIZARD_STEPS.length - 1, wizardIndex));
+    renderWizard();
+    $("wizardPrev").addEventListener("click", () => goToWizardStep(wizardIndex - 1));
+    $("wizardNext").addEventListener("click", () => {
+      if (wizardIndex === WIZARD_STEPS.length - 1) openReview();
+      else goToWizardStep(wizardIndex + 1);
+    });
+
+    renderLoras();
+    $("loraAdd").addEventListener("click", () => {
+      const form = $("loraForm");
+      form.hidden = !form.hidden;
+      if (!form.hidden) $("loraTriggerInput").focus();
+    });
+    $("loraCancel").addEventListener("click", () => {
+      $("loraForm").hidden = true;
+    });
+    $("loraSave").addEventListener("click", addLora);
+    $("loraTriggerInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        addLora();
+      }
+    });
+    $("loraPaste").addEventListener("click", () => {
+      const box = $("loraPasteBox");
+      box.hidden = !box.hidden;
+      if (!box.hidden) $("loraPasteText").focus();
+    });
+    $("loraPasteCancel").addEventListener("click", () => {
+      $("loraPasteBox").hidden = true;
+    });
+    $("loraPasteSave").addEventListener("click", () => {
+      const added = parseLoraLines($("loraPasteText").value);
+      if (!added.length) {
+        showToast("没有可加入的新条目");
+        return;
+      }
+      saveMyLoras([...getMyLoras(), ...added]);
+      $("loraPasteText").value = "";
+      $("loraPasteBox").hidden = true;
+      showToast(`已加入 ${added.length} 条`);
+    });
+    $("loraExport").addEventListener("click", exportLoras);
+    $("loraImport").addEventListener("click", () => $("loraImportFile").click());
+    $("loraLoadDefaults").addEventListener("click", () => {
+      const merged = mergeLoraCatalog({ force: true });
+      renderLoras();
+      showToast(`已载入本机推荐清单，共 ${merged.length} 条`);
+    });
+    $("loraImportFile").addEventListener("change", () => {
+      importLoras($("loraImportFile").files[0]);
+      $("loraImportFile").value = "";
+    });
     $("helpButton").addEventListener("click", () => $("helpDialog").showModal());
     $("helpCloseButton").addEventListener("click", () => $("helpDialog").close());
     $("helpDialog").addEventListener("click", (event) => {
@@ -2631,7 +2985,7 @@
     $("reviewCloseButton").addEventListener("click", () => $("reviewDialog").close());
     $("reviewCloseButton2").addEventListener("click", () => $("reviewDialog").close());
     $("reviewCopyButton").addEventListener("click", async () => {
-      await copyText(latestOutput.positive, "提示词已复制");
+      await copyText(currentPositive(), "提示词已复制");
       $("reviewDialog").close();
     });
     $("reviewDialog").addEventListener("click", (event) => {
@@ -2640,7 +2994,7 @@
 
     const sections = $$(".form-card[id]");
     const links = $$(".step-nav a");
-    if ("IntersectionObserver" in window) {
+    if (links.length && "IntersectionObserver" in window) {
       const observer = new IntersectionObserver((entries) => {
         const visible = entries
           .filter((entry) => entry.isIntersecting)
@@ -2654,38 +3008,63 @@
     }
   }
 
-  function renderPromptPresets() {
-    const root = $("promptPresetList");
-    for (const preset of QUICK_PRESETS) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "preset-button";
-      const icon = document.createElement("span");
-      icon.className = "preset-icon";
-      icon.textContent = preset.icon;
-      const text = document.createElement("span");
-      const title = document.createElement("strong");
-      const sub = document.createElement("small");
-      title.textContent = preset.name;
-      sub.textContent = preset.sub;
-      text.append(title, sub);
-      button.append(icon, text);
-      button.addEventListener("click", () => applyQuickPreset(preset));
-      root.append(button);
+  // 词库自检：改完 data/prompts.js 后打开控制台就能看到哪里写错了
+  function validateData() {
+    const problems = [];
+    for (const [field, key] of Object.entries(FIELD_TO_OPTIONS)) {
+      const list = O[key];
+      if (!Array.isArray(list)) {
+        problems.push(`字段 ${field} 没有对应的选项库 ${key}`);
+        continue;
+      }
+      const seen = new Set();
+      for (const item of list) {
+        if (!item || typeof item.en !== "string" || typeof item.zh !== "string") {
+          problems.push(`${key} 里有一条格式不完整的选项`);
+          continue;
+        }
+        if (!item.zh) problems.push(`${key} 缺少中文标签: ${item.en}`);
+        if (!item.en) continue;
+        const id = item.en.toLowerCase();
+        if (seen.has(id)) problems.push(`${key} 有重复选项: ${item.en}`);
+        seen.add(id);
+      }
     }
+    for (const [name, preset] of Object.entries(ROLE_PRESETS)) {
+      for (const [field, value] of Object.entries(preset)) {
+        const key = FIELD_TO_OPTIONS[field];
+        if (!key) {
+          problems.push(`角色预设「${name}」用了不存在的字段 ${field}`);
+          continue;
+        }
+        if (!(O[key] || []).some((item) => item.en === value)) {
+          problems.push(`角色预设「${name}」的 ${field} 值不在选项里: ${value}`);
+        }
+      }
+    }
+    for (const field of Object.keys(FIELD_SUBJECT_GROUPS)) {
+      if (!$(field)) problems.push(`字段适用性表里的 ${field} 在页面上没有控件`);
+    }
+    if (problems.length) console.warn("[词库自检] 发现 " + problems.length + " 个问题：", problems);
+    return problems;
   }
 
   function init() {
+    validateData();
+    mergeLoraCatalog();
     populateSelects({ preserve: false });
+    enhanceAllSelects();
     applyDefaults();
-    renderPromptPresets();
+    applyContentScale();
+    syncScaleSwitch();
     renderSaved();
     renderHistory();
     setupTabs();
     setupEvents();
 
     const savedTheme = localStorage.getItem("promptStudio.theme.v1");
-    if (savedTheme === "light") document.body.classList.add("light");
+    if (savedTheme === "dark") document.body.classList.remove("light");
+    else document.body.classList.add("light");
     const autosave = storageGet("promptStudio.autosave.v1", null);
     if (autosave) applyState(autosave);
     updateOutput();
