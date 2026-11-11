@@ -18,6 +18,10 @@
         </div>
       </div>
       <div class="topbar-actions">
+        <label class="adult-top-toggle" title="开启成年人虚构角色的扩展选项">
+          <input type="checkbox" id="adultMode" data-state>
+          <span>成人向</span>
+        </label>
         <span class="status-pill"><i></i>完全离线</span>
         <span class="status-pill muted">自动保存</span>
         <button class="icon-button" id="themeButton" type="button" title="切换主题">◐</button>
@@ -59,6 +63,7 @@
             <button class="button secondary" id="randomButton" type="button">随机灵感</button>
             <button class="button secondary" id="resetButton" type="button">重置</button>
             <button class="button primary" id="generateButton" type="button">生成提示词</button>
+            <button class="button review" id="reviewButton" type="button">完成并检查</button>
           </div>
         </section>
 
@@ -195,13 +200,6 @@
             </label>
           </div>
 
-          <label class="switch-row">
-            <span>
-              <strong>成年人私密氛围</strong>
-              <small>仅启用克制、成年人、虚构角色的服装和氛围选项。</small>
-            </span>
-            <input type="checkbox" id="adultMode" data-state>
-          </label>
         </section>
 
         <section class="form-card" id="section-outfit">
@@ -238,7 +236,7 @@
               <select id="footwear" data-state></select>
             </label>
             <label class="field character-only">
-              <span>妆容与打理</span>
+              <span>妆发与造型</span>
               <select id="grooming" data-state></select>
             </label>
           </div>
@@ -299,6 +297,45 @@
               </select>
             </label>
           </div>
+
+          <div class="sub-panel h3-only">
+            <div class="sub-panel-heading">
+              <div>
+                <strong>H3 声音与对白</strong>
+                <small>参考 H3 连续时间轴与声音线索结构，不加入露骨台词。</small>
+              </div>
+              <span class="mini-badge">H3 专属</span>
+            </div>
+            <div class="control-grid cols-3">
+              <label class="field">
+                <span>声音模式</span>
+                <select id="audioMode" data-state></select>
+              </label>
+              <label class="field">
+                <span>声音表演</span>
+                <select id="voiceTone" data-state></select>
+              </label>
+              <label class="field">
+                <span>一致性重点</span>
+                <select id="consistencyFocus" data-state></select>
+              </label>
+              <label class="field wide">
+                <span>对白（每行一句）</span>
+                <textarea id="dialogueScript" data-state rows="3" placeholder="例如：男：我们该出发了。&#10;女：再等一分钟。"></textarea>
+              </label>
+              <label class="field">
+                <span>画外音（每行一句）</span>
+                <textarea id="voiceoverScript" data-state rows="3" placeholder="例如：女：雨一直没有停。"></textarea>
+              </label>
+            </div>
+            <label class="switch-row compact-switch">
+              <span>
+                <strong>同一时刻只让一人说话</strong>
+                <small>双人镜头中出现对白时，减少抢话和口型冲突。</small>
+              </span>
+              <input type="checkbox" id="oneSpeaker" data-state checked>
+            </label>
+          </div>
         </section>
 
         <section class="form-card adult-card" id="section-adult" hidden>
@@ -311,47 +348,19 @@
             <span class="mini-badge">成年人 / 虚构 / 非露骨</span>
           </div>
 
-          <div class="control-grid cols-3">
+          <div class="control-grid cols-2">
             <label class="field">
-              <span>成人角色气质</span>
+              <span>成人角色与造型气质</span>
               <select id="adultArchetype" data-state></select>
             </label>
             <label class="field">
-              <span>造型方向</span>
-              <select id="adultStyling" data-state></select>
-            </label>
-            <label class="field">
-              <span>亲密层次</span>
+              <span>亲密关系与层次</span>
               <select id="intimacyLevel" data-state></select>
-            </label>
-            <label class="field">
-              <span>私密场景补充</span>
-              <select id="adultScene" data-state></select>
-            </label>
-            <label class="field">
-              <span>私密光线</span>
-              <select id="adultLighting" data-state></select>
-            </label>
-            <label class="field">
-              <span>成人摄影风格</span>
-              <select id="adultCameraStyle" data-state></select>
-            </label>
-            <label class="field">
-              <span>构图尺度</span>
-              <select id="adultFraming" data-state></select>
-            </label>
-            <label class="field">
-              <span>氛围倾向</span>
-              <select id="adultAtmosphere" data-state></select>
-            </label>
-            <label class="field">
-              <span>画面关系</span>
-              <select id="adultRelationship" data-state></select>
             </label>
           </div>
 
           <div class="notice adult-notice">
-            此模块只提供明确成年、虚构角色、双方自愿的暗示级组合；不包含露骨性行为、未成年人、真人身份仿冒、胁迫或暴力内容。
+            私密场景、光线、摄影风格、构图、氛围和造型选项已经合并到对应下拉框。开启成人模式后会追加专属选项，仅限明确成年、虚构角色、双方自愿的暗示级内容。
           </div>
         </section>
 
@@ -453,7 +462,7 @@
           </div>
           <div class="control-grid cols-3">
             <label class="field">
-              <span>视觉风格</span>
+              <span>视觉与摄影风格</span>
               <select id="visualStyle" data-state></select>
             </label>
             <label class="field">
@@ -569,6 +578,19 @@
       <li>在右侧复制正向词、负面词或 JSON。收藏和历史保存在当前浏览器。</li>
     </ol>
     <p class="dialog-note">AI 扩写和反推仍由 ComfyUI Prompt Assistant 插件提供；本网页负责结构化拼接和输出。</p>
+  </dialog>
+
+  <dialog class="help-dialog review-dialog" id="reviewDialog">
+    <button class="dialog-close" id="reviewCloseButton" type="button" aria-label="关闭">×</button>
+    <span class="eyebrow">FINAL CHECK</span>
+    <h2>提示词检查</h2>
+    <div class="review-score" id="reviewScore">正在检查…</div>
+    <div class="review-summary" id="reviewSummary"></div>
+    <ul class="review-checks" id="reviewChecks"></ul>
+    <div class="review-actions">
+      <button class="button secondary" id="reviewCloseButton2" type="button">返回修改</button>
+      <button class="button primary" id="reviewCopyButton" type="button">复制并使用</button>
+    </div>
   </dialog>
 
   <script src="./app.js"></script>

@@ -984,6 +984,33 @@
       pair("双向吸引", "mutual adult attraction"),
       pair("平等关系", "equal and mutually consenting relationship")
     ],
+    audioMode: [
+      pair("仅环境音", "ambient sound only, no dialogue"),
+      pair("单人画外音", "one character provides voice-over"),
+      pair("单人现场对白", "one character speaks on camera"),
+      pair("双人现场对白", "two characters exchange dialogue"),
+      pair("对白加画外音", "on-camera dialogue with additional voice-over"),
+      pair("自然声音优先", "natural ambience with restrained vocal performance")
+    ],
+    voiceTone: [
+      pair("自然平实", "natural conversational delivery"),
+      pair("安静温柔", "quiet gentle delivery"),
+      pair("克制低沉", "restrained low-volume delivery"),
+      pair("自信清晰", "confident articulate delivery"),
+      pair("紧张急促", "tense quickened delivery"),
+      pair("轻柔耳语", "soft whispered delivery"),
+      pair("含笑说话", "gently smiling speech"),
+      pair("情绪压抑", "emotionally restrained delivery"),
+      pair("画外叙述", "calm voice-over narration")
+    ],
+    consistencyFocus: [
+      pair("全部保持一致", "preserve identity, outfit, environment, framing, and lighting"),
+      pair("人物身份优先", "prioritize facial identity and body proportions"),
+      pair("服装与发型优先", "prioritize outfit, hairstyle, and accessories"),
+      pair("场景与背景优先", "prioritize environment, background layout, and object positions"),
+      pair("构图与机位优先", "prioritize camera framing, angle, and composition"),
+      pair("动作连贯优先", "prioritize continuous motion and realistic physical interaction")
+    ],
     sound: [
       pair("安静室内环境声", "quiet indoor room tone"),
       pair("雨声", "steady rain against the windows"),
@@ -1365,16 +1392,22 @@
     render: "render",
     creatureType: "creatureType",
     adultArchetype: "adultArchetype",
-    adultStyling: "adultStyling",
     intimacyLevel: "intimacyLevel",
-    adultScene: "adultScene",
-    adultLighting: "adultLighting",
-    adultCameraStyle: "adultCameraStyle",
-    adultFraming: "adultFraming",
-    adultAtmosphere: "adultAtmosphere",
-    adultRelationship: "adultRelationship",
+    audioMode: "audioMode",
+    voiceTone: "voiceTone",
+    consistencyFocus: "consistencyFocus",
     sound: "sound",
     aspectRatio: "aspectRatio"
+  };
+
+  const ADULT_OPTION_MERGES = {
+    grooming: "adultStyling",
+    scene: "adultScene",
+    lighting: "adultLighting",
+    visualStyle: "adultCameraStyle",
+    composition: "adultFraming",
+    mood: "adultAtmosphere",
+    intimacyLevel: "adultRelationship"
   };
 
   const DEFAULTS = {
@@ -1438,6 +1471,12 @@
     adultFraming: "",
     adultAtmosphere: "",
     adultRelationship: "",
+    audioMode: "ambient sound only, no dialogue",
+    voiceTone: "natural conversational delivery",
+    consistencyFocus: "preserve identity, outfit, environment, framing, and lighting",
+    dialogueScript: "",
+    voiceoverScript: "",
+    oneSpeaker: true,
     sound: "quiet indoor room tone",
     duration: "5"
   };
@@ -1453,7 +1492,11 @@
   function getOptionPairs(field) {
     const key = FIELD_TO_OPTIONS[field];
     const list = O[key] || [];
-    return currentAdultMode() ? list : list.filter((item) => !item.adultOnly);
+    const base = currentAdultMode() ? list : list.filter((item) => !item.adultOnly);
+    const mergeKey = ADULT_OPTION_MERGES[field];
+    if (!currentAdultMode() || !mergeKey) return base;
+    const merged = [...base, ...(O[mergeKey] || []).filter((item) => item.en)];
+    return [...new Map(merged.map((item) => [item.en.toLowerCase(), item])).values()];
   }
 
   function fillSelect(id, items, placeholder) {
@@ -1522,6 +1565,7 @@
     const value = select.value;
     const options = getOptionPairs(field);
     const item = options.find((option) => option.en === value);
+    if (!item || !item.en) return "";
     return item?.[lang] || value;
   }
 
@@ -1617,6 +1661,9 @@
     $$(".video-only").forEach((element) => {
       element.hidden = model.type !== "video";
     });
+    $$(".h3-only").forEach((element) => {
+      element.hidden = !["h3", "i2v"].includes(model.format);
+    });
     $$(".character-only").forEach((element) => {
       element.hidden = !hasHuman;
     });
@@ -1666,7 +1713,28 @@
 
   function languageJoin(parts, lang) {
     const clean = parts.map((part) => String(part || "").trim()).filter(Boolean);
-    return clean.join(lang === "zh" ? "，" : ", ");
+    const unique = [...new Map(clean.map((part) => [part.toLowerCase(), part])).values()];
+    return unique.join(lang === "zh" ? "，" : ", ");
+  }
+
+  function dedupePrompt(text, lang) {
+    const separator = lang === "zh" ? /，/ : /,\s*/;
+    const joiner = lang === "zh" ? "，" : ", ";
+    const parts = text.split(separator);
+    const unique = [];
+    const seen = new Set();
+    for (const part of parts) {
+      const clean = part.trim();
+      const key = clean.toLowerCase().replace(/[.。;；]+$/g, "");
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      unique.push(clean);
+    }
+    return unique.join(joiner);
+  }
+
+  function capitalizeSentences(text) {
+    return text.replace(/(^|[.!?]\s+)([a-z])/g, (_, prefix, letter) => `${prefix}${letter.toUpperCase()}`);
   }
 
   function pairText(field, lang) {
@@ -1686,8 +1754,8 @@
         : `a fictional ${creature}${custom ? `, ${custom}` : ""}`;
     }
 
-    const parts = [
-      pairText("gender", lang),
+    const gender = pairText("gender", lang);
+    const details = [
       pairText("age", lang),
       pairText("appearance", lang),
       pairText("body", lang),
@@ -1699,20 +1767,23 @@
       pairText("skin", lang),
       custom
     ];
-    const main = languageJoin(parts, lang);
+    const detailText = languageJoin(details, lang);
     if (type === "couple") {
+      const pairLabel = gender
+        .replace(/^two adult /i, "two consenting adult fictional ")
+        .replace(/^an adult woman and an adult man$/i, "one adult woman and one adult man");
       return lang === "zh"
-        ? `两位明确成年、双方自愿的虚构角色，主体为${main}`
-        : `two consenting adult fictional characters, main subject: ${main}`;
+        ? `两位明确成年、双方自愿的虚构角色，${gender.replace(/^成对/, "")}${detailText ? `，${detailText}` : ""}`
+        : `two consenting adult fictional characters, ${pairLabel}${detailText ? `, ${detailText}` : ""}`;
     }
     if (type === "group") {
       return lang === "zh"
-        ? `三位明确成年、彼此尊重的虚构角色，视觉中心为${main}`
-        : `three consenting adult fictional characters, centered on ${main}`;
+        ? `三位明确成年、彼此尊重的虚构角色，${gender}，视觉中心为${detailText}`
+        : `three consenting adult fictional characters, ${gender}, centered on ${detailText}`;
     }
     return lang === "zh"
-      ? `一位明确成年的虚构角色，${main}`
-      : `an adult fictional person, ${main}`;
+      ? `一位明确成年的虚构${gender.replace(/^成年/, "")}${detailText ? `，${detailText}` : ""}`
+      : `an adult fictional ${gender.replace(/^adult\s+/i, "")}${detailText ? `, ${detailText}` : ""}`;
   }
 
   function outfitText(lang) {
@@ -1720,7 +1791,8 @@
     if (type !== "person" && type !== "couple" && type !== "group") return "";
     const outfit = pairText("outfit", lang);
     const fabric = pairText("fabric", lang);
-    const color = pairText("outfitColor", lang);
+    const colorValue = pairText("outfitColor", lang);
+    const color = colorValue && !outfit.toLowerCase().includes(colorValue.toLowerCase()) ? colorValue : "";
     const fit = pairText("fit", lang);
     const accessories = pairText("accessories", lang);
     const footwear = pairText("footwear", lang);
@@ -1730,8 +1802,14 @@
     const details = [];
     if (clothes) details.push(lang === "zh" ? `身穿${clothes}` : `wearing ${clothes}`);
     if (accessories) details.push(lang === "zh" ? `搭配${accessories}` : `styled with ${accessories}`);
-    if (footwear) details.push(lang === "zh" ? `脚穿${footwear}` : `wearing ${footwear}`);
-    if (grooming) details.push(lang === "zh" ? `妆发为${grooming}` : `${grooming} grooming`);
+    if (footwear) {
+      if (footwear.toLowerCase() === "barefoot") {
+        details.push(lang === "zh" ? "赤足" : "barefoot");
+      } else {
+        details.push(lang === "zh" ? `脚穿${footwear}` : `wearing ${footwear}`);
+      }
+    }
+    if (grooming) details.push(lang === "zh" ? `妆发为${grooming}` : grooming);
     return languageJoin(details, lang);
   }
 
@@ -1750,17 +1828,27 @@
   }
 
   function sceneText(lang, detailLevel) {
-    const adultScene = currentAdultMode() ? pairText("adultScene", lang) : "";
-    const scene = adultScene || pairText("scene", lang);
+    const scene = pairText("scene", lang);
     const time = pairText("timeOfDay", lang);
     const weather = pairText("weather", lang);
     const props = pairText("props", lang);
     const background = pairText("background", lang);
     const mood = pairText("mood", lang);
+    const sceneLower = scene.toLowerCase();
+    const timeLower = time.toLowerCase();
+    const redundantTime = Boolean(
+      sceneLower &&
+      timeLower &&
+      (sceneLower.includes(timeLower) ||
+        (timeLower.includes("morning") && sceneLower.includes("morning")) ||
+        (timeLower.includes("night") && sceneLower.includes("night")) ||
+        (timeLower.includes("dusk") && sceneLower.includes("dusk")))
+    );
+    const timeClause = redundantTime ? "" : time;
     return languageJoin(
       detailLevel === "concise"
-        ? [scene, time, weather]
-        : [scene, time, weather, props, background, mood],
+        ? [scene, timeClause, weather]
+        : [scene, timeClause, weather, props, background, mood],
       lang
     );
   }
@@ -1779,8 +1867,7 @@
   }
 
   function lightText(lang, detailLevel) {
-    const adultLighting = currentAdultMode() ? pairText("adultLighting", lang) : "";
-    const lighting = adultLighting || pairText("lighting", lang);
+    const lighting = pairText("lighting", lang);
     const palette = pairText("palette", lang);
     const atmosphere = pairText("atmosphere", lang);
     const filmLook = pairText("filmLook", lang);
@@ -1799,7 +1886,8 @@
 
   function styleText(lang, detailLevel) {
     const visualStyle = pairText("visualStyle", lang);
-    const render = pairText("render", lang);
+    const renderValue = pairText("render", lang);
+    const render = /photo/i.test(visualStyle) && /photo/i.test(renderValue) ? "" : renderValue;
     const ratio = pairText("aspectRatio", lang);
     const quality = qualityText(lang);
     return languageJoin(
@@ -1813,13 +1901,8 @@
     if (!currentAdultMode() || !["person", "couple", "group"].includes(type)) return "";
     return languageJoin([
       pairText("adultArchetype", lang),
-      pairText("adultStyling", lang),
       pairText("intimacyLevel", lang),
-      pairText("adultRelationship", lang),
-      pairText("adultCameraStyle", lang),
-      pairText("adultFraming", lang),
-      pairText("adultAtmosphere", lang),
-      lang === "zh" ? "成年人、虚构角色、克制且非露骨" : "clearly adult fictional characters, tasteful and non-explicit"
+      lang === "zh" ? "克制且非露骨" : "tasteful non-explicit presentation"
     ], lang);
   }
 
@@ -1892,9 +1975,9 @@
       style
     ], lang);
     if (lang === "zh") {
-      return `生成一幅${pairText("visualStyle", "zh") || "电影感"}画面：${languageJoin(parts, "zh")}。`;
+      return `生成一幅完整画面：${languageJoin(parts, "zh")}。`;
     }
-    return `A ${pairText("visualStyle", "en") || "cinematic"} image of ${languageJoin(parts, "en")}.`;
+    return `A visually detailed image of ${languageJoin(parts, "en")}.`;
   }
 
   function timelineRanges(duration) {
@@ -1937,6 +2020,12 @@
     const expression = pairText("expression", lang);
     const camera = pairText("cameraMove", lang);
     const sound = pairText("sound", lang);
+    const audioMode = pairText("audioMode", lang);
+    const voiceTone = pairText("voiceTone", lang);
+    const consistency = pairText("consistencyFocus", lang);
+    const dialogue = inputValue("dialogueScript").replace(/[。.!！?？\s]+$/g, "");
+    const voiceover = inputValue("voiceoverScript").replace(/[。.!！?？\s]+$/g, "");
+    const oneSpeaker = $("oneSpeaker").checked && ["couple", "group"].includes($("subjectType").value);
     const style = styleText(lang, "cinematic");
     const light = lightText(lang, "cinematic");
     const scene = sceneText(lang, "cinematic");
@@ -1947,28 +2036,38 @@
       : subjectText(lang);
     const outfit = model.i2v ? "" : outfitText(lang);
     const adultDetails = adultDetailsText(lang);
+    const audioDetails = languageJoin([
+      sound,
+      audioMode,
+      voiceTone,
+      oneSpeaker ? (lang === "zh" ? "同一时刻只让一名角色说话" : "only one character speaks at a time") : ""
+    ], lang);
 
     if (lang === "zh") {
       return [
         `电影感单一连续镜头，一镜到底，无剪辑、无转场，${duration}秒，24fps`,
-        languageJoin([subject, outfit, adultDetails, `位于${scene}`], "zh"),
-        `Timeline: [${ranges[0][0]}s-${ranges[0][1]}s] 建立人物与场景，${poseDetails || "自然呼吸与细微动作"}；[${ranges[1][0]}s-${ranges[1][1]}s] ${action || "一个清晰动作"}${interaction ? `，${interaction}` : ""}；[${ranges[2][0]}s-${ranges[2][1]}s] ${expression || "动作自然收尾"}，${camera || "固定机位"}`,
-        `镜头与光线：${languageJoin([cameraText(lang, "cinematic", true), light], "zh")}`,
-        `Audio: ${sound || "自然环境声"}`,
+        languageJoin([subject, outfit, adultDetails, `位于${scene}`, `一致性要求：${consistency}`], "zh"),
+        `Timeline: [${ranges[0][0]}s-${ranges[0][1]}s] 建立人物与场景，${poseDetails || "自然呼吸与细微动作"}；[${ranges[1][0]}s-${ranges[1][1]}s] ${action || "一个清晰动作"}${interaction ? `，${interaction}` : ""}；[${ranges[2][0]}s-${ranges[2][1]}s] ${camera || "固定机位"}，画面自然收尾`,
+        `镜头与光线：${languageJoin([cameraText(lang, "cinematic", false), light], "zh")}`,
+        `Audio: ${audioDetails || "自然环境声"}`,
+        dialogue ? `台词：${dialogue}` : "",
+        voiceover ? `画外音：${voiceover}` : "",
         `风格：${style}`,
         inputValue("customDetails")
       ].filter(Boolean).join("。") + "。";
     }
 
-    return languageJoin([
+    return [
       `Cinematic single continuous shot, one take, no cuts, no transitions, ${duration} seconds at 24fps`,
-      languageJoin([subject, outfit, adultDetails, `in ${scene}`], "en"),
-      `Timeline: [${ranges[0][0]}s-${ranges[0][1]}s] establish the subject and environment with ${poseDetails || "subtle natural breathing"}; [${ranges[1][0]}s-${ranges[1][1]}s] ${action || "perform one clear action"}${interaction ? `, ${interaction}` : ""}; [${ranges[2][0]}s-${ranges[2][1]}s] ${expression || "bring the movement to a natural finish"}, ${camera || "static camera"}`,
-      `Camera and lighting: ${languageJoin([cameraText(lang, "cinematic", true), light], "en")}`,
-      `Audio: ${sound || "quiet natural environmental ambience"}`,
+      languageJoin([subject, outfit, adultDetails, `in ${scene}`, `continuity: ${consistency}`], "en"),
+      `Timeline: [${ranges[0][0]}s-${ranges[0][1]}s] establish the subject and environment with ${poseDetails || "subtle natural breathing"}; [${ranges[1][0]}s-${ranges[1][1]}s] ${action || "perform one clear action"}${interaction ? `, ${interaction}` : ""}; [${ranges[2][0]}s-${ranges[2][1]}s] ${camera || "static camera"}, bring the scene to a natural finish`,
+      `Camera and lighting: ${languageJoin([cameraText(lang, "cinematic", false), light], "en")}`,
+      `Audio: ${audioDetails || "quiet natural environmental ambience"}`,
+      dialogue ? `Dialogue: ${dialogue}` : "",
+      voiceover ? `Voice-over: ${voiceover}` : "",
       `Style: ${style}`,
       inputValue("customDetails")
-    ], ". ") + ".";
+    ].filter(Boolean).join(". ") + ".";
   }
 
   function buildWanPrompt(lang, model) {
@@ -2018,9 +2117,10 @@
     const language = $("language").value;
     let positive;
     if (language === "bilingual") {
-      positive = `${buildPromptFor("en", model)}\n\n中文对照：\n${buildPromptFor("zh", model)}`;
+      positive = `${capitalizeSentences(dedupePrompt(buildPromptFor("en", model), "en"))}\n\n中文对照：\n${dedupePrompt(buildPromptFor("zh", model), "zh")}`;
     } else {
-      positive = buildPromptFor(language, model);
+      positive = dedupePrompt(buildPromptFor(language, model), language);
+      if (language === "en") positive = capitalizeSentences(positive);
     }
     const negative = buildNegative(model);
     const state = collectState();
@@ -2052,7 +2152,19 @@
   }
 
   function refreshAdultDependentFields() {
-    for (const field of ["expression", "outfit", "pose", "interaction", "mood"]) {
+    for (const field of [
+      "expression",
+      "outfit",
+      "grooming",
+      "pose",
+      "interaction",
+      "scene",
+      "lighting",
+      "composition",
+      "mood",
+      "visualStyle",
+      "intimacyLevel"
+    ]) {
       fillSelect(field, getOptionPairs(field));
     }
   }
@@ -2282,6 +2394,158 @@
     showToast("已生成一组随机组合");
   }
 
+  function analyzePrompt() {
+    const model = getModel();
+    const prompt = latestOutput.positive.trim();
+    const lower = prompt.toLowerCase();
+    const subjectType = $("subjectType").value;
+    const humanSubject = ["person", "couple", "group"].includes(subjectType);
+    const clauses = prompt
+      .split(/[,，\n]/)
+      .map((part) => part.trim().toLowerCase().replace(/[.。;；]+$/g, ""))
+      .filter(Boolean);
+    const clauseCounts = new Map();
+    for (const clause of clauses) clauseCounts.set(clause, (clauseCounts.get(clause) || 0) + 1);
+    const duplicateClauses = [...clauseCounts.entries()].filter(([, count]) => count > 1);
+    const placeholders = [...new Set(prompt.match(/\[[^\]\n]{2,120}\]/g) || [])]
+      .filter((value) => !/^\[\d+(?:\.\d+)?s-\d+(?:\.\d+)?s\]$/i.test(value));
+    const words = prompt.split(/\s+/).filter(Boolean).length;
+    const checks = [];
+
+    const subjectReady = subjectType === "object"
+      ? Boolean(inputValue("objectDescription"))
+      : Boolean($("gender").value && $("age").value);
+    checks.push({
+      status: subjectReady ? "pass" : "fail",
+      title: "主体信息",
+      detail: subjectReady ? "主体类型、年龄或物体描述已填写。" : "请补充角色信息或物体描述。"
+    });
+
+    const motionReady = Boolean($("pose").value || $("action").value || inputValue("characterCustom"));
+    checks.push({
+      status: motionReady ? "pass" : "warn",
+      title: "姿势与动作",
+      detail: motionReady ? "已包含姿势、动作或自定义描述。" : "建议至少选择一个姿势或动作，画面会更稳定。"
+    });
+
+    const sceneReady = Boolean($("scene").value);
+    checks.push({
+      status: sceneReady ? "pass" : "warn",
+      title: "场景与环境",
+      detail: sceneReady ? "场景已指定。" : "当前没有明确场景，模型可能自行补全环境。"
+    });
+
+    const cameraReady = Boolean($("shotSize").value || $("angle").value || $("lens").value);
+    checks.push({
+      status: cameraReady ? "pass" : "warn",
+      title: "镜头语言",
+      detail: cameraReady ? "已指定景别、机位或焦段。" : "建议至少选择一个镜头参数。"
+    });
+
+    const formatCheck = {
+      title: "模型结构",
+      status: "pass",
+      detail: "已按所选模型生成自然语言结构。"
+    };
+    if (["h3", "i2v"].includes(model.format)) {
+      const valid = lower.includes("timeline:") && lower.includes("audio:");
+      formatCheck.status = valid ? "pass" : "fail";
+      formatCheck.detail = valid ? "已包含 H3 时间轴与音频段落。" : "H3 结构不完整，请重新生成。";
+    } else if (model.format === "wan") {
+      const valid = lower.includes("one primary action") || lower.includes("一个主要动作");
+      formatCheck.status = valid ? "pass" : "warn";
+      formatCheck.detail = valid ? "已限制为一个主要动作，并保留连续镜头描述。" : "没有检测到单动作约束。";
+    } else if (model.format === "edit") {
+      const valid = lower.includes("preserve") || lower.includes("保持原图");
+      formatCheck.status = valid ? "pass" : "fail";
+      formatCheck.detail = valid ? "已包含保持身份、姿势和背景的编辑约束。" : "编辑结构不完整。";
+    }
+    checks.push(formatCheck);
+
+    if (model.i2v) {
+      const valid = lower.includes("reference image") || lower.includes("参考图");
+      checks.push({
+        status: valid ? "pass" : "fail",
+        title: "首帧一致性",
+        detail: valid ? "已要求保持参考图中的人物、构图和光线。" : "图生视频缺少首帧一致性描述。"
+      });
+    }
+
+    if (currentAdultMode()) {
+      const safeText = lower.includes("non-explicit") || lower.includes("非露骨");
+      checks.push({
+        status: humanSubject && safeText ? "pass" : "warn",
+        title: "成人模式边界",
+        detail: humanSubject && safeText ? "已标记成年人、虚构角色和非露骨内容。" : "建议开启人物主体并保留安全边界说明。"
+      });
+    }
+
+    checks.push({
+      status: duplicateClauses.length ? "warn" : "pass",
+      title: "重复短语",
+      detail: duplicateClauses.length
+        ? `发现 ${duplicateClauses.length} 个重复片段；生成器会尽量自动去重。`
+        : "未发现完全重复的逗号分隔片段。"
+    });
+
+    checks.push({
+      status: placeholders.length ? "warn" : "pass",
+      title: "占位符",
+      detail: placeholders.length
+        ? `仍有 ${placeholders.length} 个方括号占位内容需要替换。`
+        : "未发现未替换的方括号占位符。"
+    });
+
+    const lengthOk = words >= 20 && words <= (model.type === "video" ? 420 : 360);
+    checks.push({
+      status: lengthOk ? "pass" : "warn",
+      title: "提示词长度",
+      detail: lengthOk ? `当前约 ${words} 词，长度适合。` : `当前约 ${words} 词，可能过短或过长，建议精简次要描述。`
+    });
+
+    const points = checks.reduce((score, check) => {
+      if (check.status === "pass") return score + 1;
+      if (check.status === "warn") return score + 0.5;
+      return score;
+    }, 0);
+    const percent = Math.round((points / checks.length) * 100);
+    return { checks, percent, model };
+  }
+
+  function openReview() {
+    updateOutput();
+    const review = analyzePrompt();
+    const score = $("reviewScore");
+    const failed = review.checks.filter((check) => check.status === "fail").length;
+    const warned = review.checks.filter((check) => check.status === "warn").length;
+    score.textContent = `${review.percent} 分 · ${review.checks.length - failed - warned}/${review.checks.length} 项通过`;
+    score.className = `review-score ${failed ? "warn" : warned ? "warn" : "pass"}`;
+    $("reviewSummary").textContent = failed
+      ? "存在需要修正的项目。建议处理后再复制提示词。"
+      : warned
+        ? "核心结构已经完整，可以检查警告项后使用。"
+        : "检查通过，可以复制并使用。";
+
+    const list = $("reviewChecks");
+    list.innerHTML = "";
+    for (const check of review.checks) {
+      const item = document.createElement("li");
+      item.className = `review-check ${check.status}`;
+      const icon = document.createElement("span");
+      icon.className = "review-check-icon";
+      icon.textContent = check.status === "pass" ? "✓" : check.status === "warn" ? "!" : "×";
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      const detail = document.createElement("small");
+      title.textContent = check.title;
+      detail.textContent = check.detail;
+      text.append(title, detail);
+      item.append(icon, text);
+      list.append(item);
+    }
+    $("reviewDialog").showModal();
+  }
+
   function setupTabs() {
     $$(".tab").forEach((button) => {
       button.addEventListener("click", () => {
@@ -2331,6 +2595,7 @@
       showToast("提示词已更新");
       document.querySelector(".output-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+    $("reviewButton").addEventListener("click", openReview);
     $("randomButton").addEventListener("click", randomize);
     $("resetButton").addEventListener("click", () => {
       applyDefaults();
@@ -2362,6 +2627,15 @@
     $("helpCloseButton").addEventListener("click", () => $("helpDialog").close());
     $("helpDialog").addEventListener("click", (event) => {
       if (event.target === $("helpDialog")) $("helpDialog").close();
+    });
+    $("reviewCloseButton").addEventListener("click", () => $("reviewDialog").close());
+    $("reviewCloseButton2").addEventListener("click", () => $("reviewDialog").close());
+    $("reviewCopyButton").addEventListener("click", async () => {
+      await copyText(latestOutput.positive, "提示词已复制");
+      $("reviewDialog").close();
+    });
+    $("reviewDialog").addEventListener("click", (event) => {
+      if (event.target === $("reviewDialog")) $("reviewDialog").close();
     });
 
     const sections = $$(".form-card[id]");
