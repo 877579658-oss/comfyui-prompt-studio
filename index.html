@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="dark">
   <title>ComfyUI Prompt Studio</title>
-  <link rel="stylesheet" href="./styles.css?v=20261111-36">
+  <link rel="stylesheet" href="./styles.css?v=20261111-37">
 </head>
 <body class="light">
   <div class="app-shell">
@@ -129,41 +129,41 @@
               </div>
               <small id="sizeHint"></small>
             </label>
-            <label class="field wide">
-              <span>LoRA 触发词（只填一个时用）</span>
-              <input id="loraTrigger" data-state type="text" placeholder="留空则使用模型自带的触发词">
-              <small id="loraTriggerHint">只填你自己 LoRA 的触发词，留空则不写入</small>
-            </label>
-
-            <div class="lora-box">
-              <div class="lora-head">
-                <span>我的 LoRA 清单</span>
-                <span class="lora-head-actions">
-                  <button class="text-button" id="loraPaste" type="button">批量粘贴</button>
-                  <button class="text-button" id="loraAdd" type="button">＋ 添加</button>
-                </span>
-              </div>
-              <div class="lora-list" id="loraList"></div>
-              <div class="lora-paste" id="loraPasteBox" hidden>
-                <textarea id="loraPasteText" rows="5" placeholder="每行一条，支持这三种写法：&#10;触发词&#10;触发词, 0.8&#10;名称, 触发词, 0.8"></textarea>
-                <div class="lora-paste-actions">
-                  <button class="button primary" id="loraPasteSave" type="button">解析并加入</button>
-                  <button class="button ghost" id="loraPasteCancel" type="button">取消</button>
+            <div class="lora-ui" hidden>
+              <label class="field wide">
+                <span>LoRA 触发词（只填一个时用）</span>
+                <input id="loraTrigger" data-state type="text" placeholder="留空则使用模型自带的触发词">
+                <small id="loraTriggerHint">只填你自己 LoRA 的触发词，留空则不写入</small>
+              </label>
+              <div class="lora-box">
+                <div class="lora-head">
+                  <span>我的 LoRA 清单</span>
+                  <span class="lora-head-actions">
+                    <button class="text-button" id="loraPaste" type="button">批量粘贴</button>
+                    <button class="text-button" id="loraAdd" type="button">＋ 添加</button>
+                  </span>
                 </div>
-              </div>
-              <div class="lora-form" id="loraForm" hidden>
-                <input id="loraName" type="text" placeholder="名称（可留空，只给自己看）">
-                <input id="loraTriggerInput" type="text" placeholder="触发词，例如 moss_xvstyle">
-                <input id="loraWeight" type="number" min="0.1" max="2" step="0.05" value="0.8" title="权重（只写进 JSON，不写进提示词）">
-                <button class="button primary" id="loraSave" type="button">保存</button>
-                <button class="button ghost" id="loraCancel" type="button">取消</button>
-              </div>
-              <div class="lora-actions">
-                <button class="text-button" id="loraLoadDefaults" type="button">恢复本机推荐</button>
-                <button class="text-button" id="loraExport" type="button">导出清单</button>
-                <button class="text-button" id="loraImport" type="button">导入清单</button>
-                <input id="loraImportFile" type="file" accept="application/json" hidden>
-                <small>勾选的条目会按顺序拼到提示词最前面；权重只写进 JSON</small>
+                <div class="lora-list" id="loraList"></div>
+                <div class="lora-paste" id="loraPasteBox" hidden>
+                  <textarea id="loraPasteText" rows="5" placeholder="每行一条，支持这三种写法：&#10;触发词&#10;触发词, 0.8&#10;名称, 触发词, 0.8"></textarea>
+                  <div class="lora-paste-actions">
+                    <button class="button primary" id="loraPasteSave" type="button">解析并加入</button>
+                    <button class="button ghost" id="loraPasteCancel" type="button">取消</button>
+                  </div>
+                </div>
+                <div class="lora-form" id="loraForm" hidden>
+                  <input id="loraName" type="text" placeholder="名称（可留空，只给自己看）">
+                  <input id="loraTriggerInput" type="text" placeholder="触发词，例如 moss_xvstyle">
+                  <input id="loraWeight" type="number" min="0.1" max="2" step="0.05" value="0.8" title="权重（只写进 JSON，不写进提示词）">
+                  <button class="button primary" id="loraSave" type="button">保存</button>
+                  <button class="button ghost" id="loraCancel" type="button">取消</button>
+                </div>
+                <div class="lora-actions">
+                  <button class="text-button" id="loraExport" type="button">导出清单</button>
+                  <button class="text-button" id="loraImport" type="button">导入清单</button>
+                  <input id="loraImportFile" type="file" accept="application/json" hidden>
+                  <small>勾选的条目会按顺序拼到提示词最前面；权重只写进 JSON</small>
+                </div>
               </div>
             </div>
           </div>
@@ -644,7 +644,7 @@
     </div>
   </dialog>
 
-  <script src="./data/prompts.js?v=20261111-36"></script>
-  <script src="./app.js?v=20261111-36"></script>
+  <script src="./data/prompts.js?v=20261111-37"></script>
+  <script src="./app.js?v=20261111-37"></script>
 </body>
 </html>

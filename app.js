@@ -9,7 +9,7 @@
   if (!PS) {
     throw new Error("词库数据没有加载：请确认 index.html 中 data/prompts.js 在 app.js 之前引入。");
   }
-  const { MODELS, O, ROLE_PRESETS, LORA_CATALOG = [] } = PS;
+  const { MODELS, O, ROLE_PRESETS } = PS;
   const FIELD_TO_OPTIONS = {
     gender: "gender",
     age: "age",
@@ -1968,7 +1968,7 @@
   }
 
   function enabledLoras() {
-    return getMyLoras().filter((item) => item.enabled && String(item.insert || item.trigger || "").trim());
+    return getMyLoras().filter((item) => item.enabled && String(item.trigger || "").trim());
   }
 
   function activeLoraTokens(model = getModel()) {
@@ -1979,7 +1979,7 @@
     };
     push(inputValue("loraTrigger"));
     if (!tokens.length) push(model.trigger);
-    for (const item of enabledLoras()) push(item.insert || item.trigger);
+    for (const item of enabledLoras()) push(item.trigger);
     return tokens;
   }
 
@@ -2000,10 +2000,8 @@
       row.className = `lora-row${item.enabled ? " is-on" : ""}`;
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
-      const insertText = String(item.insert || item.trigger || "").trim();
-      checkbox.checked = Boolean(item.enabled && insertText);
-      checkbox.disabled = !insertText;
-      checkbox.title = insertText ? "勾选后拼进提示词" : "工作流设置项，不写入提示词";
+      checkbox.checked = Boolean(item.enabled);
+      checkbox.title = "勾选后拼进提示词";
       checkbox.addEventListener("change", () => {
         const next = getMyLoras().map((entry) =>
           entry.id === item.id ? { ...entry, enabled: checkbox.checked } : entry
@@ -2015,16 +2013,8 @@
       const title = document.createElement("strong");
       title.textContent = item.name || item.trigger;
       const sub = document.createElement("small");
-      sub.textContent = insertText
-        ? `${insertText} · 权重 ${item.weight}`
-        : `工作流设置项 · 权重 ${item.weight}`;
+      sub.textContent = `${item.trigger} · 权重 ${item.weight}`;
       text.append(title, sub);
-      if (item.note) {
-        const note = document.createElement("small");
-        note.textContent = item.note;
-        note.title = [item.file, Array.isArray(item.models) ? item.models.join(" / ") : ""].filter(Boolean).join(" · ");
-        text.append(note);
-      }
       const remove = document.createElement("button");
       remove.type = "button";
       remove.className = "text-button danger";
@@ -2968,11 +2958,6 @@
     });
     $("loraExport").addEventListener("click", exportLoras);
     $("loraImport").addEventListener("click", () => $("loraImportFile").click());
-    $("loraLoadDefaults").addEventListener("click", () => {
-      const merged = mergeLoraCatalog({ force: true });
-      renderLoras();
-      showToast(`已载入本机推荐清单，共 ${merged.length} 条`);
-    });
     $("loraImportFile").addEventListener("change", () => {
       importLoras($("loraImportFile").files[0]);
       $("loraImportFile").value = "";
@@ -3051,7 +3036,6 @@
 
   function init() {
     validateData();
-    mergeLoraCatalog();
     populateSelects({ preserve: false });
     enhanceAllSelects();
     applyDefaults();
