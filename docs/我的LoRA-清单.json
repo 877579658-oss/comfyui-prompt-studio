@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "note": "可直接在页面「我的 LoRA 清单 → 导入清单」使用。默认未勾选，避免与模型自带触发词重复。",
+  "loras": [
+    {
+      "name": "MOSS xvstyle 风格 LoRA",
+      "trigger": "moss_xvstyle",
+      "weight": 0.8,
+      "enabled": false
+    },
+    {
+      "name": "MiniMax H3 运动 LoRA",
+      "trigger": "hmmotion",
+      "weight": 0.7,
+      "enabled": false
+    }
+  ]
+}
