@@ -1,0 +1,27 @@
+import { chromium } from 'file:///C:/Users/Administrator/.dsh/profiles/desktop/node_modules/playwright-core/index.mjs';
+const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+const context=await browser.newContext({viewport:{width:1440,height:900}});
+const page=await context.newPage();
+const errors=[];
+page.on('console',m=>{if(m.type()==='error') errors.push(m.text())});
+page.on('pageerror',e=>errors.push(String(e)));
+await page.goto('http://127.0.0.1:4317/',{waitUntil:'networkidle'});
+await page.evaluate(()=>localStorage.setItem('promptStudio.detailsView.v1','false'));
+await page.reload({waitUntil:'networkidle'});
+await page.waitForTimeout(300);
+const results=[];
+const check=async(name,fn)=>{try{const detail=await fn();results.push({name,ok:true,detail})}catch(e){results.push({name,ok:false,error:String(e)})}};
+await check('默认视图尊重本地状态',async()=>({details:await page.locator('body').evaluate(e=>e.classList.contains('details-mode')),quickSelected:await page.locator('#quickViewTab').getAttribute('aria-selected')}));
+await check('详细/快速视图切换',async()=>{await page.locator('#detailViewTab').click();const a=await page.locator('body').evaluate(e=>e.classList.contains('details-mode'));await page.locator('#quickViewTab').click();const b=await page.locator('body').evaluate(e=>e.classList.contains('details-mode'));return{afterDetail:a,afterQuick:b}});
+await check('主题切换',async()=>{const before=await page.locator('body').evaluate(e=>e.classList.contains('light'));await page.locator('#themeButton').click();const after=await page.locator('body').evaluate(e=>e.classList.contains('light'));await page.locator('#themeButton').click();return{before,after}});
+await check('结果面板折叠恢复',async()=>{await page.locator('#outputToggle').click();const collapsed=await page.locator('body').evaluate(e=>e.classList.contains('output-collapsed'));await page.locator('#outputToggle').click();const restored=!(await page.locator('body').evaluate(e=>e.classList.contains('output-collapsed')));return{collapsed,restored}});
+await check('结果标签切换',async()=>{for(const tab of ['negative','json','saved','prompt']){await page.locator(`[data-tab="${tab}"]`).click();if(!(await page.locator(`[data-panel="${tab}"]`).evaluate(e=>e.classList.contains('active'))))throw new Error(`${tab} panel inactive`)}return '4 tabs ok'});
+await check('句子预览',async()=>{await page.locator('#sentenceInput').fill('雨夜街道，电影写实风格');await page.locator('#sentenceButton').click();await page.waitForTimeout(120);return{resultVisible:await page.locator('#sentenceResult').isVisible(),emptyVisible:await page.locator('#sentenceEmpty').isVisible()}});
+await check('全部随机与快速应用',async()=>{await page.locator('#randomAllButton').click();await page.waitForTimeout(120);await page.locator('#applyQuickButton').click();await page.waitForTimeout(120);return{promptLength:(await page.locator('#promptOutput').inputValue()).length}});
+await check('详细页应用',async()=>{await page.locator('#detailViewTab').click();await page.locator('#applyDetailButton').click();await page.waitForTimeout(120);return{visible:await page.locator('#detailApplyBar').isVisible(),width:Math.round((await page.locator('#detailApplyBar').boundingBox()).width)}});
+await check('DOM唯一ID与水平边界',async()=>page.evaluate(()=>{const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);const dup=[...new Set(ids.filter((id,i)=>ids.indexOf(id)!==i))];return{duplicateIds:dup,horizontalOverflow:document.documentElement.scrollWidth>innerWidth,docWidth:document.documentElement.scrollWidth,viewport:innerWidth}}));
+await check('主操作可见',async()=>{await page.locator('#quickViewTab').click();return{quick:await page.locator('#applyQuickButton').isVisible(),copy:await page.locator('#copyPromptLarge').isVisible()}});
+console.log(JSON.stringify({results,errors},null,2));
+await browser.close();
+if(errors.length||results.some(r=>!r.ok))process.exitCode=1;
+

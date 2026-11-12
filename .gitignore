@@ -1,3 +1,6 @@
 .DS_Store
 Thumbs.db
 *.log
+scripts/inspect_*.mjs
+scripts/dark_snapshot.mjs
+docs/ux-audit/after*/

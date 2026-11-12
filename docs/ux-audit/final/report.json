@@ -1,0 +1,834 @@
+{
+  "phase": "final",
+  "generatedAt": "2026-11-12T18:46:50.286Z",
+  "sizes": [
+    {
+      "size": {
+        "name": "1920x1080",
+        "width": 1920,
+        "height": 1080
+      },
+      "quickMetrics": {
+        "viewport": {
+          "w": 1920,
+          "h": 1080
+        },
+        "doc": {
+          "w": 1920,
+          "h": 1080
+        },
+        "bodyClass": "light",
+        "main": {
+          "x": 60,
+          "y": 68,
+          "w": 1800,
+          "h": 1012,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "rail": {
+          "x": 84,
+          "y": 84,
+          "w": 148,
+          "h": 170,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "workspace": {
+          "x": 248,
+          "y": 84,
+          "w": 1142,
+          "h": 593,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 1406,
+          "y": 84,
+          "w": 430,
+          "h": 900,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "command": {
+          "x": 248,
+          "y": 92,
+          "w": 1142,
+          "h": 575,
+          "display": "block",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "quickApply": {
+          "x": 261,
+          "y": 582,
+          "w": 1116,
+          "h": 70,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "reveal": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "display": "none",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": false
+      },
+      "detailMetrics": {
+        "bodyClass": "light details-mode",
+        "doc": {
+          "w": 1920,
+          "h": 1080
+        },
+        "main": {
+          "x": 60,
+          "y": 68,
+          "w": 1800,
+          "h": 1012,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "workspace": {
+          "x": 248,
+          "y": 84,
+          "w": 1142,
+          "h": 958,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "output": {
+          "x": 1406,
+          "y": 84,
+          "w": 430,
+          "h": 900,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "activeCard": {
+          "x": 248,
+          "y": 425,
+          "w": 1142,
+          "h": 539,
+          "display": "block",
+          "overflowX": "hidden",
+          "overflowY": "auto"
+        },
+        "detailApply": {
+          "x": 248,
+          "y": 974,
+          "w": 1142,
+          "h": 68,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": false
+      },
+      "consoleErrors": []
+    },
+    {
+      "size": {
+        "name": "1440x900",
+        "width": 1440,
+        "height": 900
+      },
+      "quickMetrics": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "doc": {
+          "w": 1440,
+          "h": 900
+        },
+        "bodyClass": "light",
+        "main": {
+          "x": 0,
+          "y": 68,
+          "w": 1440,
+          "h": 832,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "rail": {
+          "x": 24,
+          "y": 84,
+          "w": 148,
+          "h": 170,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "workspace": {
+          "x": 188,
+          "y": 84,
+          "w": 782,
+          "h": 593,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 986,
+          "y": 84,
+          "w": 430,
+          "h": 792,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "command": {
+          "x": 188,
+          "y": 92,
+          "w": 782,
+          "h": 575,
+          "display": "block",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "quickApply": {
+          "x": 201,
+          "y": 582,
+          "w": 756,
+          "h": 70,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "reveal": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "display": "none",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": false
+      },
+      "detailMetrics": {
+        "bodyClass": "light details-mode",
+        "doc": {
+          "w": 1440,
+          "h": 900
+        },
+        "main": {
+          "x": 0,
+          "y": 68,
+          "w": 1440,
+          "h": 832,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "workspace": {
+          "x": 188,
+          "y": 84,
+          "w": 782,
+          "h": 792,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "output": {
+          "x": 986,
+          "y": 84,
+          "w": 430,
+          "h": 792,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "activeCard": {
+          "x": 188,
+          "y": 425,
+          "w": 782,
+          "h": 373,
+          "display": "block",
+          "overflowX": "hidden",
+          "overflowY": "auto"
+        },
+        "detailApply": {
+          "x": 188,
+          "y": 808,
+          "w": 782,
+          "h": 68,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": false
+      },
+      "consoleErrors": []
+    },
+    {
+      "size": {
+        "name": "1280x720",
+        "width": 1280,
+        "height": 720
+      },
+      "quickMetrics": {
+        "viewport": {
+          "w": 1280,
+          "h": 720
+        },
+        "doc": {
+          "w": 1280,
+          "h": 720
+        },
+        "bodyClass": "light",
+        "main": {
+          "x": 0,
+          "y": 68,
+          "w": 1280,
+          "h": 652,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "rail": {
+          "x": 18,
+          "y": 80,
+          "w": 148,
+          "h": 170,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "workspace": {
+          "x": 178,
+          "y": 80,
+          "w": 666,
+          "h": 606,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 858,
+          "y": 80,
+          "w": 404,
+          "h": 624,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "command": {
+          "x": 178,
+          "y": 88,
+          "w": 666,
+          "h": 588,
+          "display": "block",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "quickApply": {
+          "x": 189,
+          "y": 603,
+          "w": 644,
+          "h": 60,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "reveal": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "display": "none",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": false
+      },
+      "detailMetrics": {
+        "bodyClass": "light details-mode",
+        "doc": {
+          "w": 1280,
+          "h": 720
+        },
+        "main": {
+          "x": 0,
+          "y": 68,
+          "w": 1280,
+          "h": 652,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "workspace": {
+          "x": 178,
+          "y": 80,
+          "w": 666,
+          "h": 624,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "output": {
+          "x": 858,
+          "y": 80,
+          "w": 404,
+          "h": 624,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "activeCard": {
+          "x": 178,
+          "y": 411,
+          "w": 666,
+          "h": 215,
+          "display": "block",
+          "overflowX": "hidden",
+          "overflowY": "auto"
+        },
+        "detailApply": {
+          "x": 178,
+          "y": 636,
+          "w": 666,
+          "h": 68,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": false
+      },
+      "consoleErrors": []
+    },
+    {
+      "size": {
+        "name": "1024x768",
+        "width": 1024,
+        "height": 768
+      },
+      "quickMetrics": {
+        "viewport": {
+          "w": 1024,
+          "h": 768
+        },
+        "doc": {
+          "w": 1024,
+          "h": 1465
+        },
+        "bodyClass": "light",
+        "main": {
+          "x": 52,
+          "y": 68,
+          "w": 920,
+          "h": 1397,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "rail": {
+          "x": 70,
+          "y": 80,
+          "w": 884,
+          "h": 56,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "workspace": {
+          "x": 70,
+          "y": 150,
+          "w": 884,
+          "h": 593,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 70,
+          "y": 757,
+          "w": 884,
+          "h": 680,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "command": {
+          "x": 70,
+          "y": 158,
+          "w": 884,
+          "h": 575,
+          "display": "block",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "quickApply": {
+          "x": 83,
+          "y": 648,
+          "w": 858,
+          "h": 70,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "reveal": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "display": "none",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": true
+      },
+      "detailMetrics": {
+        "bodyClass": "light details-mode",
+        "doc": {
+          "w": 1024,
+          "h": 1819
+        },
+        "main": {
+          "x": 52,
+          "y": 68,
+          "w": 920,
+          "h": 1751,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "workspace": {
+          "x": 70,
+          "y": 150,
+          "w": 884,
+          "h": 947,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 70,
+          "y": 1111,
+          "w": 884,
+          "h": 680,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "activeCard": {
+          "x": 70,
+          "y": 491,
+          "w": 884,
+          "h": 528,
+          "display": "block",
+          "overflowX": "hidden",
+          "overflowY": "auto"
+        },
+        "detailApply": {
+          "x": 70,
+          "y": 1029,
+          "w": 884,
+          "h": 68,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": true
+      },
+      "consoleErrors": []
+    },
+    {
+      "size": {
+        "name": "768x1024",
+        "width": 768,
+        "height": 1024
+      },
+      "quickMetrics": {
+        "viewport": {
+          "w": 768,
+          "h": 1024
+        },
+        "doc": {
+          "w": 768,
+          "h": 1766
+        },
+        "bodyClass": "light",
+        "main": {
+          "x": 0,
+          "y": 68,
+          "w": 768,
+          "h": 1698,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "rail": {
+          "x": 18,
+          "y": 80,
+          "w": 732,
+          "h": 56,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "workspace": {
+          "x": 18,
+          "y": 150,
+          "w": 732,
+          "h": 658,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 18,
+          "y": 822,
+          "w": 732,
+          "h": 916,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "command": {
+          "x": 18,
+          "y": 158,
+          "w": 732,
+          "h": 640,
+          "display": "block",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "quickApply": {
+          "x": 31,
+          "y": 713,
+          "w": 706,
+          "h": 70,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "reveal": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "display": "none",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": true
+      },
+      "detailMetrics": {
+        "bodyClass": "light details-mode",
+        "doc": {
+          "w": 768,
+          "h": 2199
+        },
+        "main": {
+          "x": 0,
+          "y": 68,
+          "w": 768,
+          "h": 2131,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "workspace": {
+          "x": 18,
+          "y": 150,
+          "w": 732,
+          "h": 1091,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 18,
+          "y": 1255,
+          "w": 732,
+          "h": 916,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "activeCard": {
+          "x": 18,
+          "y": 491,
+          "w": 732,
+          "h": 672,
+          "display": "block",
+          "overflowX": "hidden",
+          "overflowY": "auto"
+        },
+        "detailApply": {
+          "x": 18,
+          "y": 1173,
+          "w": 732,
+          "h": 68,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": true
+      },
+      "consoleErrors": []
+    },
+    {
+      "size": {
+        "name": "390x844",
+        "width": 390,
+        "height": 844
+      },
+      "quickMetrics": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "doc": {
+          "w": 390,
+          "h": 2033
+        },
+        "bodyClass": "light",
+        "main": {
+          "x": 0,
+          "y": 60,
+          "w": 390,
+          "h": 1973,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "rail": {
+          "x": 10,
+          "y": 70,
+          "w": 370,
+          "h": 56,
+          "display": "flex",
+          "overflowX": "auto",
+          "overflowY": "hidden"
+        },
+        "workspace": {
+          "x": 10,
+          "y": 136,
+          "w": 370,
+          "h": 1121,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 10,
+          "y": 1267,
+          "w": 370,
+          "h": 744,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "command": {
+          "x": 10,
+          "y": 144,
+          "w": 370,
+          "h": 1103,
+          "display": "block",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "quickApply": {
+          "x": 23,
+          "y": 1108,
+          "w": 344,
+          "h": 124,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "reveal": {
+          "x": 0,
+          "y": 0,
+          "w": 0,
+          "h": 0,
+          "display": "none",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": true
+      },
+      "detailMetrics": {
+        "bodyClass": "light details-mode",
+        "doc": {
+          "w": 390,
+          "h": 2001
+        },
+        "main": {
+          "x": 0,
+          "y": 60,
+          "w": 390,
+          "h": 1941,
+          "display": "grid",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "workspace": {
+          "x": 10,
+          "y": 136,
+          "w": 370,
+          "h": 1089,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "output": {
+          "x": 10,
+          "y": 1235,
+          "w": 370,
+          "h": 744,
+          "display": "flex",
+          "overflowX": "hidden",
+          "overflowY": "hidden"
+        },
+        "activeCard": {
+          "x": 10,
+          "y": 543,
+          "w": 370,
+          "h": 604,
+          "display": "block",
+          "overflowX": "hidden",
+          "overflowY": "auto"
+        },
+        "detailApply": {
+          "x": 10,
+          "y": 1157,
+          "w": 370,
+          "h": 68,
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible"
+        },
+        "horizontalOverflow": false,
+        "verticalOverflow": true
+      },
+      "consoleErrors": []
+    }
+  ]
+}

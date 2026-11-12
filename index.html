@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
+  <meta name="color-scheme" content="light dark">
   <title>ComfyUI Prompt Studio</title>
   <link rel="stylesheet" href="./styles.css?v=20261112-ux-1">
-<script>try{localStorage.setItem('promptStudio.detailsView.v1','true');}catch(e){}</script></head>
+  <link rel="stylesheet" href="./styles.apple.css?v=20261113-2">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23007aff%27/%3E%3Cpath d=%27M22 16h13c9 0 15 5 15 13s-6 13-15 13h-5v8h-8V16zm8 8v10h5c4 0 7-2 7-5s-3-5-7-5h-5z%27 fill=%27white%27/%3E%3C/svg%3E">
+</head>
 <body class="light details-mode">
   <div class="app-shell">
     <header class="topbar">
@@ -20,8 +22,8 @@
       <div class="topbar-actions">
         <span class="status-pill"><i></i>完全离线</span>
         <span class="status-pill muted" id="saveStatus" role="status">本地自动保存</span>
-        <button class="icon-button" id="themeButton" type="button" title="切换主题">◐</button>
-        <button class="icon-button" id="helpButton" type="button" title="使用说明">?</button>
+        <button class="icon-button" id="themeButton" type="button" title="切换主题" aria-label="切换浅色或深色主题">◐</button>
+        <button class="icon-button" id="helpButton" type="button" title="使用说明" aria-label="打开使用说明">?</button>
       </div>
     </header>
 
@@ -91,7 +93,7 @@
                 <span>人物风格 <button class="text-button" id="clearStyleButton" type="button" title="清除当前人物风格">清除</button></span>
                 <div class="quick-style-select-row">
                   <select id="stylePreset" data-state></select>
-                  <button class="icon-button style-inspire-button" id="styleInspireButton" type="button" title="风格灵感：点卡片直接套用，Alt+单击仅选入" aria-haspopup="true" aria-expanded="false">✦</button>
+                  <button class="icon-button style-inspire-button" id="styleInspireButton" type="button" aria-label="打开风格灵感" title="风格灵感：点卡片直接套用，Alt+单击仅选入" aria-haspopup="true" aria-expanded="false">✦</button>
                 </div>
                 <div class="style-inspire-pop" id="styleInspirePop" hidden>
                   <div class="style-inspire-pop-head">
@@ -156,7 +158,7 @@
               <div class="quick-look-actions-secondary">
                 <button class="button secondary small" id="randomButton" type="button" title="只重抽顶部的人物、风格、造型和镜头，其他字段不动">换一套风格</button>
                 <button class="button secondary small" id="quickCopyPrompt" type="button">复制英文提示词</button>
-                <button class="icon-button" id="undoButton" type="button" disabled title="撤销上一次套用或随机">↺</button>
+                <button class="icon-button" id="undoButton" type="button" disabled aria-label="撤销上一次套用或随机" title="撤销上一次套用或随机">↺</button>
                 <button class="text-button danger" id="deleteStylePresetButton" type="button">删除</button>
                 <button class="text-button" id="quickGoDetail" type="button">去详细设置</button>
               </div>
@@ -1321,7 +1323,7 @@
           <div class="output-meta">
             <span class="output-size" id="outputSize"></span>
             <span class="output-model" id="outputModel">Z-Image Turbo</span>
-            <button class="icon-button" id="outputToggle" type="button" title="折叠 / 展开结果面板">⟩</button>
+            <button class="icon-button" id="outputToggle" type="button" aria-label="折叠或展开结果面板" title="折叠 / 展开结果面板">⟩</button>
           </div>
           <span class="output-collapsed-label">结果</span>
         </div>
@@ -1429,16 +1431,5 @@
 
   <script src="./data/prompts.js?v=20261112-ux-1"></script>
   <script src="./app.js?v=20261112-ux-1"></script>
-<script>
-window.addEventListener('load',()=>{setTimeout(()=>{
-  const tools=document.querySelector('.ux-detail-tools');
-  const fold=document.querySelector('.ux-search-fold');
-  const fc=document.querySelector('.workspace > .form-card.is-active');
-  const ts=document.querySelector('.workspace > .top-stack');
-  const wb=document.querySelector('.wizard-bar');
-  const tr=tools?tools.getBoundingClientRect():null;
-  const fr=fc?fc.getBoundingClientRect():null;
-  document.title='M4|tools.h='+(tr?Math.round(tr.height):'NA')+'|tools.top='+(tr?Math.round(tr.top):'NA')+'|fold.open='+(fold?fold.open:'NA')+'|fc.id='+(fc?fc.id:'NA')+'|fc.top='+(fr?Math.round(fr.top):'NA')+'|fc.h='+(fr?Math.round(fr.height):'NA')+'|fc.bottom='+(fr?Math.round(fr.bottom):'NA')+'|ts.h='+(ts?Math.round(ts.getBoundingClientRect().height):'NA')+'|wb.h='+(wb?Math.round(wb.getBoundingClientRect().height):'NA')+'|vh='+innerHeight+'|docScroll='+document.documentElement.scrollHeight;
-},800);});
-</script></body>
+</body>
 </html>
