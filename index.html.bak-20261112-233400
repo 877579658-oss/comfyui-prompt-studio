@@ -1,0 +1,1426 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="dark">
+  <title>ComfyUI Prompt Studio</title>
+  <link rel="stylesheet" href="./styles.css?v=20261112-ux-1">
+</head>
+<body class="light">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">P</div>
+        <div>
+          <strong>Prompt Studio</strong>
+          <span>ComfyUI 本地提示词工作台</span>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <span class="status-pill"><i></i>完全离线</span>
+        <span class="status-pill muted" id="saveStatus" role="status">本地自动保存</span>
+        <button class="icon-button" id="themeButton" type="button" title="切换主题">◐</button>
+        <button class="icon-button" id="helpButton" type="button" title="使用说明">?</button>
+      </div>
+    </header>
+
+    <main class="main-grid">
+      <section class="workspace">
+        <p id="modelSummary" class="sr-only" aria-hidden="true"></p>
+        <div class="top-stack">
+        <div class="workspace-switcher">
+<div class="workspace-tabs" role="tablist" aria-label="工作区视图">
+          <span class="workspace-tab-thumb" aria-hidden="true"></span>
+              <button class="workspace-tab is-active" id="quickViewTab" type="button" role="tab" aria-selected="true">快速预设</button>
+              <button class="workspace-tab" id="detailViewTab" type="button" role="tab" aria-selected="false">详细设置</button>
+            </div>
+        </div>
+          <section class="command-bar" id="section-sentence">
+          <div class="cmd-main" id="cmdMain">
+            <input id="sentenceInput" type="text" autocomplete="off" spellcheck="false" placeholder="描述画面，先预览确定选项（本地匹配，不自动翻译）">
+            <button class="button primary" id="sentenceButton" type="button">预览识别</button>
+            <button class="text-button" id="sentenceCollapse" type="button" title="收起一句话输入">收起</button>
+          </div>
+          <div class="cmd-side">
+            <div class="cmd-group content-scale-group">
+              <span class="cmd-label">内容尺度 <button class="icon-button tiny" id="scaleLockButton" type="button" title="锁定尺度，防止误切" aria-pressed="false">锁定</button></span>
+              <div class="scale-switch" id="scaleSwitch" role="group" aria-label="内容尺度">
+                <button type="button" data-scale="sfw" aria-pressed="true">日常</button>
+                <button type="button" data-scale="suggestive" aria-pressed="false">暗示</button>
+                <button type="button" data-scale="boudoir" aria-pressed="false">私房</button>
+                <button type="button" data-scale="adult" aria-pressed="false">开放</button>
+                <button type="button" data-scale="revealing" aria-pressed="false">露点</button>
+              </div>
+            </div>
+            <input type="hidden" id="contentScale" data-state value="sfw">
+            <label class="cmd-group random-inline-setting">
+              <span class="cmd-label" title="锁定后随机不会改变画幅">画幅锁定</span>
+              <select class="random-scope" id="ratioLock" data-state aria-label="画幅锁定">
+                <option value="">不锁定</option>
+                <option value="aspect ratio 1:1">1:1 方形</option>
+                <option value="aspect ratio 4:5, vertical portrait">4:5 竖版</option>
+                <option value="aspect ratio 3:2, horizontal photography">3:2 横向</option>
+                <option value="aspect ratio 16:9, cinematic widescreen">16:9 横向</option>
+                <option value="aspect ratio 9:16, vertical short video">9:16 竖屏</option>
+                <option value="aspect ratio 2.39:1, anamorphic widescreen">2.39:1 宽银幕</option>
+              </select>
+            </label>
+            <div class="cmd-utility-actions">
+              <button class="icon-button compact-button is-on" id="compactButton" type="button" title="简洁模式：只显示常用字段，以及你已经改动过的字段" aria-pressed="true">简洁</button>
+              <button class="button ghost" id="resetButton" type="button" title="恢复初始选项">重置全部</button>
+            </div>
+          </div>
+          <section class="quick-look-bar" id="quickLookBar" aria-label="人物风格、搭配与镜头快捷设置">
+            <div class="quick-look-fields">
+              <label class="quick-look-field">
+                <span>地域外观参考</span>
+                <select id="topPerson">
+                  <option value="">不指定</option>
+                  <option value="Chinese regional facial features">中国</option>
+                  <option value="East Asian features">东亚其他</option>
+                  <option value="Japanese and Korean features">日韩</option>
+                  <option value="Southeast Asian features">东南亚</option>
+                  <option value="South Asian features">南亚</option>
+                  <option value="Central Asian features">中亚</option>
+                  <option value="Turkish and West Asian features">西亚与中东</option>
+                  <option value="European features">欧洲</option>
+                  <option value="African features">非洲</option>
+                  <option value="Latin American features">拉美</option>
+                  <option value="Indigenous American features">美洲原住民</option>
+                  <option value="Pacific Islander features">太平洋岛民</option>
+                  <option value="Eurasian mixed features">欧亚混血</option>
+                  <option value="Afro-European mixed features">非欧混血</option>
+                  <option value="mixed-heritage features">多地域混合</option>
+                </select>
+              </label>
+              <label class="quick-look-field quick-look-age">
+                <span>年龄</span>
+                <select id="topAge"></select>
+              </label>
+              <label class="quick-look-field">
+                <span>人物风格 <button class="text-button" id="clearStyleButton" type="button" title="清除当前人物风格">清除</button></span>
+                <select id="stylePreset" data-state></select>
+              </label>
+              <label class="quick-look-field">
+                <span>着装</span>
+                <select id="topOutfitState">
+                  <option value="dressed">穿衣</option>
+                  <option value="half-nude">半裸</option>
+                  <option value="nude">全裸</option>
+                </select>
+              </label>
+              <label class="quick-look-field">
+                <span>预设服装</span>
+                <select id="styleLook" data-state></select>
+              </label>
+              <label class="quick-look-field">
+                <span>整体风格</span>
+                <select id="topVisualStyle"></select>
+              </label>
+              <label class="quick-look-field">
+                <span>镜头方案</span>
+                <select id="cameraPlanQuick"></select>
+              </label>
+              <label class="quick-look-field quick-look-mode">
+                <span>套用范围</span>
+                <select id="styleApplyMode" title="套用+随机：套用顶层已选项，其余字段随机">
+                  <option value="random-rest" selected>套用+随机</option>
+                  <option value="full">整套造型</option>
+                  <option value="makeup">只应用妆发</option>
+                  <option value="fill">只补未选择项</option>
+                </select>
+              </label>
+            </div>
+            <div class="quick-look-actions">
+              <button class="button primary small" id="applyQuickButton" type="button">套用当前</button>
+              <button class="button secondary small" id="randomButton" type="button" title="只重抽顶部的人物、风格、造型和镜头，其他字段不动">换一套风格</button>
+              <button class="icon-button" id="undoButton" type="button" disabled title="撤销上一次套用或随机">↺</button>
+              <button class="text-button danger" id="deleteStylePresetButton" type="button">删除</button>
+            </div>
+            <div class="quick-look-summary" id="quickLookSummary"></div>
+          </section>
+          <section class="reveal-quick-panel" id="revealQuickPanel" aria-label="露点场景与露出重点" hidden>
+            <div class="reveal-quick-heading">
+              <div>
+                <strong>露点方案</strong>
+                <small id="revealQuickHint">场景与露出重点只做预览，点击“套用当前”后一次性生效。</small>
+              </div>
+              <button class="text-button" id="randomRevealScenarioButton" type="button">随机露点方案</button>
+            </div>
+            <div class="quick-reveal-chips" id="quickRevealChips"></div>
+            <div class="reveal-quick-fields">
+              <label class="quick-look-field">
+                <span>表现强度</span>
+                <select id="revealIntensityQuick" data-state></select>
+              </label>
+              <label class="quick-look-field">
+                <span>露出重点</span>
+                <select id="revealTargetQuick" data-state></select>
+              </label>
+              <label class="quick-look-field">
+                <span>场景套餐</span>
+                <select id="revealScenarioQuick" data-state></select>
+              </label>
+              <label class="quick-look-field">
+                <span>姿势预设</span>
+                <select id="revealPoseQuick" data-state></select>
+              </label>
+              <label class="quick-look-field">
+                <span>成人道具</span>
+                <select id="adultPropQuick" data-state></select>
+              </label>
+            </div>
+            <div class="reveal-quick-actions">
+              <button class="button secondary small" id="rerollRevealPoseButton" type="button">换姿势</button>
+              <button class="button secondary small" id="rerollRevealCameraButton" type="button">换镜头</button>
+              <button class="button secondary small" id="rerollAdultPropButton" type="button">换道具</button>
+              <button class="button ghost small" id="clearAdultPropButton" type="button">清除道具</button>
+            </div>
+            <div class="reveal-empty-state" id="revealEmptyState" role="status" hidden>
+              <span id="revealEmptyText">当前筛选没有可用露点方案。</span>
+              <button class="text-button" id="revealResetFiltersButton" type="button">查看全部</button>
+            </div>
+          </section>
+          <div class="workspace-mode-row">
+            <div class="detail-preset-bar" id="detailPresetBar">
+              <label class="detail-scale-inline">
+                <span>尺度</span>
+                <select id="detailScale">
+                  <option value="sfw">日常</option>
+                  <option value="suggestive">暗示</option>
+                  <option value="boudoir">私房</option>
+                  <option value="adult">开放</option>
+                  <option value="revealing">露点</option>
+                </select>
+              </label>
+              <button class="icon-button tiny" id="detailScaleLockButton" type="button" title="锁定尺度，防止误切" aria-pressed="false">锁定</button>
+              <button class="button secondary small" id="detailPresetToggle" type="button">展开预设</button>
+              <span class="detail-preset-summary" id="detailPresetSummary"></span>
+              <button class="text-button" id="detailResetButton" type="button">重置</button>
+            </div>
+            
+          </div>
+          <div class="sentence-empty" id="sentenceEmpty" hidden>没有足够明确的匹配，未修改任何设置。原句已保留；请在详细设置手动选择，或填写自定义中英文描述。</div>
+          <div class="sentence-result" id="sentenceResult" hidden>
+            <div class="sentence-head">
+              <span id="sentenceSummary"></span>
+              <button class="text-button" id="sentenceUndo" type="button">撤销本次解析</button>
+            </div>
+            <div class="sentence-chips" id="sentenceChips"></div><p id="sentenceCoverage" class="ux-note"></p><button class="button secondary small" id="sentenceApply" type="button" disabled>应用已识别选项</button>
+          </div>
+          </section>
+
+          <div class="wizard-bar">
+            <div class="wizard-nav-row">
+              <span class="wizard-nav-label">流程</span>
+              <div class="wizard-steps" id="wizardSteps" role="tablist" aria-label="步骤"></div>
+            </div>
+            <div class="wizard-nav-row wizard-category-row">
+              <span class="wizard-nav-label">本步</span>
+              <div class="wizard-category-group">
+                <div class="wizard-categories" id="wizardCategories" role="tablist" aria-label="当前步骤分类"></div>
+              </div>
+            </div>
+            <div class="wizard-status-row">
+              <span class="wizard-nav-label">状态</span>
+              <div class="wizard-check" id="wizardCheck" role="status" aria-live="polite"></div>
+            </div>
+          </div>
+        </div>
+
+        <section class="quick-overview" id="quickOverview">
+          <div>
+            <span class="eyebrow">CURRENT PRESET</span>
+            <h2>当前创作预设</h2>
+            <p>顶部只显示整体方向。选好后点击“套用当前”，需要精修时再切换到“详细设置”。</p>
+          </div>
+          <div class="quick-overview-card">
+            <strong id="quickOverviewTitle">尚未套用预设</strong>
+            <p id="quickOverviewDetails">从顶部选择人物、年龄、人物风格、着装、预设服装、整体风格和镜头方案。</p>
+          </div>
+        </section>
+
+        <section class="quick-extras" id="quickExtras">
+          <div class="quick-extras-card">
+            <div class="quick-extras-head">
+              <div>
+                <strong>推荐风格</strong>
+                <small>点一下选入顶部，再点「套用当前」</small>
+              </div>
+              <span class="quick-extras-count" id="quickExtrasCount"></span>
+            </div>
+            <div class="quick-style-chips" id="quickStyleChips"></div>
+          </div>
+          <div class="quick-extras-card quick-next-card">
+            <strong>下一步</strong>
+            <small>需要精修场景、光线、镜头时再进详细设置；想直接出图就先复制提示词。</small>
+            <div class="quick-next-actions">
+              <button class="button secondary small" id="quickGoDetail" type="button">去详细设置</button>
+              <button class="button secondary small" id="quickCopyPrompt" type="button">复制英文提示词</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-card is-active" id="section-model">
+          <div class="card-heading">
+            <div class="step-number">01</div>
+            <div>
+              <h2>模型与输出</h2>
+              <p>切换模型后，提示词会自动采用对应结构。</p>
+            </div>
+            <span class="mode-badge" id="modeBadge">图像</span>
+          </div>
+
+          <div class="control-grid cols-3">
+            <label class="field wide">
+              <span>目标模型</span>
+              <select id="model" data-state></select>
+              <small id="modelHint"></small>
+            </label>
+            <label class="field custom-only" id="customModelWrap">
+              <span>自定义模型名称</span>
+              <input id="customModelName" data-state type="text" placeholder="例如我的定制模型">
+            </label>
+            <label class="field custom-only" id="customFormatWrap">
+              <span>输出结构</span>
+              <select id="customFormat" data-state>
+                <option value="natural">自然语言</option>
+                <option value="tags">标签流</option>
+                <option value="h3">连续镜头时间轴</option>
+                <option value="i2v">图生视频</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>输出方式</span>
+              <input type="text" value="英文主提示词 + 中文参考（自定义需分别填写）" readonly>
+              <small>英文用于 ComfyUI 复制，中文用于阅读和校对；LoRA 触发词保持原文。</small>
+            </label>
+            <input type="hidden" id="language" data-state value="en">
+            <label class="field">
+              <span>细节程度</span>
+              <select id="detailLevel" data-state>
+                <option value="balanced">平衡</option>
+                <option value="concise">精简</option>
+                <option value="cinematic">电影级详细</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>画面比例</span>
+              <select id="aspectRatio" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>画面尺寸（像素）</span>
+              <div class="size-row">
+                <select id="sizePreset"></select>
+                <input id="imageWidth" data-state type="number" min="256" max="4096" step="8" inputmode="numeric" aria-label="宽度">
+                <span class="size-x">×</span>
+                <input id="imageHeight" data-state type="number" min="256" max="4096" step="8" inputmode="numeric" aria-label="高度">
+              </div>
+              <small id="sizeHint"></small>
+            </label>
+            <label class="field wide">
+              <span>LoRA 触发词</span>
+              <input id="loraTrigger" data-state type="text" placeholder="填写当前 LoRA 的触发词，可留空">
+              <small id="loraTriggerHint">只填触发词；LoRA 权重请在 ComfyUI 的 LoRA Loader 中控制，建议从 0.7–0.9 开始测试。</small>
+            </label>
+            <label class="switch-row compact-switch lora-direct-toggle">
+              <span>
+                <strong>LoRA 直出</strong>
+                <small>只精简默认描述；你主动选择的袜类材质、鞋履、配饰、表情和图案等细节仍会保留。</small>
+              </span>
+              <input type="checkbox" id="loraDirect" data-state>
+            </label>
+            <div class="adult-layer-panel" id="adultLayerWrap" hidden>
+              <label class="field wide">
+                <span>开放附加层</span>
+                <select id="adultLayer" data-state></select>
+                <small>独立于普通提示词，只在“开放”且开启 LoRA 直出时使用。</small>
+              </label>
+            </div>
+            <div class="lora-ui" hidden>
+              <div class="lora-box">
+                <div class="lora-head">
+                  <span id="loraSummary">我的 LoRA 清单</span>
+                  <span class="lora-head-actions">
+                    <button class="text-button" id="loraPaste" type="button">批量粘贴</button>
+                    <button class="text-button" id="loraAdd" type="button">＋ 添加</button>
+                  </span>
+                </div>
+                <div class="lora-list" id="loraList"></div>
+                <div class="lora-paste" id="loraPasteBox" hidden>
+                  <textarea id="loraPasteText" rows="5" placeholder="每行一条，支持这三种写法：&#10;触发词&#10;触发词, 0.8&#10;名称, 触发词, 0.8"></textarea>
+                  <div class="lora-paste-actions">
+                    <button class="button primary" id="loraPasteSave" type="button">解析并加入</button>
+                    <button class="button ghost" id="loraPasteCancel" type="button">取消</button>
+                  </div>
+                </div>
+                <div class="lora-form" id="loraForm" hidden>
+                  <input id="loraName" type="text" placeholder="名称（可留空，只给自己看）">
+                  <input id="loraTriggerInput" type="text" placeholder="触发词，例如 moss_xvstyle">
+                  <input id="loraWeight" type="number" min="0.1" max="2" step="0.05" value="0.8" title="权重（只写进 JSON，不写进提示词）">
+                  <button class="button primary" id="loraSave" type="button">保存</button>
+                  <button class="button ghost" id="loraCancel" type="button">取消</button>
+                </div>
+                <div class="lora-actions">
+                  <button class="text-button" id="loraExport" type="button">导出清单</button>
+                  <button class="text-button" id="loraImport" type="button">导入清单</button>
+                  <input id="loraImportFile" type="file" accept="application/json" hidden>
+                  <small>先只勾一个主 LoRA 做基准，再添加第二个；不兼容当前底模的项目会自动禁用。</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="notice" id="modelNotice"></div>
+        </section>
+
+        <section class="form-card" id="section-character">
+          <div class="card-heading">
+            <div class="step-number">02</div>
+            <div>
+              <h2>角色与外观</h2>
+              <p>人物选项默认限制为成年虚构角色，避免身份和年龄歧义。</p>
+            </div>
+            <span class="mini-badge">成年安全</span>
+          </div>
+
+          <div class="anatomy-gate" id="pubicGate" style="display: none">
+            <div>
+              <strong id="pubicGateTitle">下体细节暂不可选</strong>
+              <small id="pubicGateReason">需要先让下体在当前画面中实际可见。</small>
+            </div>
+            <button class="button secondary small" id="pubicGateButton" type="button">补齐显示条件</button>
+          </div>
+
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>主体类型</span>
+              <select id="subjectType" data-state>
+                <option value="person">单个人物</option>
+                <option value="couple">双人角色</option>
+                <option value="group">小群像</option>
+                <option value="creature">奇幻生物</option>
+                <option value="object">产品 / 物体</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>关系构成</span>
+              <select id="relationshipType" data-state></select>
+            </label>
+            <label class="field">
+              <span>画面重点</span>
+              <select id="visualEmphasis" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>关系气质</span>
+              <select id="relationshipDynamic" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色预设</span>
+              <select id="rolePreset" data-state></select>
+              <small>按职业、礼服、居家和双人关系分组；应用后会覆盖对应字段，仍可逐项修改。</small>
+            </label>
+            <label class="field">
+              <span>人物构成总览</span>
+              <select id="gender" data-state disabled></select>
+              <small>由关系构成自动生成，只用于总人数与性别总览。</small>
+            </label>
+            <label class="field">
+              <span>角色 A · 性别呈现</span>
+              <select id="firstGender" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 年龄感</span>
+              <select id="age" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 外貌取向</span>
+              <select id="appearance" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 A · 画面位置</span>
+              <select id="firstPosition" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 体型</span>
+              <select id="body" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 身高感</span>
+              <select id="heightPresence" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 体型比例</span>
+              <select id="bodyProportion" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 头身比</span>
+              <select id="headBodyRatio" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 上下身比例</span>
+              <select id="legTorsoRatio" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 肩宽</span>
+              <select id="shoulderWidth" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 整体轮廓</span>
+              <select id="silhouetteBalance" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 腰线</span>
+              <select id="waistShape" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 臀部轮廓</span>
+              <select id="hipContour" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 胸部 / 胸廓轮廓</span>
+              <select id="chestContour" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 腿部比例</span>
+              <select id="legProportion" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 肌肉质感</span>
+              <select id="muscleTone" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 身材表现强度</span>
+              <select id="bodyEmphasis" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳房大小</span>
+              <select id="breastSize" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳房形状</span>
+              <select id="breastShape" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳房间距</span>
+              <select id="breastSpacing" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳头大小</span>
+              <select id="nippleSize" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳头颜色</span>
+              <select id="nippleColor" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳晕大小</span>
+              <select id="areolaSize" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 乳晕颜色</span>
+              <select id="areolaColor" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴毛状态</span>
+              <select id="pubicHairState" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴毛数量</span>
+              <select id="pubicHairAmount" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴毛形状</span>
+              <select id="pubicHairShape" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴毛长度</span>
+              <select id="pubicHairLength" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴毛质地</span>
+              <select id="pubicHairTexture" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴毛颜色</span>
+              <select id="pubicHairColor" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 外阴整体轮廓</span>
+              <select id="vulvaContour" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 阴阜饱满度</span>
+              <select id="monsFullness" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 大阴唇轮廓</span>
+              <select id="labiaMajoraShape" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 小阴唇突出度</span>
+              <select id="labiaMinoraVisibility" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 外阴颜色</span>
+              <select id="vulvaColor" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 外阴颜色强度</span>
+              <select id="vulvaColorIntensity" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 女性湿润表现</span>
+              <select id="femaleWetness" data-state></select>
+              <small>只有下体实际进入画面时才可选择。</small>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 男性下体表现</span>
+              <select id="maleVisibility" data-state></select>
+              <small>先选择可见程度，再设置状态、尺寸和形态。</small>
+            </label>
+            <label class="field"><span>角色 A · 勃起状态</span><select id="maleErection" data-state></select></label>
+            <label class="field"><span>角色 A · 阴茎长度</span><select id="penisLength" data-state></select></label>
+            <label class="field"><span>角色 A · 阴茎粗细</span><select id="penisGirth" data-state></select></label>
+            <label class="field"><span>角色 A · 龟头大小</span><select id="glansSize" data-state></select></label>
+            <label class="field"><span>角色 A · 包皮状态</span><select id="foreskinState" data-state></select></label>
+            <label class="field"><span>角色 A · 阴囊视觉大小</span><select id="scrotumSize" data-state></select></label>
+            <label class="field"><span>角色 A · 阴囊状态</span><select id="scrotumState" data-state></select></label>
+            <label class="field"><span>角色 A · 阴茎形态</span><select id="penisCurvature" data-state></select></label>
+            <label class="field"><span>角色 A · 静脉表现</span><select id="penisVeins" data-state></select></label>
+            <label class="field"><span>角色 A · 局部肤色</span><select id="maleGenitalSkin" data-state></select></label>
+            <label class="field"><span>角色 A · 龟头颜色</span><select id="glansColor" data-state></select></label>
+            <label class="field"><span>角色 A · 阴毛状态</span><select id="malePubicHairState" data-state></select></label>
+            <label class="field"><span>角色 A · 阴毛数量</span><select id="malePubicHairAmount" data-state></select></label>
+            <label class="field"><span>角色 A · 阴毛形状</span><select id="malePubicHairShape" data-state></select></label>
+            <label class="field"><span>角色 A · 阴毛颜色</span><select id="malePubicHairColor" data-state></select></label>
+            <label class="field wide">
+              <span>角色 B · 男性下体表现</span>
+              <select id="secondMaleVisibility" data-state></select>
+              <small>只控制角色 B；不会与角色 A 共用。</small>
+            </label>
+            <label class="field"><span>角色 B · 勃起状态</span><select id="secondMaleErection" data-state></select></label>
+            <label class="field"><span>角色 B · 阴茎长度</span><select id="secondPenisLength" data-state></select></label>
+            <label class="field"><span>角色 B · 阴茎粗细</span><select id="secondPenisGirth" data-state></select></label>
+            <label class="field"><span>角色 B · 龟头大小</span><select id="secondGlansSize" data-state></select></label>
+            <label class="field"><span>角色 B · 包皮状态</span><select id="secondForeskinState" data-state></select></label>
+            <label class="field"><span>角色 B · 阴囊视觉大小</span><select id="secondScrotumSize" data-state></select></label>
+            <label class="field"><span>角色 B · 阴囊状态</span><select id="secondScrotumState" data-state></select></label>
+            <label class="field"><span>角色 B · 阴茎形态</span><select id="secondPenisCurvature" data-state></select></label>
+            <label class="field"><span>角色 B · 静脉表现</span><select id="secondPenisVeins" data-state></select></label>
+            <label class="field"><span>角色 B · 局部肤色</span><select id="secondMaleGenitalSkin" data-state></select></label>
+            <label class="field"><span>角色 B · 龟头颜色</span><select id="secondGlansColor" data-state></select></label>
+            <label class="field"><span>角色 B · 阴毛状态</span><select id="secondMalePubicHairState" data-state></select></label>
+            <label class="field"><span>角色 B · 阴毛数量</span><select id="secondMalePubicHairAmount" data-state></select></label>
+            <label class="field"><span>角色 B · 阴毛形状</span><select id="secondMalePubicHairShape" data-state></select></label>
+            <label class="field"><span>角色 B · 阴毛颜色</span><select id="secondMalePubicHairColor" data-state></select></label>
+            <label class="field wide">
+              <span>角色 C · 男性下体表现</span>
+              <select id="thirdMaleVisibility" data-state></select>
+              <small>只控制角色 C；不会与角色 A、B 共用。</small>
+            </label>
+            <label class="field"><span>角色 C · 勃起状态</span><select id="thirdMaleErection" data-state></select></label>
+            <label class="field"><span>角色 C · 阴茎长度</span><select id="thirdPenisLength" data-state></select></label>
+            <label class="field"><span>角色 C · 阴茎粗细</span><select id="thirdPenisGirth" data-state></select></label>
+            <label class="field"><span>角色 C · 龟头大小</span><select id="thirdGlansSize" data-state></select></label>
+            <label class="field"><span>角色 C · 包皮状态</span><select id="thirdForeskinState" data-state></select></label>
+            <label class="field"><span>角色 C · 阴囊视觉大小</span><select id="thirdScrotumSize" data-state></select></label>
+            <label class="field"><span>角色 C · 阴囊状态</span><select id="thirdScrotumState" data-state></select></label>
+            <label class="field"><span>角色 C · 阴茎形态</span><select id="thirdPenisCurvature" data-state></select></label>
+            <label class="field"><span>角色 C · 静脉表现</span><select id="thirdPenisVeins" data-state></select></label>
+            <label class="field"><span>角色 C · 局部肤色</span><select id="thirdMaleGenitalSkin" data-state></select></label>
+            <label class="field"><span>角色 C · 龟头颜色</span><select id="thirdGlansColor" data-state></select></label>
+            <label class="field"><span>角色 C · 阴毛状态</span><select id="thirdMalePubicHairState" data-state></select></label>
+            <label class="field"><span>角色 C · 阴毛数量</span><select id="thirdMalePubicHairAmount" data-state></select></label>
+            <label class="field"><span>角色 C · 阴毛形状</span><select id="thirdMalePubicHairShape" data-state></select></label>
+            <label class="field"><span>角色 C · 阴毛颜色</span><select id="thirdMalePubicHairColor" data-state></select></label>
+            <label class="field">
+              <span>角色 A · 脸型与面部</span>
+              <select id="face" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 发型</span>
+              <select id="hairStyle" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 发色</span>
+              <select id="hairColor" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 眼睛</span>
+              <select id="eyes" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 表情</span>
+              <select id="expression" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 嘴部与唾液</span>
+              <select id="mouthDetail" data-state></select>
+              <small>流口水、唾液拉丝等细节需要面部或嘴部可见。</small>
+            </label>
+            <label class="field">
+              <span>角色 A · 皮肤质感</span>
+              <select id="skin" data-state></select>
+            </label>
+            <label class="field">
+              <span>生物类型</span>
+              <select id="creatureType" data-state></select>
+            </label>
+            <label class="field">
+              <span>物体主体（英文）</span>
+              <input id="objectDescription" data-state type="text" placeholder="e.g. a black mechanical wristwatch">
+            </label>
+            <label class="field">
+              <span>物体主体（中文）</span>
+              <input id="objectDescriptionZh" data-state type="text" placeholder="例如：黑色机械腕表">
+            </label>
+            <label class="field wide">
+              <span>角色 A · 自定义补充（英文）</span>
+              <textarea id="characterCustom" data-state rows="2" placeholder="English details for character A"></textarea>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 自定义补充（中文）</span>
+              <textarea id="characterCustomZh" data-state rows="2" placeholder="角色 A 的中文补充描述"></textarea>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 性别呈现</span>
+              <select id="secondGender" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 画面位置</span>
+              <select id="secondPosition" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 年龄感</span>
+              <select id="secondAge" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 外貌取向</span>
+              <select id="secondAppearance" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 体型</span>
+              <select id="secondBody" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 脸型与面部</span>
+              <select id="secondFace" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 表情</span>
+              <select id="secondExpression" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 发型</span>
+              <select id="secondHairStyle" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 发色</span>
+              <select id="secondHairColor" data-state></select>
+            </label>
+            <label class="field multi-only wide">
+              <span>角色 B · 自定义补充（英文）</span>
+              <textarea id="secondCharacterCustom" data-state rows="2" placeholder="English details for character B"></textarea>
+            </label>
+            <label class="field multi-only wide">
+              <span>角色 B · 自定义补充（中文）</span>
+              <textarea id="secondCharacterCustomZh" data-state rows="2" placeholder="角色 B 的中文补充描述"></textarea>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 性别呈现</span>
+              <select id="thirdGender" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 画面位置</span>
+              <select id="thirdPosition" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 年龄感</span>
+              <select id="thirdAge" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 外貌取向</span>
+              <select id="thirdAppearance" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 体型</span>
+              <select id="thirdBody" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 脸型与面部</span>
+              <select id="thirdFace" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 表情</span>
+              <select id="thirdExpression" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 发型</span>
+              <select id="thirdHairStyle" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 发色</span>
+              <select id="thirdHairColor" data-state></select>
+            </label>
+            <label class="field group-only wide">
+              <span>角色 C · 自定义补充（英文）</span>
+              <textarea id="thirdCharacterCustom" data-state rows="2" placeholder="English details for character C"></textarea>
+            </label>
+            <label class="field group-only wide">
+              <span>角色 C · 自定义补充（中文）</span>
+              <textarea id="thirdCharacterCustomZh" data-state rows="2" placeholder="角色 C 的中文补充描述"></textarea>
+            </label>
+            <label class="field">
+              <span>角色 A · 气质与造型</span>
+              <select id="adultArchetype" data-state></select>
+            </label>
+          </div>
+
+        </section>
+
+        <section class="form-card" id="section-outfit">
+          <div class="card-heading">
+            <div class="step-number">03</div>
+            <div>
+              <h2>服装与造型</h2>
+              <p>选择服装主体，再用材质、颜色和配饰控制细节。</p>
+            </div>
+          </div>
+          <div class="outfit-role-bar" id="outfitRoleBar" role="tablist" aria-label="服装角色" hidden>
+            <span>当前角色</span>
+            <div>
+              <button type="button" data-outfit-role="first" class="is-active" aria-selected="true">角色 A</button>
+              <button type="button" data-outfit-role="second" aria-selected="false">角色 B</button>
+              <button type="button" data-outfit-role="third" aria-selected="false">角色 C</button>
+              <button type="button" id="copyOutfitRole">应用到其他角色</button>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field wide">
+              <span>角色 A · 基础状态</span>
+              <select id="outfitState" data-state></select>
+              <small>穿衣时继续选择穿着方式；裸体时自动关闭主服装。</small>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 穿着方式</span>
+              <select id="outfitMode" data-state></select>
+              <small id="outfitModeHint">正常着衣时，下方服装细项全部可用。</small>
+            </label>
+            <label class="field sheer-only">
+              <span>透视材质</span>
+              <select id="sheerMaterial" data-state></select>
+            </label>
+            <label class="field sheer-only">
+              <span>透视程度</span>
+              <select id="sheerLevel" data-state></select>
+            </label>
+            <label class="field half-nude-only wide">
+              <span>角色 A · 主要裸露部位</span>
+              <select id="halfNudeStyle" data-state></select>
+            </label>
+            <label class="field half-nude-only wide">
+              <span id="coveredGarmentLabel">角色 A · 遮盖服装</span>
+              <select id="coveredGarment" data-state></select>
+              <small id="coveredGarmentHint">选择具体服装款式；其他字段继续控制材质、透明度、颜色和版型。</small>
+            </label>
+            <label class="field half-nude-only">
+              <span>覆盖区透明度</span>
+              <select id="coveredOpacity" data-state></select>
+            </label>
+            <label class="field half-nude-only">
+              <span>覆盖区材质</span>
+              <select id="coveredMaterial" data-state></select>
+            </label>
+            <label class="field half-nude-only">
+              <span>覆盖区颜色</span>
+              <select id="coveredColor" data-state></select>
+            </label>
+            <label class="field half-nude-only">
+              <span>覆盖区版型</span>
+              <select id="coveredFit" data-state></select>
+            </label>
+            <label class="field half-nude-only half-sheer-only wide">
+              <span>透视内层</span>
+              <select id="coveredInner" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 B · 着装模式</span>
+              <select id="secondOutfitMode" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 B · 透视材质</span>
+              <select id="secondSheerMaterial" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 B · 透视程度</span>
+              <select id="secondSheerLevel" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 B · 主要裸露部位</span>
+              <select id="secondHalfNudeStyle" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 B · 遮盖服装</span>
+              <select id="secondCoveredGarment" data-state></select>
+            </label>
+            <label class="field"><span>角色 B · 遮盖透明度</span><select id="secondCoveredOpacity" data-state></select></label>
+            <label class="field"><span>角色 B · 遮盖材质</span><select id="secondCoveredMaterial" data-state></select></label>
+            <label class="field"><span>角色 B · 遮盖颜色</span><select id="secondCoveredColor" data-state></select></label>
+            <label class="field"><span>角色 B · 遮盖版型</span><select id="secondCoveredFit" data-state></select></label>
+            <label class="field wide"><span>角色 B · 透视内层</span><select id="secondCoveredInner" data-state></select></label>
+            <label class="field wide">
+              <span>角色 C · 着装模式</span>
+              <select id="thirdOutfitMode" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 C · 透视材质</span>
+              <select id="thirdSheerMaterial" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 C · 透视程度</span>
+              <select id="thirdSheerLevel" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 C · 主要裸露部位</span>
+              <select id="thirdHalfNudeStyle" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 C · 遮盖服装</span>
+              <select id="thirdCoveredGarment" data-state></select>
+            </label>
+            <label class="field"><span>角色 C · 遮盖透明度</span><select id="thirdCoveredOpacity" data-state></select></label>
+            <label class="field"><span>角色 C · 遮盖材质</span><select id="thirdCoveredMaterial" data-state></select></label>
+            <label class="field"><span>角色 C · 遮盖颜色</span><select id="thirdCoveredColor" data-state></select></label>
+            <label class="field"><span>角色 C · 遮盖版型</span><select id="thirdCoveredFit" data-state></select></label>
+            <label class="field wide"><span>角色 C · 透视内层</span><select id="thirdCoveredInner" data-state></select></label>
+            <label class="field wide">
+              <span>角色 A · 服装图案位置</span>
+              <select id="garmentGraphicZone" data-state></select>
+              <small id="garmentGraphicHint">按头颈、肩臂、躯干、腰胯、背部和腿部细分；裸体时请使用“镜头强调部位”。</small>
+            </label>
+            <label class="field garment-graphic-detail">
+              <span>图案内容</span>
+              <select id="garmentGraphicMotif" data-state></select>
+            </label>
+            <label class="field garment-graphic-detail">
+              <span>制作工艺</span>
+              <select id="garmentGraphicTechnique" data-state></select>
+            </label>
+            <label class="field garment-graphic-detail">
+              <span>图案尺寸</span>
+              <select id="garmentGraphicScale" data-state></select>
+            </label>
+            <label class="field garment-graphic-detail">
+              <span>图案颜色</span>
+              <select id="garmentGraphicColor" data-state></select>
+            </label>
+            <label class="field wide garment-graphic-detail">
+              <span>自定义图案说明（英文）</span>
+              <input id="garmentGraphicCustom" data-state type="text" placeholder="e.g. a silver mechanical emblem centered on the front panel">
+            </label>
+            <label class="field wide garment-graphic-detail">
+              <span>自定义图案说明（中文）</span>
+              <input id="garmentGraphicCustomZh" data-state type="text" placeholder="例如：一枚银色机械纹章，沿裤装前裆拼片居中排布">
+            </label>
+            <label class="field wide">
+              <span>角色 A · 服装</span>
+              <select id="outfit" data-state></select>
+              <small>洛丽塔、水手服和女仆装在「洛丽塔与洋装」「水手与制服」分组；露点模式显示对应露点款式。</small>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 服装位移</span>
+              <select id="garmentDisplacement" data-state></select>
+              <small>控制衣服完整、敞开、滑落、拉到一侧或半脱，不重复增加新的服装款式。</small>
+            </label>
+            <label class="field">
+              <span>角色 A · 材质</span>
+              <select id="fabric" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 颜色</span>
+              <select id="outfitColor" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 版型</span>
+              <select id="fit" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 配饰</span>
+              <select id="accessories" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 鞋履</span>
+              <select id="footwear" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜类款式</span>
+              <select id="hosiery" data-state></select>
+              <small>先选具体袜型；材质、透明度、光泽、图案和袜口会在下方显示。</small>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜类纤维 / 材质</span>
+              <select id="hosieryMaterial" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜类厚度 / 透明度</span>
+              <select id="hosieryOpacity" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜类光泽</span>
+              <select id="hosieryFinish" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜类图案与织法</span>
+              <select id="hosieryPattern" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 脚尖结构</span>
+              <select id="hosieryToe" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜口与腰头</span>
+              <select id="hosieryTop" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 袜类颜色</span>
+              <select id="hosieryColor" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 B · 服装</span>
+              <select id="secondOutfit" data-state></select>
+            </label>
+            <label class="field"><span>角色 B · 材质</span><select id="secondFabric" data-state></select></label>
+            <label class="field"><span>角色 B · 颜色</span><select id="secondOutfitColor" data-state></select></label>
+            <label class="field"><span>角色 B · 版型</span><select id="secondFit" data-state></select></label>
+            <label class="field"><span>角色 B · 配饰</span><select id="secondAccessories" data-state></select></label>
+            <label class="field"><span>角色 B · 鞋履</span><select id="secondFootwear" data-state></select></label>
+            <label class="field"><span>角色 B · 袜类款式</span><select id="secondHosiery" data-state></select></label>
+            <label class="field wide">
+              <span>角色 C · 服装</span>
+              <select id="thirdOutfit" data-state></select>
+            </label>
+            <label class="field"><span>角色 C · 材质</span><select id="thirdFabric" data-state></select></label>
+            <label class="field"><span>角色 C · 颜色</span><select id="thirdOutfitColor" data-state></select></label>
+            <label class="field"><span>角色 C · 版型</span><select id="thirdFit" data-state></select></label>
+            <label class="field"><span>角色 C · 配饰</span><select id="thirdAccessories" data-state></select></label>
+            <label class="field"><span>角色 C · 鞋履</span><select id="thirdFootwear" data-state></select></label>
+            <label class="field"><span>角色 C · 袜类款式</span><select id="thirdHosiery" data-state></select></label>
+            <label class="field">
+              <span>角色 A · 妆发与造型</span>
+              <select id="grooming" data-state></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-action">
+          <div class="card-heading">
+            <div class="step-number">04</div>
+            <div>
+              <h2>姿势与动作</h2>
+              <p>视频建议保持一个主要动作，用次级动态增强物理感。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>姿势</span>
+              <select id="pose" data-state></select>
+            </label>
+            <label class="field">
+              <span>主要动作</span>
+              <select id="action" data-state></select>
+            </label>
+            <label class="field reveal-only">
+              <span>露点表现</span>
+              <select id="revealMode" data-state></select>
+              <small>根据当前服装、姿势和镜头，只开放画面中实际可见的身体细节。</small>
+            </label>
+            <label class="field reveal-only">
+              <span>露点动作</span>
+              <select id="revealAction" data-state></select>
+            </label>
+            <label class="field reveal-only">
+              <span>裙下内搭</span>
+              <select id="underwearStyle" data-state></select>
+            </label>
+            <label class="field multi-only">
+              <span>互动</span>
+              <select id="interaction" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 身体朝向</span>
+              <select id="bodyOrientation" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 镜头强调部位</span>
+              <select id="bodyFocus" data-state></select>
+              <small>每个姿势和动作模板都会给出建议，可随时手动改。适用于着装、半裸和裸体；开放档额外提供前裆上缘。</small>
+            </label>
+            <label class="field multi-only">
+              <span>角色 B · 镜头焦点</span>
+              <select id="bodyFocusSecondary" data-state></select>
+            </label>
+            <label class="field group-only">
+              <span>角色 C · 镜头焦点</span>
+              <select id="bodyFocusTertiary" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 视线</span>
+              <select id="gaze" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 手部姿势</span>
+              <select id="handPose" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 腿部姿势</span>
+              <select id="legPose" data-state></select>
+            </label>
+            <label class="field">
+              <span>角色 A · 体态线条</span>
+              <select id="postureLine" data-state></select>
+            </label>
+            <label class="field wide">
+              <span>角色 A · 身体反应</span>
+              <select id="bodyReaction" data-state></select>
+              <small>泛红、潮红、薄汗、喘息和身体反应。</small>
+            </label>
+            <label class="field">
+              <span>亲密关系与层次</span>
+              <select id="intimacyLevel" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>运动强度</span>
+              <select id="motionLevel" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>视频时长</span>
+              <select id="duration" data-state>
+                <option value="3">3 秒</option>
+                <option value="5" selected>5 秒</option>
+                <option value="8">8 秒</option>
+                <option value="10">10 秒</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="sub-panel h3-only" id="h3ActionPanel">
+            <div class="sub-panel-heading">
+              <div>
+                <strong>H3 声音与对白</strong>
+                <small>参考 H3 连续时间轴与声音线索结构，不加入露骨台词。</small>
+              </div>
+              <span class="mini-badge">H3 专属</span>
+            </div>
+            <div class="control-grid cols-3">
+              <label class="field">
+                <span>声音模式</span>
+                <select id="audioMode" data-state></select>
+              </label>
+              <label class="field">
+                <span>声音表演</span>
+                <select id="voiceTone" data-state></select>
+              </label>
+              <label class="field">
+                <span>一致性重点</span>
+                <select id="consistencyFocus" data-state></select>
+              </label>
+              <label class="field wide">
+                <span>对白（英文，每行一句）</span>
+                <textarea id="dialogueScript" data-state rows="3" placeholder="e.g. Man: We should go.&#10;Woman: One more minute."></textarea>
+              </label>
+              <label class="field wide">
+                <span>对白（中文，每行一句）</span>
+                <textarea id="dialogueScriptZh" data-state rows="3" placeholder="例如：男：我们该出发了。&#10;女：再等一分钟。"></textarea>
+              </label>
+              <label class="field">
+                <span>画外音（英文，每行一句）</span>
+                <textarea id="voiceoverScript" data-state rows="3" placeholder="e.g. Woman: The rain has not stopped."></textarea>
+              </label>
+              <label class="field">
+                <span>画外音（中文，每行一句）</span>
+                <textarea id="voiceoverScriptZh" data-state rows="3" placeholder="例如：女：雨一直没有停。"></textarea>
+              </label>
+            </div>
+            <label class="switch-row compact-switch">
+              <span>
+                <strong>同一时刻只让一人说话</strong>
+                <small>双人镜头中出现对白时，减少抢话和口型冲突。</small>
+              </span>
+              <input type="checkbox" id="oneSpeaker" data-state checked>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-scene">
+          <div class="card-heading">
+            <div class="step-number">05</div>
+            <div>
+              <h2>场景与环境</h2>
+              <p>场景、时间、天气和道具共同决定叙事环境。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field wide">
+              <span>场景</span>
+              <select id="scene" data-state></select>
+            </label>
+            <label class="field">
+              <span>时间</span>
+              <select id="timeOfDay" data-state></select>
+            </label>
+            <label class="field">
+              <span>天气</span>
+              <select id="weather" data-state></select>
+            </label>
+            <label class="field">
+              <span>背景层次</span>
+              <select id="background" data-state></select>
+            </label>
+            <label class="field">
+              <span>道具</span>
+              <select id="props" data-state></select>
+            </label>
+            <label class="field adult-prop-field">
+              <span>成人道具</span>
+              <select id="adultProp" data-state></select>
+              <small>避孕套、情趣玩具和辅助用品只在开放/露点档显示。</small>
+            </label>
+            <label class="field">
+              <span>情绪</span>
+              <select id="mood" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>音频线索</span>
+              <select id="sound" data-state></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-camera">
+          <div class="card-heading">
+            <div class="step-number">06</div>
+            <div>
+              <h2>镜头、光线与色彩</h2>
+              <p>镜头语言是图像与视频提示词中最影响成片稳定性的部分。</p>
+            </div>
+          </div>
+          <div class="camera-plan-bar">
+            <label>
+              <span>镜头方案</span>
+              <select id="cameraPlan" data-state></select>
+            </label>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>景别</span>
+              <select id="shotSize" data-state></select>
+            </label>
+            <label class="field">
+              <span>机位角度</span>
+              <select id="angle" data-state></select>
+            </label>
+            <label class="field">
+              <span>镜头焦段</span>
+              <select id="lens" data-state></select>
+            </label>
+            <label class="field">
+              <span>构图</span>
+              <select id="composition" data-state></select>
+            </label>
+            <label class="field">
+              <span>景深</span>
+              <select id="depthOfField" data-state></select>
+            </label>
+            <label class="field video-only">
+              <span>运镜</span>
+              <select id="cameraMove" data-state></select>
+            </label>
+            <label class="field">
+              <span>光线</span>
+              <select id="lighting" data-state></select>
+            </label>
+            <label class="field">
+              <span>色调</span>
+              <select id="palette" data-state></select>
+            </label>
+            <label class="field">
+              <span>画面氛围</span>
+              <select id="atmosphere" data-state></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="form-card" id="section-style">
+          <div class="card-heading">
+            <div class="step-number">07</div>
+            <div>
+              <h2>风格与高级控制</h2>
+              <p>可叠加画质标签，并补充自定义细节和负面提示词。</p>
+            </div>
+          </div>
+          <div class="control-grid cols-3">
+            <label class="field">
+              <span>视觉与摄影风格</span>
+              <select id="visualStyle" data-state></select>
+            </label>
+            <label class="field">
+              <span>渲染方式</span>
+              <select id="render" data-state></select>
+            </label>
+            <label class="field">
+              <span>胶片 / 数字质感</span>
+              <select id="filmLook" data-state></select>
+            </label>
+          </div>
+
+          <div class="chip-field" id="qualityField">
+            <div class="chip-heading">
+              <span>画质标签（可多选）</span>
+              <small>选择适合当前模型的标签，避免无意义的堆砌。</small>
+            </div>
+            <div class="chip-group" id="qualityChips"></div>
+          </div>
+
+          <div class="control-grid cols-2">
+            <label class="field">
+              <span>自定义追加内容（英文）</span>
+              <textarea id="customDetails" data-state rows="4" placeholder="e.g. an old pocket watch rests on the table"></textarea>
+            </label>
+            <label class="field">
+              <span>自定义追加内容（中文）</span>
+              <textarea id="customDetailsZh" data-state rows="4" placeholder="例如：桌面上有一只旧怀表"></textarea>
+            </label>
+            <label class="field">
+              <span>自定义负面提示词</span>
+              <textarea id="customNegative" data-state rows="4" placeholder="例如：extra arms, broken fingers"></textarea>
+            </label>
+          </div>
+        </section>
+
+        <footer class="page-footer">
+          <span>Prompt Studio · 本地单页工具</span>
+          <span>所有选择与收藏保存在当前浏览器</span>
+        </footer>
+      </section>
+
+      <aside class="output-panel">
+        <div class="output-header">
+          <div>
+            <span class="eyebrow">LIVE OUTPUT</span>
+            <h2>生成结果</h2>
+          </div>
+          <div class="output-meta">
+            <span class="output-size" id="outputSize"></span>
+            <span class="output-model" id="outputModel">Z-Image Turbo</span>
+            <button class="icon-button" id="outputToggle" type="button" title="折叠 / 展开结果面板">⟩</button>
+          </div>
+          <span class="output-collapsed-label">结果</span>
+        </div>
+
+        <div class="tab-list" role="tablist" aria-label="提示词结果">
+          <button class="tab active" data-tab="prompt" type="button">正向</button>
+          <button class="tab" data-tab="negative" type="button">负面</button>
+          <button class="tab" data-tab="json" type="button">JSON</button>
+          <button class="tab" data-tab="saved" type="button">收藏</button>
+        </div>
+
+        <section class="tab-panel active" data-panel="prompt">
+          <div class="output-toolbar">
+            <span><strong id="primaryPromptLabel">English 主提示词</strong> · <span id="promptStats">0 字符</span></span>
+            <div>
+              <span class="edit-hint" id="outputModeHint">严格同步，只读</span>
+              <button class="text-button" id="editOutputButton" type="button">自由编辑</button>
+              <button class="text-button" id="regenerateOutputButton" type="button">重新生成</button>
+              <button class="text-button" id="saveButton" type="button">收藏</button>
+            </div>
+          </div>
+          <textarea class="output-text bilingual-text" id="promptOutput" spellcheck="false" readonly></textarea>
+          <div class="output-toolbar bilingual-secondary-head">
+            <span><strong id="secondaryPromptLabel">中文参考</strong> · <span id="promptZhStats">0 字</span></span>
+            <span class="edit-hint" id="bilingualStatus">与英文由同一组选项生成</span>
+          </div>
+          <textarea class="output-text bilingual-text" id="promptZhOutput" spellcheck="false" readonly></textarea>
+          <div class="result-actions">
+            <button class="button primary" id="copyPromptLarge" type="button">复制英文提示词</button>
+            <div class="result-actions-row">
+              <button class="button secondary" id="copyPromptZh" type="button">中文</button>
+              <button class="button secondary" id="copyNegativeButton" type="button">负面</button>
+              <button class="button review" id="reviewButton" type="button">检查</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" data-panel="negative">
+          <div class="output-toolbar">
+            <span>与正向提示词分开使用</span>
+            <button class="text-button" id="copyNegativeTabButton" type="button">复制</button>
+          </div>
+          <textarea class="output-text" id="negativeOutput" readonly></textarea>
+          <div class="hint-box" id="negativeHint">部分工作流没有负面提示词输入框，可忽略此结果。</div>
+        </section>
+
+        <section class="tab-panel" data-panel="json">
+          <div class="output-toolbar">
+            <span>结构化参数</span>
+            <button class="text-button" id="copyJsonButton" type="button">复制</button>
+          </div>
+          <textarea class="output-text mono" id="jsonOutput" readonly></textarea>
+        </section>
+
+        <section class="tab-panel" data-panel="saved">
+          <div class="saved-actions">
+            <button class="button primary small" id="backupExport" type="button">备份全部</button>
+            <button class="button secondary small" id="backupImport" type="button">恢复备份</button>
+            <input id="backupFile" type="file" accept="application/json" hidden>
+          </div>
+          <p class="backup-hint">备份包含：收藏、最近生成、我的 LoRA 清单、自定义人物风格和当前所有选项。换设备时先备份，再在新设备恢复。</p>
+          <div class="saved-actions">
+            <button class="button secondary small" id="exportButton" type="button">只导出收藏</button>
+            <button class="button secondary small" id="importButton" type="button">只导入收藏</button>
+            <input id="importFile" type="file" accept="application/json" hidden>
+          </div>
+          <h3>我的收藏</h3>
+          <div class="saved-list" id="savedList"></div>
+          <h3>最近生成</h3>
+          <div class="saved-list" id="historyList"></div>
+          <button class="text-button danger" id="clearHistoryButton" type="button">清空最近生成</button>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="help-dialog" id="helpDialog">
+    <button class="dialog-close" id="helpCloseButton" type="button" aria-label="关闭">×</button>
+    <span class="eyebrow">QUICK GUIDE</span>
+    <h2>怎么使用</h2>
+    <ol>
+      <li>先选择目标模型。页面会自动切换图像、文生视频或图生视频结构。</li>
+      <li>按角色、服装、动作、场景、镜头逐项选择；留空项目不会写入提示词。</li>
+      <li>图生视频模型会提示你只描述动作，因为人物和构图由首帧决定。</li>
+      <li>在右侧复制正向词、负面词或 JSON。收藏和历史保存在当前浏览器。</li>
+      <li>快捷键：Ctrl + Enter 应用当前选择；Alt + R 换一套风格；Alt + P 换姿势；Alt + C 换镜头。</li>
+    </ol>
+    <p class="dialog-note">AI 扩写和反推仍由 ComfyUI Prompt Assistant 插件提供；本网页负责结构化拼接和输出。</p>
+  </dialog>
+
+  <dialog class="help-dialog review-dialog" id="reviewDialog">
+    <button class="dialog-close" id="reviewCloseButton" type="button" aria-label="关闭">×</button>
+    <span class="eyebrow">FINAL CHECK</span>
+    <h2>提示词检查</h2>
+    <div class="review-score" id="reviewScore">正在检查…</div>
+    <div class="review-summary" id="reviewSummary"></div>
+    <ul class="review-checks" id="reviewChecks"></ul>
+    <div class="review-actions">
+      <button class="button secondary" id="reviewCloseButton2" type="button">返回修改</button>
+      <button class="button primary" id="reviewCopyButton" type="button">复制英文</button>
+    </div>
+  </dialog>
+
+  <script src="./data/prompts.js?v=20261112-ux-1"></script>
+  <script src="./app.js?v=20261112-ux-1"></script>
+</body>
+</html>

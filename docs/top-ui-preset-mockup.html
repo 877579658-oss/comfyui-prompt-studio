@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prompt Studio Top UI Mockup</title>
+  <style>
+    :root {
+      --bg: #f5f5f7;
+      --card: rgba(255, 255, 255, .86);
+      --surface: #fff;
+      --soft: #f1f1f3;
+      --line: rgba(30, 30, 35, .09);
+      --text: #17171a;
+      --muted: #74747d;
+      --accent: #3a91ff;
+      --accent-soft: #eaf3ff;
+      --green: #34c759;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(75, 169, 255, .12), transparent 34%),
+        radial-gradient(circle at 92% 8%, rgba(255, 171, 83, .12), transparent 30%),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .page {
+      width: 1560px;
+      margin: 0 auto;
+      padding: 30px 34px 40px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .brand-left { display: flex; align-items: center; gap: 13px; }
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(145deg, #222, #5f5f68);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .15);
+    }
+    h1 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+    .sub { margin-top: 3px; color: var(--muted); font-size: 12px; }
+    .online {
+      padding: 7px 12px;
+      border-radius: 999px;
+      color: #247a3b;
+      background: #e7f8eb;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 18px;
+      align-items: start;
+    }
+    .main-card, .result-card {
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: 0 18px 50px rgba(30, 37, 50, .09);
+      backdrop-filter: blur(24px);
+    }
+    .main-card { padding: 18px; }
+    .sentence {
+      display: flex;
+      gap: 10px;
+    }
+    .sentence-input {
+      flex: 1;
+      height: 50px;
+      padding: 0 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      color: #676771;
+      background: var(--surface);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+    .primary, .secondary, .ghost {
+      border: 0;
+      border-radius: 12px;
+      font: inherit;
+      font-weight: 650;
+      cursor: default;
+    }
+    .primary {
+      padding: 0 18px;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 8px 18px rgba(58, 145, 255, .24);
+    }
+    .secondary {
+      padding: 10px 16px;
+      color: #202024;
+      background: var(--soft);
+    }
+    .ghost {
+      padding: 10px 14px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--line);
+    }
+    .context-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .segmented {
+      display: flex;
+      padding: 3px;
+      border-radius: 11px;
+      background: var(--soft);
+    }
+    .segmented span {
+      padding: 6px 11px;
+      border-radius: 8px;
+    }
+    .segmented .active {
+      color: #0c3154;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    }
+    .ratio {
+      margin-left: auto;
+      padding: 7px 12px;
+      border-radius: 10px;
+      color: #222;
+      background: var(--soft);
+      font-weight: 600;
+    }
+    .preset-card {
+      margin-top: 14px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(248, 248, 250, .92);
+    }
+    .preset-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 13px;
+    }
+    .preset-heading strong { font-size: 13px; }
+    .preset-heading small { color: var(--muted); font-size: 11px; }
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 9px;
+    }
+    .preset-field {
+      padding: 9px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .preset-field span {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 10px;
+    }
+    .preset-field b {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .preset-field i { color: #9a9aa1; font-style: normal; }
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 13px;
+    }
+    .summary {
+      flex: 1;
+      min-width: 0;
+      padding: 10px 13px;
+      border-radius: 12px;
+      color: #38648f;
+      background: var(--accent-soft);
+      font-size: 11.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .advanced {
+      margin-top: 14px;
+      padding: 13px 15px;
+      border: 1px dashed rgba(0, 0, 0, .13);
+      border-radius: 14px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+    }
+    .advanced b { color: var(--text); font-size: 13px; }
+    .collapsed-note {
+      color: #9898a0;
+      font-size: 11px;
+    }
+    .result-card {
+      padding: 18px;
+    }
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 13px;
+    }
+    .eyebrow { color: #92929a; font-size: 10px; font-weight: 700; letter-spacing: .08em; }
+    h2 { margin: 4px 0 0; font-size: 16px; }
+    .badge { padding: 6px 10px; border-radius: 9px; background: var(--soft); color: var(--muted); font-size: 10px; }
+    .preview-image {
+      height: 260px;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(125deg, rgba(255,255,255,.2), transparent 45%),
+        linear-gradient(160deg, #b8c9cf, #d8d0c7 50%, #897b75);
+    }
+    .preview-image::before {
+      content: "";
+      position: absolute;
+      inset: 18% 20% 0;
+      border-radius: 48% 48% 12% 12%;
+      background: linear-gradient(145deg, #efe2d9, #8e7772);
+      box-shadow: 0 0 60px rgba(255,255,255,.35);
+    }
+    .preview-image::after {
+      content: "画面预览";
+      position: absolute;
+      left: 14px;
+      bottom: 13px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      color: #fff;
+      background: rgba(20, 20, 25, .45);
+      font-size: 10px;
+    }
+    .prompt-box {
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #55555f;
+      font-size: 11px;
+      line-height: 1.7;
+    }
+    .copy-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .copy-row .primary, .copy-row .secondary { min-height: 42px; }
+    .note {
+      position: fixed;
+      left: 36px;
+      bottom: 22px;
+      padding: 8px 11px;
+      border-radius: 10px;
+      color: #777780;
+      background: rgba(255,255,255,.8);
+      border: 1px solid var(--line);
+      font-size: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="brand">
+      <div class="brand-left">
+        <div class="mark">P</div>
+        <div>
+          <h1>Prompt Studio</h1>
+          <div class="sub">顶层预设界面概念 · 先预览，后套用</div>
+        </div>
+      </div>
+      <div class="online">● 本地工作台</div>
+    </header>
+
+    <div class="shell">
+      <section class="main-card">
+        <div class="sentence">
+          <div class="sentence-input">一句话描述画面，按回车解析并补全……</div>
+          <button class="primary">解析并补全</button>
+        </div>
+
+        <div class="context-row">
+          <span>内容尺度</span>
+          <div class="segmented">
+            <span>日常</span><span>暗示</span><span>私房</span><span>开放</span><span class="active">露点</span>
+          </div>
+          <div class="ratio">画幅 16:9</div>
+        </div>
+
+        <div class="preset-card">
+          <div class="preset-heading">
+            <strong>整套创作预设</strong>
+            <small>选择只预览，点击“套用当前”才生效</small>
+          </div>
+          <div class="preset-grid">
+            <div class="preset-field"><span>人物</span><b>单人女性 <i>⌄</i></b></div>
+            <div class="preset-field"><span>年龄</span><b>20+ <i>⌄</i></b></div>
+            <div class="preset-field"><span>人物风格</span><b>清纯邻家 <i>⌄</i></b></div>
+            <div class="preset-field"><span>着装</span><b>半裸 <i>⌄</i></b></div>
+            <div class="preset-field"><span>预设服装</span><b>白色蕾丝半裸 <i>⌄</i></b></div>
+            <div class="preset-field"><span>整体风格</span><b>私房电影 <i>⌄</i></b></div>
+            <div class="preset-field"><span>镜头方案</span><b>面部与身体同框 <i>⌄</i></b></div>
+            <div class="preset-field"><span>套用方式</span><b>整套造型 <i>⌄</i></b></div>
+          </div>
+          <div class="actions">
+            <button class="primary">套用当前</button>
+            <button class="secondary">随机一套</button>
+            <div class="summary">待套用：单人女性 · 20+ · 清纯邻家 · 半裸 · 白色蕾丝 · 私房电影 · 面部与身体同框</div>
+          </div>
+        </div>
+
+        <div class="advanced">
+          <div><b>▸ 展开详细设置</b><div class="collapsed-note">角色、身体、服装、表情、场景、镜头与负面词</div></div>
+          <span>需要时再修改</span>
+        </div>
+      </section>
+
+      <aside class="result-card">
+        <div class="result-head">
+          <div>
+            <div class="eyebrow">LIVE OUTPUT</div>
+            <h2>生成结果</h2>
+          </div>
+          <span class="badge">16:9 · 露点</span>
+        </div>
+        <div class="preview-image"></div>
+        <div class="prompt-box">
+          An adult woman in her twenties, refined contemporary Chinese beauty, soft natural makeup, black layered hair, sheer white lingerie, intimate editorial composition, face and upper body clearly visible in soft cinematic window light…
+        </div>
+        <div class="copy-row">
+          <button class="primary">复制英文提示词</button>
+          <button class="secondary">复制中文提示词</button>
+        </div>
+      </aside>
+    </div>
+    <div class="note">界面概念图 · 不包含最终内容选择与实时组件</div>
+  </div>
+</body>
+</html>
