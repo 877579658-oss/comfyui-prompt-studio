@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <title>ComfyUI Prompt Studio</title>
   <link rel="stylesheet" href="./styles.css?v=20261112-ux-1">
-  <link rel="stylesheet" href="./styles.apple.css?v=20261113-2">
+  <link rel="stylesheet" href="./styles.apple.css?v=20261113-3">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23007aff%27/%3E%3Cpath d=%27M22 16h13c9 0 15 5 15 13s-6 13-15 13h-5v8h-8V16zm8 8v10h5c4 0 7-2 7-5s-3-5-7-5h-5z%27 fill=%27white%27/%3E%3C/svg%3E">
 </head>
 <body class="light details-mode">
@@ -19,40 +19,36 @@
           <span>ComfyUI 本地提示词工作台</span>
         </div>
       </div>
+      <div class="workspace-mode-switch" id="workspaceModeSwitch" role="tablist" aria-label="工作区视图">
+        <span class="workspace-mode-thumb" aria-hidden="true"></span>
+        <button class="workspace-mode-option is-active" id="quickViewTab" type="button" role="tab" aria-selected="true">
+          <span class="workspace-mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l3 3L4 13"/><path d="M11 5h7"/><path d="M11 11h7"/><path d="M11 17h7"/></svg>
+          </span>
+          <span>快速预设</span>
+        </button>
+        <button class="workspace-mode-option" id="detailViewTab" type="button" role="tab" aria-selected="false">
+          <span class="workspace-mode-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h11"/><path d="M9 10h11"/><path d="M9 16h11"/><path d="M4 4h.01"/><path d="M4 10h.01"/><path d="M4 16h.01"/></svg>
+          </span>
+          <span>详细设置</span>
+        </button>
+      </div>
       <div class="topbar-actions">
         <span class="status-pill"><i></i>完全离线</span>
         <span class="status-pill muted" id="saveStatus" role="status">本地自动保存</span>
         <button class="icon-button" id="themeButton" type="button" title="切换主题" aria-label="切换浅色或深色主题">◐</button>
         <button class="icon-button" id="helpButton" type="button" title="使用说明" aria-label="打开使用说明">?</button>
+        <div class="topbar-more">
+          <button class="icon-button" id="topbarMoreButton" type="button" title="更多操作" aria-label="打开更多操作" aria-haspopup="menu" aria-expanded="false">•••</button>
+          <div class="topbar-menu" id="topbarMenu" role="menu" hidden>
+            <button class="topbar-menu-item danger" id="resetButton" type="button" role="menuitem">重置全部设置…</button>
+          </div>
+        </div>
       </div>
     </header>
 
     <main class="main-grid">
-      <aside class="side-rail" id="sideRail" aria-label="工作区导航">
-        <div class="side-rail-tabs" role="tablist" aria-label="工作区视图" aria-orientation="vertical">
-          <span class="workspace-tab-thumb" aria-hidden="true"></span>
-          <button class="rail-item is-active" id="quickViewTab" type="button" role="tab" aria-selected="true">
-            <span class="rail-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7l3 3L4 13"/><path d="M11 5h7"/><path d="M11 11h7"/><path d="M11 17h7"/></svg>
-            </span>
-            <span class="rail-label">快速预设</span>
-          </button>
-          <button class="rail-item" id="detailViewTab" type="button" role="tab" aria-selected="false">
-            <span class="rail-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h11"/><path d="M9 10h11"/><path d="M9 16h11"/><path d="M4 4h.01"/><path d="M4 10h.01"/><path d="M4 16h.01"/></svg>
-            </span>
-            <span class="rail-label">详细设置</span>
-          </button>
-        </div>
-        <div class="side-rail-utils">
-          <button class="rail-item rail-util rail-reset" id="resetButton" type="button" title="恢复初始选项">
-            <span class="rail-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.6-6.3"/><path d="M3 4v5h5"/></svg>
-            </span>
-            <span class="rail-label">重置全部</span>
-          </button>
-        </div>
-      </aside>
       <section class="workspace">
         <p id="modelSummary" class="sr-only" aria-hidden="true"></p>
         <div class="top-stack">
@@ -170,36 +166,45 @@
                 <strong>露点方案</strong>
                 <small id="revealQuickHint">场景与露出重点只做预览，点击“套用当前”后一次性生效。</small>
               </div>
-              <button class="text-button" id="randomRevealScenarioButton" type="button">随机露点方案</button>
+              <button class="button secondary small" id="randomRevealScenarioButton" type="button">换一套方案</button>
             </div>
-            <div class="quick-reveal-chips" id="quickRevealChips"></div>
             <div class="reveal-quick-fields">
-              <label class="quick-look-field">
+              <div class="quick-look-field reveal-intensity-field">
                 <span>表现强度</span>
-                <select id="revealIntensityQuick" data-state></select>
-              </label>
-              <label class="quick-look-field">
+                <div class="reveal-intensity-segments" id="revealIntensitySegments" role="radiogroup" aria-label="表现强度"></div>
+                <select class="sr-only" id="revealIntensityQuick" data-state aria-hidden="true" tabindex="-1"></select>
+              </div>
+              <label class="quick-look-field reveal-target-field">
                 <span>露出重点</span>
                 <select id="revealTargetQuick" data-state></select>
               </label>
-              <label class="quick-look-field">
+              <label class="quick-look-field reveal-scenario-field">
                 <span>场景套餐</span>
                 <select id="revealScenarioQuick" data-state></select>
               </label>
-              <label class="quick-look-field">
+              <label class="quick-look-field reveal-pose-field">
                 <span>姿势预设</span>
                 <select id="revealPoseQuick" data-state></select>
               </label>
-              <label class="quick-look-field">
-                <span>成人道具</span>
-                <select id="adultPropQuick" data-state></select>
-              </label>
+              <div class="quick-look-field reveal-prop-field">
+                <div class="reveal-field-head">
+                  <label for="adultPropQuick">成人道具</label>
+                  <button class="text-button" id="clearAdultPropButton" type="button">清除</button>
+                </div>
+                <select id="adultPropQuick" data-state aria-label="成人道具"></select>
+              </div>
             </div>
-            <div class="reveal-quick-actions">
-              <button class="button secondary small" id="rerollRevealPoseButton" type="button">换姿势</button>
-              <button class="button secondary small" id="rerollRevealCameraButton" type="button">换镜头</button>
-              <button class="button secondary small" id="rerollAdultPropButton" type="button">换道具</button>
-              <button class="button ghost small" id="clearAdultPropButton" type="button">清除道具</button>
+            <div class="reveal-current-summary">
+              <div class="reveal-current-copy">
+                <span>当前组合</span>
+                <strong id="revealCurrentTitle">跟随当前设置</strong>
+                <small id="revealCurrentDetails">选择场景后会在这里显示姿势、镜头与道具。</small>
+              </div>
+              <div class="reveal-quick-actions">
+                <button class="button secondary small" id="rerollRevealPoseButton" type="button">换姿势</button>
+                <button class="button secondary small" id="rerollRevealCameraButton" type="button">换镜头</button>
+                <button class="button secondary small" id="rerollAdultPropButton" type="button">换道具</button>
+              </div>
             </div>
             <div class="reveal-empty-state" id="revealEmptyState" role="status" hidden>
               <span id="revealEmptyText">当前筛选没有可用露点方案。</span>
@@ -1443,7 +1448,17 @@
     </div>
   </dialog>
 
+  <dialog class="help-dialog reset-dialog" id="resetDialog">
+    <span class="eyebrow">RESET SETTINGS</span>
+    <h2>重置全部设置？</h2>
+    <p class="dialog-note">当前选项会恢复为初始状态；收藏和最近生成记录不会删除。</p>
+    <div class="review-actions">
+      <button class="button secondary" id="resetCancelButton" type="button">取消</button>
+      <button class="button danger" id="resetConfirmButton" type="button">重置全部</button>
+    </div>
+  </dialog>
+
   <script src="./data/prompts.js?v=20261112-ux-1"></script>
-  <script src="./app.js?v=20261112-ux-1"></script>
+  <script src="./app.js?v=20261113-3"></script>
 </body>
 </html>

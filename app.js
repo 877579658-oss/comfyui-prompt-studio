@@ -4113,26 +4113,6 @@
     return intensity === "all" || revealPropIntensity(item) === intensity;
   }
 
-  const REVEAL_QUICK_CARD_KEYS = [
-    "bedside-slip",
-    "mirror-curve",
-    "sofa-presentation",
-    "bathroom-full-body",
-    "bed-chest",
-    "bed-vulva",
-    "bed-face-lower",
-    "intense-bed-play",
-    "chest-mirror-intense",
-    "rear-mirror",
-    "rear-kneel",
-    "legwear-vanity",
-    "legwear-tease",
-    "foot-bedside",
-    "foot-tease",
-    "window-silhouette",
-    "chinese-courtyard"
-  ];
-
   const LORA_QUICK_TARGET_HINTS = [
     { pattern: /qqny|lingerie|内衣/i, targets: ["body", "chest", "legwear"], label: "内衣与身体线条" },
     { pattern: /panty|hosiery|stocking|丝袜|袜/i, targets: ["legwear"], label: "腿部与袜类" },
@@ -4153,73 +4133,40 @@
     };
   }
 
-  function revealThumbHue(scenario) {
-    // 从场景的 lighting / visualStyle / mood 文本提取色调，作为图片加载失败时的兜底底色
-    const src = `${scenario.fields?.lighting || ""} ${scenario.fields?.visualStyle || ""} ${scenario.fields?.mood || ""}`.toLowerCase();
-    const hueMap = [
-      [/warm|candle|sunset|gold|amber|fire|cozy|evening|dusk/, "#d98a6a"],
-      [/blue|night|moon|neon|cyan|cool|midnight|starlight/, "#8fa8c9"],
-      [/pink|rose|blush|cherry|peach|romantic/, "#e3a8b8"],
-      [/purple|violet|lavender|haze|dreamy/, "#b8a0c9"],
-      [/green|mint|jade|forest|sage/, "#a4bfa0"],
-      [/white|soft|mist|steam|fog|silver|glow|bright|day|natural|window/, "#d9d6cd"],
-      [/red|scarlet|crimson/, "#c95f6a"],
-      [/dark|black|shadow|noir|dim|gloomy|silhouette/, "#4a4a55"]
-    ];
-    for (const [re, color] of hueMap) if (re.test(src)) return color;
-    return "#d0c8bb";
-  }
-
-  // 场景缩略图本地路径（写实图，位于 data/thumbs/<key>.webp）
-  function revealThumbUrl(key) {
-    return `data/thumbs/${key}.webp`;
-  }
-
-  function renderRevealScenarioChips(scenarios) {
-    const root = $("quickRevealChips");
-    if (!root) return;
-    root.innerHTML = "";
-    const byKey = new Map(scenarios.map((item) => [item.key, item]));
-    const affinity = currentLoraQuickAffinity();
-    const baseOrdered = [
-      ...REVEAL_QUICK_CARD_KEYS.map((key) => byKey.get(key)).filter(Boolean),
-      ...scenarios.filter((item) => !REVEAL_QUICK_CARD_KEYS.includes(item.key))
-    ];
-    const ordered = [
-      ...baseOrdered.filter((item) => affinity.targets.has(item.target)),
-      ...baseOrdered.filter((item) => !affinity.targets.has(item.target))
-    ].slice(0, 10);
-    const current = $("revealScenarioQuick")?.value || "";
-    for (const scenario of ordered) {
+  function renderRevealIntensitySegments() {
+    const root = $("revealIntensitySegments");
+    const select = $("revealIntensityQuick");
+    if (!root || !select) return;
+    root.replaceChildren();
+    for (const item of REVEAL_INTENSITIES || []) {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = `quick-reveal-chip${scenario.key === current ? " is-active" : ""}`;
-      button.title = `${scenario.fields?.mood || ""}｜单击选入，点「套用当前」生效`;
-      const thumb = document.createElement("span");
-      thumb.className = "quick-reveal-thumb";
-      thumb.style.setProperty("--thumb-hue", revealThumbHue(scenario));
-      thumb.setAttribute("aria-hidden", "true");
-      const thumbImg = document.createElement("img");
-      thumbImg.className = "quick-reveal-thumb-img";
-      thumbImg.src = revealThumbUrl(scenario.key);
-      thumbImg.alt = "";
-      thumbImg.loading = "lazy";
-      thumbImg.decoding = "async";
-      thumbImg.addEventListener("error", () => {
-        // 图片加载失败时移除，露出 --thumb-hue 纯色兜底
-        thumbImg.remove();
+      button.textContent = item.zh;
+      button.dataset.value = item.key;
+      button.setAttribute("role", "radio");
+      button.setAttribute("aria-checked", String(select.value === item.key));
+      button.classList.toggle("is-active", select.value === item.key);
+      button.addEventListener("click", () => {
+        if (select.value === item.key) return;
+        select.value = item.key;
+        select.dispatchEvent(new Event("change", { bubbles: true }));
       });
-      thumb.append(thumbImg);
-      const title = document.createElement("strong");
-      title.textContent = scenario.zh;
-      const group = document.createElement("small");
-      group.textContent = scenario.group;
-      const mood = document.createElement("em");
-      mood.textContent = scenario.fields?.lighting || scenario.fields?.visualStyle || "";
-      button.append(thumb, title, group, mood);
-      button.addEventListener("click", () => chooseRevealScenario(scenario.key));
       root.append(button);
     }
+  }
+
+  function updateRevealSelectionSummary() {
+    const title = $("revealCurrentTitle");
+    const details = $("revealCurrentDetails");
+    if (!title || !details) return;
+    const scenario = selectedRevealScenario();
+    const pose = selectedRevealPose();
+    const intensity = $("revealIntensityQuick")?.selectedOptions[0]?.textContent || "全部强度";
+    const target = $("revealTargetQuick")?.selectedOptions[0]?.textContent || "全部重点";
+    const camera = $("cameraPlanQuick")?.selectedOptions[0]?.textContent || "跟随当前镜头";
+    const prop = $("adultPropQuick")?.selectedOptions[0]?.textContent || "无道具";
+    title.textContent = scenario?.zh || "跟随当前设置";
+    details.textContent = `${intensity} · ${target} · ${pose?.zh || "跟随场景姿势"} · ${camera} · ${prop}`;
   }
 
   function fillRevealQuickOptions() {
@@ -4241,6 +4188,7 @@
     intensitySelect.value = [...intensitySelect.options].some((option) => option.value === previousIntensity)
       ? previousIntensity
       : "all";
+    renderRevealIntensitySegments();
 
     const previousTarget = targetSelect.value || "all";
     targetSelect.innerHTML = "";
@@ -4317,8 +4265,6 @@
     poseSelect.value = [...poseSelect.options].some((option) => option.value === previousPose)
       ? previousPose
       : "";
-    renderRevealScenarioChips(scenarios);
-
     const previousProp = propSelect.value || "";
     propSelect.innerHTML = "";
     const compatibleProps = (O.adultProp || []).filter(revealPropCompatible);
@@ -4363,6 +4309,7 @@
     if ($("randomRevealScenarioButton")) {
       $("randomRevealScenarioButton").disabled = scenarios.length === 0;
     }
+    updateRevealSelectionSummary();
   }
 
   function syncRevealQuickControls() {
@@ -4583,14 +4530,14 @@
     saveAutosave();
   }
 
-  // 视图切换滑块：高度与位移跟随当前选中项（左侧竖向 rail），切换时只滑动、不重排
+  // 顶部工作区分段切换：滑块跟随当前模式，不改变页面宽度。
   function syncWorkspaceTabThumb() {
-    const tabs = $("quickViewTab")?.closest(".side-rail-tabs");
-    const thumb = tabs?.querySelector(".workspace-tab-thumb");
-    const active = tabs?.querySelector(".rail-item.is-active");
+    const tabs = $("workspaceModeSwitch");
+    const thumb = tabs?.querySelector(".workspace-mode-thumb");
+    const active = tabs?.querySelector(".workspace-mode-option.is-active");
     if (!thumb || !active) return;
-    thumb.style.height = `${active.offsetHeight}px`;
-    thumb.style.transform = `translateY(${active.offsetTop}px)`;
+    thumb.style.width = `${active.offsetWidth}px`;
+    thumb.style.transform = `translateX(${active.offsetLeft}px)`;
   }
 
   function setWorkspaceView(showDetails) {
@@ -4682,6 +4629,7 @@
     const detailSummary = $("detailPresetSummary");
     if (detailSummary) detailSummary.textContent = `${shortText}`;
     root.classList.toggle("is-pending", quickPresetDirty);
+    updateRevealSelectionSummary();
     refreshUsability();
   }
 
@@ -8958,16 +8906,42 @@
     });
     $("quickViewTab").addEventListener("click", () => setWorkspaceView(false));
     $("detailViewTab").addEventListener("click", () => setWorkspaceView(true));
+    $("workspaceModeSwitch").addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const showDetails = event.key === "ArrowRight" || event.key === "End";
+      setWorkspaceView(showDetails);
+      $(showDetails ? "detailViewTab" : "quickViewTab").focus();
+    });
     $("deleteStylePresetButton").addEventListener("click", deleteCustomStylePreset);
     setWorkspaceView(storageGet("promptStudio.detailsView.v1", false));
+    const setTopbarMenu = (open) => {
+      $("topbarMenu").hidden = !open;
+      $("topbarMoreButton").setAttribute("aria-expanded", String(open));
+    };
+    $("topbarMoreButton").addEventListener("click", (event) => {
+      event.stopPropagation();
+      setTopbarMenu($("topbarMenu").hidden);
+    });
+    $("topbarMenu").addEventListener("click", (event) => event.stopPropagation());
+    document.addEventListener("click", () => setTopbarMenu(false));
     $("resetButton").addEventListener("click", () => {
+      setTopbarMenu(false);
+      $("resetDialog").showModal();
+    });
+    $("resetCancelButton").addEventListener("click", () => $("resetDialog").close());
+    $("resetConfirmButton").addEventListener("click", () => {
       applyDefaults();
       setRandomPeopleMode("follow");
       syncCharacterPositions();
       updateOutput();
       saveAutosave();
       renderWizardChecks();
+      $("resetDialog").close();
       showToast("已恢复初始选项");
+    });
+    $("resetDialog").addEventListener("click", (event) => {
+      if (event.target === $("resetDialog")) $("resetDialog").close();
     });
     $("detailResetButton").addEventListener("click", () => $("resetButton").click());
     $("copyPromptLarge").addEventListener("click", () =>
@@ -8999,7 +8973,10 @@
       }
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") setStyleInspire(false);
+      if (event.key === "Escape") {
+        setStyleInspire(false);
+        setTopbarMenu(false);
+      }
     });
     $("scaleLockButton").addEventListener("click", toggleScaleLock);
     $("detailScaleLockButton").addEventListener("click", toggleScaleLock);
