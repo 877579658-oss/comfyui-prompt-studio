@@ -158,7 +158,6 @@
               <div class="quick-look-actions-secondary">
                 <button class="button secondary small" id="randomButton" type="button" title="只重抽顶部的人物、风格、造型和镜头，其他字段不动">换一套风格</button>
                 <button class="button secondary small" id="quickCopyPrompt" type="button">复制英文提示词</button>
-                <button class="icon-button" id="undoButton" type="button" disabled aria-label="撤销上一次套用或随机" title="撤销上一次套用或随机">↺</button>
                 <button class="text-button danger" id="deleteStylePresetButton" type="button">删除</button>
                 <button class="text-button" id="quickGoDetail" type="button">去详细设置</button>
               </div>
@@ -217,7 +216,16 @@
                 <option value="fill">只补未选择项</option>
               </select>
             </label>
+            <label class="detail-random-scope" id="detailRandomScopeWrap">
+              <span class="sr-only">随机范围</span>
+              <select id="detailRandomScope" title="选择详细设置页的随机范围">
+                <option value="step">当前步骤</option>
+                <option value="unlocked" selected>未保护字段</option>
+                <option value="all">全部重新随机</option>
+              </select>
+            </label>
             <button class="button secondary" id="randomAllButton" type="button" title="随机所有字段：人物风格、造型、镜头、露点与其余细节全部重新随机">全部随机</button>
+            <button class="icon-button" id="undoButton" type="button" disabled aria-label="撤销上一次套用或随机" title="撤销上一次套用或随机">↺</button>
             <button class="button primary" id="applyQuickButton" type="button">套用当前</button>
           </div>
           <div class="workspace-mode-row">
@@ -235,7 +243,8 @@
               <button class="icon-button tiny" id="detailScaleLockButton" type="button" title="锁定尺度，防止误切" aria-pressed="false">锁定</button>
               <button class="button secondary small" id="detailPresetToggle" type="button">展开预设</button>
               <span class="detail-preset-summary" id="detailPresetSummary"></span>
-              <button class="text-button" id="detailResetButton" type="button">重置</button>
+              <span class="detail-protection-status" id="detailProtectionStatus" role="status">手动修改已保护</span>
+              <button class="text-button" id="detailResetButton" type="button">重置全部</button>
             </div>
             
           </div>
@@ -1305,7 +1314,12 @@
         </section>
 
         <div class="quick-apply-primary detail-apply-primary" id="detailApplyBar">
-          <button class="button primary" id="applyDetailButton" type="button">应用当前选择</button>
+          <div class="detail-apply-state">
+            <strong id="detailApplyState">当前字段已实时同步</strong>
+            <small>重新生成会按当前设置覆盖自由编辑的结果文本</small>
+          </div>
+          <button class="button secondary" id="detailReviewChangesButton" type="button">查看修改</button>
+          <button class="button primary" id="applyDetailButton" type="button">更新提示词结果</button>
         </div>
 
         <footer class="page-footer">

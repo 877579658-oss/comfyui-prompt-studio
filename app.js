@@ -4605,8 +4605,27 @@
     $("quickViewTab")?.setAttribute("aria-selected", String(!detailedView));
     $("detailViewTab")?.setAttribute("aria-selected", String(detailedView));
     storageSet("promptStudio.detailsView.v1", detailedView);
+    syncWorkspaceActionLabels();
     syncWorkspaceTabThumb();
     window.requestAnimationFrame(syncWorkspaceTabThumb);
+  }
+
+  function syncWorkspaceActionLabels() {
+    const applyButton = $("applyQuickButton");
+    const randomButton = $("randomAllButton");
+    const randomScope = $("detailRandomScope");
+    if (applyButton) {
+      applyButton.textContent = detailedView
+        ? "应用预设"
+        : (styleCurrentMode() === "random-rest" ? "应用并补全" : "应用当前选择");
+      applyButton.title = detailedView
+        ? "只把顶部预设应用到详细设置；其他手动修改会保留。"
+        : "顶部选择会替换对应字段；手动修改的其他字段会保留。应用后可撤销并查看修改记录。";
+    }
+    if (randomButton) {
+      const scopeLabels = { step: "随机当前步", unlocked: "随机未保护", all: "全部随机" };
+      randomButton.textContent = detailedView ? (scopeLabels[randomScope?.value] || "随机") : "全部随机";
+    }
   }
 
   window.addEventListener("resize", syncWorkspaceTabThumb);
@@ -5103,6 +5122,7 @@
   // 「全部随机」：先随机剩余细节字段，再随机顶层预设并套用，两层覆盖全部字段
   function randomizeAll() {
     lastRandomState = collectState();
+    lastUndoLabel = "撤销全部随机";
     const randomizedCount = randomizeRemainingFields();
     const fixes = randomizeTopPresets();
     updateOutput();
@@ -5111,6 +5131,90 @@
     updateUndoButton();
     showToast(`已全部随机：顶层预设 + 随机补全 ${randomizedCount} 项`);
     return fixes;
+  }
+
+  const DETAIL_RANDOM_EXCLUDED = new Set([
+    "model", "customModelName", "customFormat", "language", "detailLevel", "contentScale",
+    "subjectType", "relationshipType", "audienceOrientation", "relationshipDynamic",
+    "gender", "firstGender", "secondGender", "thirdGender", "firstPosition", "secondPosition",
+    "thirdPosition", "imageWidth", "imageHeight", "sizePreset", "ratioLock", "rolePreset"
+  ]);
+
+  function randomizeCurrentWizardStep() {
+    const [sectionId, , stepLabel] = WIZARD_STEPS[wizardIndex];
+    const section = $(sectionId);
+    if (!section) return 0;
+    const protectedFields = new Set(userTouchedFields);
+    const before = captureFieldValues();
+    const rate = ADULT_RANDOM_RATE[contentScale()] ?? 0;
+    const presentation = randomPresentation();
+    const previousUndoState = lastRandomState;
+    const previousUndoLabel = lastUndoLabel;
+    lastRandomState = collectState();
+    lastUndoLabel = `撤销“${stepLabel}”步骤随机`;
+    let changed = 0;
+    for (const input of $$('[data-state]', section)) {
+      const field = input.id;
+      if (!field || !FIELD_TO_OPTIONS[field] || DETAIL_RANDOM_EXCLUDED.has(field)) continue;
+      if (!fieldAppliesTo(field) || protectedFields.has(field)) continue;
+      if (field === "aspectRatio" && lockedAspectRatio()) continue;
+      if (BODY_ANATOMY_FIELDS.includes(field) && !anatomyFieldVisible(field)) continue;
+      const pick = pickRandomFieldValue(field, rate, presentation);
+      if (pick && input.value !== pick) {
+        setSelectValue(field, pick);
+        changed += 1;
+      }
+    }
+    const correctionScope = {
+      "section-model": "model",
+      "section-character": "character",
+      "section-outfit": "outfit",
+      "section-action": "motion",
+      "section-scene": "scene",
+      "section-camera": "camera",
+      "section-style": "style"
+    }[sectionId] || "all";
+    const fixes = autoCorrectRandomState(correctionScope);
+    markRandomizedChanges(before, protectedFields);
+    if (lockedAspectRatio()) applyLockedAspectRatio();
+    else syncSizeFromAspectRatio();
+    updateVisibility();
+    updateOutput();
+    saveAutosave();
+    renderWizardChecks();
+    if (!changed && !fixes) {
+      lastRandomState = previousUndoState;
+      lastUndoLabel = previousUndoLabel;
+    }
+    updateUndoButton();
+    showToast(changed
+      ? `已随机“${stepLabel}”步骤 ${changed} 项${protectedFields.size ? " · 手动修改已保留" : ""}${fixes ? ` · 自动修正 ${fixes} 项` : ""}`
+      : `“${stepLabel}”步骤没有可随机的未保护字段`);
+    return changed;
+  }
+
+  function randomizeUnlockedDetails() {
+    const protectedValues = captureModifiedDetailFields();
+    const protectedFields = new Set(protectedValues.keys());
+    randomize({ scopeOverride: "all", preserveFields: protectedFields, silent: true });
+    for (const [field, value] of protectedValues) {
+      if ($(field)) setSelectValue(field, value);
+    }
+    updateVisibility();
+    updateOutput();
+    saveAutosave();
+    renderWizardChecks();
+    lastUndoLabel = "撤销未保护字段随机";
+    updateUndoButton();
+    showToast(`已随机未保护字段 · 保留 ${protectedFields.size} 项手动修改`);
+  }
+
+  function randomizeDetailedSelection() {
+    if (!detailedView) return randomizeAll();
+    const scope = $("detailRandomScope")?.value || "unlocked";
+    if (scope === "step") return randomizeCurrentWizardStep();
+    if (scope === "unlocked") return randomizeUnlockedDetails();
+    return randomizeAll();
   }
 
   function copyOutfitToOtherRoles() {
@@ -8837,7 +8941,8 @@
     $("copyOutfitRole").addEventListener("click", copyOutfitToOtherRoles);
     $("applyQuickButton").addEventListener("click", () => applyQuickSelection());
     $("randomButton").addEventListener("click", randomizeTopPresets);
-    $("randomAllButton")?.addEventListener("click", randomizeAll);
+    $("randomAllButton")?.addEventListener("click", randomizeDetailedSelection);
+    $("detailRandomScope")?.addEventListener("change", syncWorkspaceActionLabels);
     $("randomRevealScenarioButton").addEventListener("click", randomizeRevealScenario);
     $("rerollRevealPoseButton").addEventListener("click", cycleRevealPose);
     $("rerollRevealCameraButton").addEventListener("click", cycleRevealCamera);
@@ -8956,7 +9061,16 @@
     // 详细设置页「应用当前选择」主按钮：与快速预设页底部主操作按钮位置、视觉统一
     $("applyDetailButton")?.addEventListener("click", () => {
       updateOutput({ force: true });
-      showToast("已应用当前选择");
+      showToast("已按当前设置重新生成提示词结果");
+    });
+    $("detailReviewChangesButton")?.addEventListener("click", () => {
+      const fold = document.querySelector(".ux-search-fold");
+      const changeSummary = $("uxChangeSummary");
+      if (!fold || !changeSummary) return;
+      fold.open = true;
+      const history = changeSummary.closest("details");
+      if (history) history.open = true;
+      changeSummary.scrollIntoView({ block: "nearest", behavior: "smooth" });
     });
     $("sentenceButton").addEventListener("click", () => {
       previewSentence();
@@ -9404,8 +9518,13 @@
     $("uxOutputState").textContent = pending ? "有待应用预设 · 下方仍是当前生效结果" : "当前生效结果 · 手动字段已同步";
     $("uxOutputState").classList.toggle("is-pending", pending);
     $("uxApplied").textContent = [getModel().label, $("subjectType").selectedOptions[0]?.textContent, `${getSize().width}×${getSize().height}`, pairText("scene","zh"), pairText("shotSize","zh")].filter(Boolean).join(" · ");
-    $("applyQuickButton").textContent = styleCurrentMode() === "random-rest" ? "应用并补全" : "应用当前选择";
-    $("applyQuickButton").title = "顶部选择会替换对应字段；手动修改的其他字段会保留。应用后可撤销并查看修改记录。";
+    syncWorkspaceActionLabels();
+    const protectedCount = userTouchedFields.size;
+    if ($("detailProtectionStatus")) {
+      $("detailProtectionStatus").textContent = protectedCount
+        ? `手动修改已保护 · ${protectedCount} 项`
+        : "手动修改会自动保护";
+    }
     for (const id of CUSTOM_EDITOR_IDS) {
       const control = $(`${id}UxStatus`); if (!control) continue;
       const hasText = Boolean(inputValue(id) || inputValue(`${id}Zh`));
@@ -9434,7 +9553,7 @@
     document.querySelector(".command-bar").prepend(quick);
     const panel=uxElement("section","ux-detail-tools");
     panel.innerHTML='<details class="ux-search-fold"><summary><span class="ux-search-title">⌕ 查找设置</span></summary><div class="ux-search-body"><label>查找设置 <input id="uxFieldSearch" type="search" placeholder="字段名称或当前值"></label><label class="ux-inline"><input type="checkbox" id="uxModifiedOnly">只看已修改</label><button type="button" class="button secondary small" id="uxUndo" disabled>撤销上一步</button><small id="uxSearchStatus"></small><div id="uxSearchResults"></div><details><summary id="uxChangeSummary">修改记录 · 尚无修改</summary><ul id="uxChangeList"></ul></details><p class="ux-note">“不指定”不写入对应选项；“跟随预设”允许联动。手动修改会标记为已修改，随机补全保留这些字段。</p></div></details>';
-    document.querySelector(".wizard-bar").after(panel);
+    document.querySelector(".wizard-bar").append(panel);
     $("uxFieldSearch").addEventListener("input",refreshSearch);
     $("uxModifiedOnly").addEventListener("change",refreshSearch);
     $("uxUndo").addEventListener("click",()=> {
