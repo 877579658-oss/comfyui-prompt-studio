@@ -4158,15 +4158,17 @@
   function updateRevealSelectionSummary() {
     const title = $("revealCurrentTitle");
     const details = $("revealCurrentDetails");
+    const advancedSummary = $("revealAdvancedSummary");
     if (!title || !details) return;
     const scenario = selectedRevealScenario();
     const pose = selectedRevealPose();
-    const intensity = $("revealIntensityQuick")?.selectedOptions[0]?.textContent || "全部强度";
+    const intensity = $("revealIntensityQuick")?.selectedOptions[0]?.textContent || "自动推荐";
     const target = $("revealTargetQuick")?.selectedOptions[0]?.textContent || "全部重点";
     const camera = $("cameraPlanQuick")?.selectedOptions[0]?.textContent || "跟随当前镜头";
     const prop = $("adultPropQuick")?.selectedOptions[0]?.textContent || "无道具";
     title.textContent = scenario?.zh || "跟随当前设置";
     details.textContent = `${intensity} · ${target} · ${pose?.zh || "跟随场景姿势"} · ${camera} · ${prop}`;
+    if (advancedSummary) advancedSummary.textContent = `${pose?.zh || "跟随场景"} · ${camera} · ${prop}`;
   }
 
   function fillRevealQuickOptions() {
@@ -4301,7 +4303,7 @@
     if (emptyState && emptyText) {
       emptyState.hidden = scenarios.length > 0;
       if (!scenarios.length) {
-        const targetLabel = targetSelect.selectedOptions[0]?.textContent || "当前露出重点";
+        const targetLabel = targetSelect.selectedOptions[0]?.textContent || "当前画面重点";
         const intensityLabel = intensitySelect.selectedOptions[0]?.textContent || "当前强度";
         emptyText.textContent = `${intensityLabel}下没有适合“${targetLabel}”的露点场景。`;
       }
@@ -4324,8 +4326,8 @@
     const affinity = currentLoraQuickAffinity();
     if ($("revealQuickHint")) {
       $("revealQuickHint").textContent = affinity.labels.length
-        ? `场景与露出重点只做预览 · LoRA 适配优先：${affinity.labels.join(" / ")}`
-        : "场景与露出重点只做预览，点击“套用当前”后一次性生效。";
+        ? `先选强度、画面重点和场景 · LoRA 适配优先：${affinity.labels.join(" / ")}`
+        : "先选强度、画面重点和场景；应用后一次性更新结果。";
     }
     document.body.classList.toggle("reveal-mode", visible);
     if (visible && !quickPresetDirty) {
@@ -4353,7 +4355,7 @@
     updateVisibility();
     updateQuickLookSummary();
     saveAutosave();
-    if (!silent) showToast(`已选露点方案「${scenario.zh}」，点「套用当前」生效`);
+    if (!silent) showToast(`已选露点方案「${scenario.zh}」，点「应用选择并更新结果」生效`);
     return true;
   }
 
@@ -4418,7 +4420,7 @@
   function cycleRevealPose() {
     const poses = (REVEAL_POSES || []).filter(revealPoseCompatible);
     if (!poses.length) {
-      showToast("当前露出重点没有兼容姿势");
+      showToast("当前画面重点没有兼容姿势");
       return;
     }
     const current = $("revealPoseQuick")?.value || "";
@@ -4441,7 +4443,7 @@
       (intensity === "all" || (REVEAL_CAMERA_INTENSITIES?.[item.en] || []).includes(intensity))
     );
     if (!options.length) {
-      showToast("当前露出重点没有兼容镜头");
+      showToast("当前画面重点没有兼容镜头");
       return;
     }
     const current = $("cameraPlanQuick")?.value || "";
@@ -4512,7 +4514,7 @@
       .filter((item) => target === "all" || item.target === target)
       .filter((item) => intensity === "all" || revealScenarioIntensity(item) === intensity);
     if (!scenarios.length) {
-      showToast("当前人物或露出重点没有可用露点方案");
+      showToast("当前人物或画面重点没有可用露点方案");
       return;
     }
     const picked = pickFreshRandom(scenarios, "scenario", (item) => item.key, 4);
@@ -4564,7 +4566,7 @@
     if (applyButton) {
       applyButton.textContent = detailedView
         ? "应用预设"
-        : (styleCurrentMode() === "random-rest" ? "应用并补全" : "应用当前选择");
+        : "应用选择并更新结果";
       applyButton.title = detailedView
         ? "只把顶部预设应用到详细设置；其他手动修改会保留。"
         : "顶部选择会替换对应字段；手动修改的其他字段会保留。应用后可撤销并查看修改记录。";
@@ -4614,20 +4616,22 @@
     const stateLabel = !$("stylePreset")?.value
       ? "尚未选择人物风格"
       : quickPresetDirty
-        ? "待套用"
+        ? "待应用"
         : quickPresetApplied
-          ? "已套用 ✓"
-          : "已选择，待套用";
+          ? "已应用 ✓"
+          : "已选择，待应用";
     const applyMeta = !quickPresetDirty && quickPresetApplied && lastApplyMeta
       ? ` · ${lastApplyMeta}`
       : "";
     root.textContent = `${stateLabel}${style === "未选人物风格" ? "" : ` · ${shortText}`}${applyMeta}`;
     const overviewTitle = $("quickOverviewTitle");
     const overviewDetails = $("quickOverviewDetails");
-    if (overviewTitle) overviewTitle.textContent = quickPresetDirty ? "待套用预设" : "当前已套用";
+    if (overviewTitle) overviewTitle.textContent = quickPresetDirty ? "待应用预设" : "当前已应用";
     if (overviewDetails) overviewDetails.textContent = text;
     const detailSummary = $("detailPresetSummary");
     if (detailSummary) detailSummary.textContent = `${shortText}`;
+    const moreSummary = $("quickMoreSummary");
+    if (moreSummary) moreSummary.textContent = `${person} · ${age} · ${look} · ${camera}`;
     root.classList.toggle("is-pending", quickPresetDirty);
     updateRevealSelectionSummary();
     refreshUsability();
@@ -4728,7 +4732,7 @@
     updateVisibility();
     updateOutput();
     saveAutosave();
-    showToast(`已选「${style.zh}」，点「套用当前」生效`);
+    showToast(`已选「${style.zh}」，点「应用选择并更新结果」生效`);
   }
 
   function clearStylePreset() {
@@ -8952,8 +8956,6 @@
     );
     // 快速预设页：推荐风格 + 下一步
     renderQuickStyleChips();
-    $("quickGoDetail").addEventListener("click", () => setWorkspaceView(true));
-    $("quickCopyPrompt").addEventListener("click", () => copyText(currentEnglish(), "英文提示词已复制"));
     $("clearStyleButton").addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();

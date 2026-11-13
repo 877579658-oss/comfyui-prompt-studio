@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <title>ComfyUI Prompt Studio</title>
   <link rel="stylesheet" href="./styles.css?v=20261112-ux-1">
-  <link rel="stylesheet" href="./styles.apple.css?v=20261113-3">
+  <link rel="stylesheet" href="./styles.apple.css?v=20261113-4">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23007aff%27/%3E%3Cpath d=%27M22 16h13c9 0 15 5 15 13s-6 13-15 13h-5v8h-8V16zm8 8v10h5c4 0 7-2 7-5s-3-5-7-5h-5z%27 fill=%27white%27/%3E%3C/svg%3E">
 </head>
 <body class="light details-mode">
@@ -112,13 +112,14 @@
                 <span>整体风格</span>
                 <select id="topVisualStyle"></select>
               </label>
-              <label class="quick-look-field">
-                <span>镜头方案</span>
-                <select id="cameraPlanQuick"></select>
-              </label>
             </div>
-            <div class="quick-more" id="quickMore">
-              <div class="quick-look-fields quick-look-secondary">
+            <details class="quick-more-disclosure" id="quickMoreDetails">
+              <summary>
+                <span>更多调整</span>
+                <small id="quickMoreSummary">地域、年龄、服装与镜头</small>
+              </summary>
+              <div class="quick-more" id="quickMore">
+                <div class="quick-look-fields quick-look-secondary">
                 <label class="quick-look-field">
                   <span>地域外观参考</span>
                   <select id="topPerson">
@@ -148,23 +149,26 @@
                   <span>预设服装</span>
                   <select id="styleLook" data-state></select>
                 </label>
+                <label class="quick-look-field">
+                  <span>镜头方案</span>
+                  <select id="cameraPlanQuick"></select>
+                </label>
+                </div>
               </div>
-            </div>
+            </details>
             <div class="quick-look-actions">
               <div class="quick-look-actions-secondary">
                 <button class="button secondary small" id="randomButton" type="button" title="只重抽顶部的人物、风格、造型和镜头，其他字段不动">换一套风格</button>
-                <button class="button secondary small" id="quickCopyPrompt" type="button">复制英文提示词</button>
                 <button class="text-button danger" id="deleteStylePresetButton" type="button">删除</button>
-                <button class="text-button" id="quickGoDetail" type="button">去详细设置</button>
               </div>
             </div>
             <div class="quick-look-summary" id="quickLookSummary"></div>
           </section>
-          <section class="reveal-quick-panel" id="revealQuickPanel" aria-label="露点场景与露出重点" hidden>
+          <section class="reveal-quick-panel" id="revealQuickPanel" aria-label="露点场景与画面重点" hidden>
             <div class="reveal-quick-heading">
               <div>
                 <strong>露点方案</strong>
-                <small id="revealQuickHint">场景与露出重点只做预览，点击“套用当前”后一次性生效。</small>
+                <small id="revealQuickHint">先选强度、画面重点和场景；应用后一次性更新结果。</small>
               </div>
               <button class="button secondary small" id="randomRevealScenarioButton" type="button">换一套方案</button>
             </div>
@@ -175,35 +179,45 @@
                 <select class="sr-only" id="revealIntensityQuick" data-state aria-hidden="true" tabindex="-1"></select>
               </div>
               <label class="quick-look-field reveal-target-field">
-                <span>露出重点</span>
+                <span>画面重点</span>
                 <select id="revealTargetQuick" data-state></select>
               </label>
               <label class="quick-look-field reveal-scenario-field">
                 <span>场景套餐</span>
                 <select id="revealScenarioQuick" data-state></select>
               </label>
-              <label class="quick-look-field reveal-pose-field">
-                <span>姿势预设</span>
-                <select id="revealPoseQuick" data-state></select>
-              </label>
-              <div class="quick-look-field reveal-prop-field">
-                <div class="reveal-field-head">
-                  <label for="adultPropQuick">成人道具</label>
-                  <button class="text-button" id="clearAdultPropButton" type="button">清除</button>
-                </div>
-                <select id="adultPropQuick" data-state aria-label="成人道具"></select>
-              </div>
             </div>
+            <details class="reveal-advanced-details" id="revealAdvancedDetails">
+              <summary>
+                <span>调整姿势、镜头与道具</span>
+                <small id="revealAdvancedSummary">跟随当前方案</small>
+              </summary>
+              <div class="reveal-advanced-body">
+                <div class="reveal-quick-fields reveal-advanced-fields">
+                  <label class="quick-look-field reveal-pose-field">
+                    <span>姿势预设</span>
+                    <select id="revealPoseQuick" data-state></select>
+                  </label>
+                  <div class="quick-look-field reveal-prop-field">
+                    <div class="reveal-field-head">
+                      <label for="adultPropQuick">成人道具</label>
+                      <button class="text-button" id="clearAdultPropButton" type="button">清除</button>
+                    </div>
+                    <select id="adultPropQuick" data-state aria-label="成人道具"></select>
+                  </div>
+                </div>
+                <div class="reveal-quick-actions">
+                  <button class="button secondary small" id="rerollRevealPoseButton" type="button">换姿势</button>
+                  <button class="button secondary small" id="rerollRevealCameraButton" type="button">换镜头</button>
+                  <button class="button secondary small" id="rerollAdultPropButton" type="button">换道具</button>
+                </div>
+              </div>
+            </details>
             <div class="reveal-current-summary">
               <div class="reveal-current-copy">
                 <span>当前组合</span>
                 <strong id="revealCurrentTitle">跟随当前设置</strong>
                 <small id="revealCurrentDetails">选择场景后会在这里显示姿势、镜头与道具。</small>
-              </div>
-              <div class="reveal-quick-actions">
-                <button class="button secondary small" id="rerollRevealPoseButton" type="button">换姿势</button>
-                <button class="button secondary small" id="rerollRevealCameraButton" type="button">换镜头</button>
-                <button class="button secondary small" id="rerollAdultPropButton" type="button">换道具</button>
               </div>
             </div>
             <div class="reveal-empty-state" id="revealEmptyState" role="status" hidden>
@@ -231,7 +245,7 @@
             </label>
             <button class="button secondary" id="randomAllButton" type="button" title="随机所有字段：人物风格、造型、镜头、露点与其余细节全部重新随机">全部随机</button>
             <button class="icon-button" id="undoButton" type="button" disabled aria-label="撤销上一次套用或随机" title="撤销上一次套用或随机">↺</button>
-            <button class="button primary" id="applyQuickButton" type="button">套用当前</button>
+            <button class="button primary" id="applyQuickButton" type="button">应用选择并更新结果</button>
           </div>
           <div class="workspace-mode-row">
             <div class="detail-preset-bar" id="detailPresetBar">
@@ -274,7 +288,7 @@
                 <div class="wizard-categories" id="wizardCategories" role="tablist" aria-label="当前步骤分类"></div>
               </div>
             </div>
-            <div class="wizard-status-row">
+            <div class="wizard-status-row sr-only">
               <span class="wizard-nav-label">状态</span>
               <div class="wizard-check" id="wizardCheck" role="status" aria-live="polite"></div>
             </div>
@@ -1320,11 +1334,11 @@
 
         <div class="quick-apply-primary detail-apply-primary" id="detailApplyBar">
           <div class="detail-apply-state">
-            <strong id="detailApplyState">当前字段已实时同步</strong>
-            <small>重新生成会按当前设置覆盖自由编辑的结果文本</small>
+            <strong id="detailApplyState">设置已同步到结果</strong>
+            <small>如果手动编辑过结果，可按当前设置重新生成并覆盖</small>
           </div>
           <button class="button secondary" id="detailReviewChangesButton" type="button">查看修改</button>
-          <button class="button primary" id="applyDetailButton" type="button">更新提示词结果</button>
+          <button class="button primary" id="applyDetailButton" type="button">按当前设置重新生成</button>
         </div>
 
         <footer class="page-footer">
@@ -1458,7 +1472,7 @@
     </div>
   </dialog>
 
-  <script src="./data/prompts.js?v=20261112-ux-1"></script>
-  <script src="./app.js?v=20261113-3"></script>
+  <script src="./data/prompts.js?v=20261113-4"></script>
+  <script src="./app.js?v=20261113-4"></script>
 </body>
 </html>

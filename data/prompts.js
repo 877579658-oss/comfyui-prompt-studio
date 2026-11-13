@@ -5347,7 +5347,7 @@ const LORA_CATALOG = [
   ];
 
   const REVEAL_INTENSITIES = [
-    { key: "all", zh: "全部强度" },
+    { key: "all", zh: "自动推荐" },
     { key: "tease", zh: "挑逗" },
     { key: "display", zh: "明确展示" },
     { key: "intense", zh: "高强互动" }

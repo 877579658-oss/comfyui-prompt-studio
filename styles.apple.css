@@ -2278,6 +2278,18 @@ body.output-collapsed .main-grid {
   }
 }
 
+@media (min-width: 1181px) {
+  body:not(.details-mode) #quickApplyBar {
+    position: sticky;
+    z-index: 12;
+    bottom: 12px;
+    border: 1px solid color-mix(in srgb, var(--apple-border) 82%, transparent) !important;
+    background: color-mix(in srgb, var(--apple-surface) 92%, transparent) !important;
+    box-shadow: var(--apple-shadow-float) !important;
+    backdrop-filter: saturate(160%) blur(20px);
+  }
+}
+
 @media (max-width: 420px) {
   .topbar {
     padding-inline: 10px;
@@ -2294,5 +2306,186 @@ body.output-collapsed .main-grid {
   .reveal-intensity-segments button {
     padding-inline: 4px;
     font-size: 11px;
+  }
+}
+
+/* APPLE-HUMAN-6：快速模式渐进披露 + 详细模式层级收敛 */
+.quick-look-primary {
+  grid-template-columns: minmax(0, 1.15fr) repeat(2, minmax(0, 1fr));
+}
+
+.quick-more-disclosure,
+.reveal-advanced-details {
+  min-width: 0;
+  margin-top: 10px;
+  border-top: 1px solid var(--apple-border);
+}
+
+.quick-more-disclosure > summary,
+.reveal-advanced-details > summary {
+  display: flex;
+  min-width: 0;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--apple-text);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.quick-more-disclosure > summary::-webkit-details-marker,
+.reveal-advanced-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.quick-more-disclosure > summary::after,
+.reveal-advanced-details > summary::after {
+  content: "⌄";
+  flex: 0 0 auto;
+  color: var(--apple-tertiary);
+  font-size: 15px;
+  transition: transform 160ms ease;
+}
+
+.quick-more-disclosure[open] > summary::after,
+.reveal-advanced-details[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.quick-more-disclosure > summary > span,
+.reveal-advanced-details > summary > span {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.quick-more-disclosure > summary > small,
+.reveal-advanced-details > summary > small {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: var(--apple-secondary);
+  font-size: 11px;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#quickMore {
+  margin-top: 0 !important;
+  padding-top: 8px !important;
+  border-top: 0 !important;
+}
+
+#quickMore .quick-look-secondary {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.quick-look-actions {
+  margin-top: 8px;
+  padding-top: 0 !important;
+  border-top: 0 !important;
+}
+
+#revealQuickPanel > .reveal-quick-fields .reveal-intensity-field {
+  grid-column: span 6;
+}
+
+#revealQuickPanel > .reveal-quick-fields .reveal-target-field,
+#revealQuickPanel > .reveal-quick-fields .reveal-scenario-field {
+  grid-column: span 3;
+}
+
+.reveal-advanced-body {
+  padding: 0 4px 4px;
+}
+
+.reveal-advanced-fields {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.reveal-advanced-fields .reveal-pose-field,
+.reveal-advanced-fields .reveal-prop-field {
+  grid-column: auto;
+}
+
+.reveal-advanced-body .reveal-quick-actions {
+  justify-content: flex-start;
+  margin-top: 8px;
+}
+
+.reveal-current-summary {
+  margin-top: 8px;
+}
+
+/* 修改状态由蓝点表达；恢复操作只在当前字段需要操作时出现。 */
+body.details-mode label.field.is-modified .ux-reset {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(2px);
+}
+
+body.details-mode label.field.is-modified:hover .ux-reset,
+body.details-mode label.field.is-modified:focus-within .ux-reset {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+body.details-mode .wizard-bar {
+  padding-block: 7px !important;
+}
+
+body.details-mode .wizard-nav-row {
+  min-height: 31px;
+}
+
+body.details-mode .wizard-category-row {
+  padding-top: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--apple-border) 72%, transparent);
+}
+
+@container (max-width: 900px) {
+  #quickMore .quick-look-secondary {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #revealQuickPanel > .reveal-quick-fields .reveal-intensity-field,
+  #revealQuickPanel > .reveal-quick-fields .reveal-target-field,
+  #revealQuickPanel > .reveal-quick-fields .reveal-scenario-field {
+    grid-column: span 6;
+  }
+}
+
+@container (max-width: 560px) {
+  .quick-look-primary,
+  #quickMore .quick-look-secondary,
+  .reveal-advanced-fields {
+    grid-template-columns: 1fr !important;
+  }
+
+  #revealQuickPanel > .reveal-quick-fields .reveal-intensity-field,
+  #revealQuickPanel > .reveal-quick-fields .reveal-target-field,
+  #revealQuickPanel > .reveal-quick-fields .reveal-scenario-field {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .quick-more-disclosure > summary,
+  .reveal-advanced-details > summary {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding-block: 9px;
+  }
+
+  .quick-more-disclosure > summary > small,
+  .reveal-advanced-details > summary > small {
+    flex-basis: calc(100% - 28px);
+    order: 3;
+    text-align: left;
+    white-space: normal;
   }
 }
