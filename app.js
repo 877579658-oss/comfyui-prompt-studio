@@ -1221,7 +1221,7 @@
   function pubicDetailsVisible() {
     if (contentScale() !== "revealing" || !femaleCharacterA()) return false;
     if (BACK_ONLY_ORIENTATION.test($("bodyOrientation")?.value || "")) return false;
-    if (!/^(full-body shot|full-body composition with both face and lower body visible|explicit adult vulva close-up|cowboy shot|wide shot|environmental portrait|medium wide shot)$/i.test($("shotSize")?.value || "")) return false;
+    if (!/^(full-body shot|full-body composition with both face and lower body visible|explicit pussy close-up|cowboy shot|wide shot|environmental portrait|medium wide shot)$/i.test($("shotSize")?.value || "")) return false;
     const mode = selectedRevealModeItem();
     const action = selectedRevealActionItem();
     return (
@@ -1238,7 +1238,7 @@
     if (BACK_ONLY_ORIENTATION.test($("bodyOrientation")?.value || "")) {
       return "角色 A 当前为背面；一键补齐会改为正面展示。";
     }
-    if (!/^(full-body shot|full-body composition with both face and lower body visible|explicit adult vulva close-up|cowboy shot|wide shot|environmental portrait|medium wide shot)$/i.test($("shotSize")?.value || "")) {
+    if (!/^(full-body shot|full-body composition with both face and lower body visible|explicit pussy close-up|cowboy shot|wide shot|environmental portrait|medium wide shot)$/i.test($("shotSize")?.value || "")) {
       return "当前景别无法看清下体；一键补齐会改为全身或七分身。";
     }
     if (pubicDetailsVisible()) return "";
@@ -1280,7 +1280,7 @@
     }
     fixes += applyRevealActionDefaults();
 
-    if (!/^(full-body shot|full-body composition with both face and lower body visible|explicit adult vulva close-up|cowboy shot|wide shot|environmental portrait|medium wide shot)$/i.test($("shotSize")?.value || "")) {
+    if (!/^(full-body shot|full-body composition with both face and lower body visible|explicit pussy close-up|cowboy shot|wide shot|environmental portrait|medium wide shot)$/i.test($("shotSize")?.value || "")) {
       const fullBody = getOptionPairs("shotSize").find((item) => item.en === "full-body shot");
       if (fullBody?.en) {
         setSelectValue("shotSize", fullBody.en);
@@ -1496,7 +1496,10 @@
         return CUMULATIVE_ADULT_FIELDS.has(field);
       }
       if (scale === "revealing") {
-        return !field || !adultItems.length;
+        // 露点尺度下基础选项仍然可选：露点方案与露点姿势里写的就是这些值，
+        // 之前被整组隐藏，导致方案里的 pose/朝向/腿姿/手部/视线在套用时静默失效。
+        // 随机补全仍只会从成人档里挑（pickRandomFieldValue 的 rate=1 分支），露骨强度不受影响。
+        return true;
       }
       return true;
     }
@@ -4362,6 +4365,12 @@
   function applyRevealScenario(scenario = selectedRevealScenario()) {
     if (!scenario) return 0;
     let changed = 0;
+    // 方案明确写明「衣物全脱」时，先把顶部服装状态切到裸体，
+    // 否则会出现「上身有衣」与「衣服全部脱掉」同时输出的矛盾。
+    if (scenario.fields?.garmentDisplacement === "clothing fully removed" && $("outfitState")?.value !== "nude") {
+      applyOutfitState("nude");
+      changed += 1;
+    }
     const revealModeValue = scenario.fields?.revealMode;
     if (revealModeValue && $("revealMode") && optionExists("revealMode", revealModeValue)) {
       if ($("revealMode").value !== revealModeValue) {
@@ -4372,6 +4381,14 @@
     }
     for (const [field, value] of Object.entries(scenario.fields || {})) {
       if (field === "revealMode") continue;
+      // 方案里写空串表示「这一项交给镜头方案 / 不出现」，清掉，避免残留上一条方案的取值。
+      if (value === "") {
+        if ($(field)?.value) {
+          clearSelectValue(field);
+          changed += 1;
+        }
+        continue;
+      }
       if (!value || !$(field) || !optionExists(field, value)) continue;
       if ($(field).value !== value) {
         setSelectValue(field, value);
@@ -5451,16 +5468,16 @@
     const cameraPlanValue = $("cameraPlan")?.value || "";
     if (
       cameraPlanValue === "vulva close-up plan" &&
-      ($("revealMode")?.value !== "labia majora clearly visible" ||
-        $("shotSize")?.value !== "explicit adult vulva close-up")
+      ($("revealMode")?.value !== "pussy clearly visible" ||
+        $("shotSize")?.value !== "explicit pussy close-up")
     ) {
       add("section-camera", "阴部特写联动不完整", "阴部特写需要阴部清晰可见、正面或侧正面朝向和对应特写景别。");
     }
     if (
       cameraPlanValue === "anal close-up plan" &&
-      ($("revealMode")?.value !== "anus clearly visible" ||
+      ($("revealMode")?.value !== "asshole clearly visible" ||
         !["viewed from behind", "viewed from behind while looking back"].includes($("bodyOrientation")?.value) ||
-        $("shotSize")?.value !== "explicit adult anal close-up")
+        $("shotSize")?.value !== "explicit asshole close-up")
     ) {
       add("section-camera", "肛门特写联动不完整", "肛门特写需要后庭清晰可见、背向镜头和对应特写景别。");
     }
@@ -6653,7 +6670,10 @@
   function adultDetailsText(lang) {
     const type = $("subjectType").value;
     if (!["person", "couple", "group"].includes(type)) return "";
-    const plus = contentScale() === "revealing"
+    const intimacyText = pairText("intimacyLevel", lang);
+    // 关系/亲密档位本身已经把「露骨、自愿、高强」说清楚时不再重复追加这句，
+    // 否则成片里会出现两条同义的亲密描述。
+    const plus = contentScale() === "revealing" && !(intimacyText && /explicit|高强/.test(intimacyText))
       ? (lang === "zh"
         ? "明确成年且双方自愿的高强成人亲密氛围"
         : "explicit consensual adult intimacy with high-intensity intent")
@@ -6663,7 +6683,7 @@
       bodyDetailsText(lang),
       pairText("mouthDetail", lang),
       pairText("bodyReaction", lang),
-      pairText("intimacyLevel", lang),
+      intimacyText,
       plus
     ], lang);
   }
