@@ -1093,7 +1093,7 @@ const O = {
     pair("坐在椅子上", "seated on a chair", { group: "坐姿" }),
     pair("倚靠墙面", "leaning against a wall", { group: "倚靠" }),
     pair("倚靠栏杆", "leaning on a railing", { group: "倚靠" }),
-    pair("侧身回眸", "turning back over the shoulder", { group: "其他" }),
+    pair("侧身回眸", "caught mid-turn in an adult presentation", { group: "其他" }),
     pair("半身侧坐", "side-seated three-quarter pose", { group: "坐姿" }),
     pair("仰卧", "lying on their back", { group: "卧姿" }),
     pair("侧卧", "lying on one side", { group: "卧姿" }),
@@ -1119,14 +1119,14 @@ const O = {
     pair("俯身倚靠桌面", "leaning across a table on their forearms", { adultOnly: true, group: "卧姿" }),
     pair("不指定", ""),
     pair("侧卧手撑头", "lying on one side with the head propped on a hand", { adultOnly: true, group: "卧姿" }),
-    pair("单膝跪床", "kneeling on the bed with one knee raised", { adultOnly: true, group: "跪姿" }),
+    pair("单膝跪床", "kneeling at the foot of the bed", { adultOnly: true, group: "跪姿" }),
     pair("趴卧回望", "lying on the stomach and looking back", { adultOnly: true, group: "卧姿" }),
     pair("抱膝靠墙", "sitting against the wall with knees drawn up", { adultOnly: true, group: "倚靠" }),
     pair("倚门回眸", "leaning in a doorway and glancing back", { adultOnly: true, group: "倚靠" }),
     pair("双手枕在脑后", "hands resting behind the head", { adultOnly: true, group: "其他" }),
     pair("半躺半坐", "half-lying, half-sitting", { adultOnly: true, group: "坐姿" }),
     pair("趴卧手垫下巴", "lying on the stomach with the chin on a hand", { adultOnly: true, group: "卧姿" }),
-    pair("侧坐沙发扶手", "sitting sideways on a sofa armrest", { adultOnly: true, group: "坐姿" }),
+    pair("侧坐沙发扶手", "sitting sideways on a sofa in an adult presentation", { adultOnly: true, group: "坐姿" }),
     pair("背对镜头回望", "back to the camera, looking over the shoulder", { adultOnly: true, group: "其他" }),
     pair("跪坐窗前", "kneeling by the window", { adultOnly: true, group: "坐姿" }),
     pair("仰头闭眼", "head tilted back with eyes closed", { adultOnly: true, group: "卧姿" }),
@@ -1141,7 +1141,7 @@ const O = {
     pair("坐在窗台", "sitting on a windowsill", { adultOnly: true, group: "坐姿" }),
     pair("半跪向前", "half-kneeling and leaning forward", { adultOnly: true, group: "跪姿" }),
     pair("仰卧曲膝", "lying on the back with knees bent", { adultOnly: true, group: "卧姿" }),
-    pair("侧坐高凳", "sitting sideways on a stool", { adultOnly: true, group: "坐姿" }),
+    pair("侧坐高凳", "sitting on a chair and leaning forward with an adult presentation", { adultOnly: true, group: "坐姿" }),
     pair("手撑地板侧坐", "sitting with a hand braced on the floor", { adultOnly: true, group: "坐姿" }),
     pair("倚靠门框", "leaning in a door frame", { adultOnly: true, group: "倚靠" }),
     pair("背靠床头", "back against the headboard", { adultOnly: true, group: "倚靠" }),
@@ -1158,7 +1158,7 @@ const O = {
     pair("双臂向上伸展", "stretching both arms overhead", { group: "站立", adultOnly: true }),
     pair("身体微微后仰", "leaning the torso slightly back", { group: "站立", adultOnly: true }),
     pair("侧头低语姿态", "head turned as if mid-whisper", { group: "站立", adultOnly: true }),
-    pair("高凳交叠双腿", "sitting on a stool with the legs crossed", { group: "坐姿", adultOnly: true }),
+    pair("高凳交叠双腿", "sitting on a chair and leaning forward with an adult presentation", { group: "坐姿", adultOnly: true }),
     pair("沙发边缘侧坐", "perched on the edge of a sofa", { group: "坐姿", adultOnly: true }),
     pair("盘腿而坐", "sitting cross-legged", { group: "坐姿", adultOnly: true }),
     pair("抱膝坐地", "sitting on the floor hugging the knees", { group: "坐姿", adultOnly: true }),
@@ -1173,7 +1173,7 @@ const O = {
     pair("俯卧侧脸贴枕", "lying face down with the cheek on a pillow", { group: "卧姿", adultOnly: true }),
     pair("侧卧屈膝", "lying on one side with the knees bent", { group: "卧姿", adultOnly: true }),
     pair("半卧撑肘", "reclining on one elbow", { group: "卧姿", adultOnly: true }),
-    pair("仰卧屈膝脚踏床面", "lying back with the knees bent and feet on the bed", { group: "卧姿", adultOnly: true }),
+    pair("仰卧屈膝脚踏床面", "a fully open reclining adult pose with the body extended toward the camera", { group: "卧姿", adultOnly: true }),
     pair("侧卧回望", "lying on one side and looking back", { group: "卧姿", adultOnly: true }),
     pair("俯卧抬肩", "lying face down with the shoulders lifted", { group: "卧姿", adultOnly: true }),
     pair("半躺靠在沙发", "half-reclining on a sofa", { group: "卧姿", adultOnly: true }),
@@ -1223,7 +1223,7 @@ const O = {
     pair("坐桌面侧身", "sitting sideways on a desk", { group: "背身", adultOnly: true }),
     pair("靠办公桌边", "leaning on the edge of a desk", { group: "背身", adultOnly: true }),
     pair("抱臂回望", "arms folded while looking back", { group: "背身", adultOnly: true }),
-    pair("站在镜前", "standing in front of a mirror", { group: "背身", adultOnly: true }),
+    pair("站在镜前", "caught mid-turn in an adult presentation", { group: "背身", adultOnly: true }),
     pair("镜前整理长发", "adjusting long hair in front of a mirror", { group: "背身", adultOnly: true }),
     pair("撩起一侧长发", "lifting one side of the long hair", { group: "背身", adultOnly: true }),
     pair("侧身收腰姿态", "a side-on silhouette with a tucked waist", { group: "背身", adultOnly: true }),
@@ -1255,7 +1255,7 @@ const O = {
     pair("私房 · 床头半躺抬膝", "half-reclining against the headboard with one knee raised", { group: "私房姿势", adultOnly: true, intensity: "boudoir" }),
     pair("私房 · 沙发扶手前后错腿", "sitting on a sofa armrest with the legs staggered forward and back", { group: "私房姿势", adultOnly: true, intensity: "boudoir" }),
     pair("私房 · 地面膝开手扶脚踝", "seated on the floor with the knees open and hands resting near the ankles", { group: "私房姿势", adultOnly: true, intensity: "boudoir" }),
-    pair("明确暗示 · 仰卧双膝弯曲分开", "lying back with the knees bent and naturally apart", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
+    pair("明确暗示 · 仰卧双膝弯曲分开", "a fully open reclining adult pose with the body extended toward the camera", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 侧卧一膝高高抬起", "lying on one side with one knee raised high", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 后仰撑地宽膝坐姿", "leaning back on both hands in a low seated pose with the knees apart", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 地面宽V坐姿侧机位", "seated low on the floor with the legs in a wide V shape, side camera angle", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
@@ -1266,8 +1266,8 @@ const O = {
     pair("明确暗示 · 靠墙背身回眸髋部偏移", "standing back to the wall with one hip shifted and looking over the shoulder", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 单脚踩墙斜靠", "leaning diagonally against a wall with one foot raised against it", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 坐在桌边一膝抬起", "sitting on the edge of a table with one knee raised", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
-    pair("明确暗示 · 侧坐沙发一腿伸展", "sitting sideways on a sofa with one leg extended and the other bent", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
-    pair("明确暗示 · 后仰双肘撑床", "leaning back on both elbows on the bed with the chest lifted", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
+    pair("明确暗示 · 侧坐沙发一腿伸展", "sitting sideways on a sofa in an adult presentation", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
+    pair("明确暗示 · 后仰双肘撑床", "leaning back comfortably", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 半躺床头双膝弯曲", "half-reclining against the headboard with both knees bent", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 跪姿一膝前移", "kneeling with one knee shifted forward and the torso upright", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 跪坐躯干扭转", "kneeling while twisting the torso toward the camera", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
@@ -1276,7 +1276,7 @@ const O = {
     pair("明确暗示 · 地面侧撑抬髋", "resting on one forearm on the floor with the hips lifted", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 椅背后倾髋部后移", "leaning back over a chair with the hips shifted away from the chair", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 窗台一腿垂下", "sitting on a windowsill with one leg hanging down and the other drawn up", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
-    pair("明确暗示 · 镜前回身单肩朝镜头", "turning back in front of a mirror with one shoulder angled toward the camera", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
+    pair("明确暗示 · 镜前回身单肩朝镜头", "caught mid-turn in an adult presentation", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 单膝跪地双手放腿", "down on one knee with both hands resting on the upper legs", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 沙发边缘后仰悬腿", "sitting on the edge of a sofa and leaning back with the legs relaxed", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 地面一膝立起一膝外展", "sitting low with one knee raised and the other angled outward", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
@@ -1289,7 +1289,7 @@ const O = {
     pair("明确暗示 · 床沿单膝跪立前倾", "kneeling at the edge of the bed on one knee while leaning forward", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 坐床后仰双手撑床", "sitting on the bed and leaning back with both hands braced behind", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 门框一腿交叉斜靠", "leaning in a doorway with the legs gently crossed", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
-    pair("明确暗示 · 高脚凳双腿交叠侧倾", "sitting on a tall stool with the legs crossed and the torso angled to one side", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
+    pair("明确暗示 · 高脚凳双腿交叠侧倾", "sitting on a chair and leaning forward with an adult presentation", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("明确暗示 · 地面跪坐转身一手撑地", "kneeling on the floor while turning toward the camera with one hand braced on the ground", { group: "明确暗示", adultOnly: true, intensity: "adult" }),
     pair("开放双人 · 床沿并肩错膝", "two adults sitting together on the edge of the bed with their knees offset", { group: "开放双人", adultOnly: true, intensity: "adult", people: 2, focus: ["innerThighKnee", "waist", "fullBody"] }),
     pair("开放双人 · 前后错位侧坐", "two adults sitting in a staggered front-and-back composition", { group: "开放双人", adultOnly: true, intensity: "adult", people: 2, focus: ["sideWaistHip", "outerThigh", "fullBody"] }),
@@ -1749,13 +1749,13 @@ const O = {
     pair("胸廓与腰线重点", "the chest contour and waistline emphasized", { adultOnly: true, intensity: "adult" }),
     pair("后腰与臀部轮廓重点", "the lower back and rear contour emphasized", { adultOnly: true, intensity: "adult" }),
     pair("胯部与大腿线条重点", "the hip and thigh lines emphasized", { adultOnly: true, intensity: "adult" }),
-    pair("前裆上缘清晰可见", "the upper front crotch area clearly visible", { adultOnly: true, intensity: "adult" })
+    pair("前裆上缘清晰可见", "the upper front crotch and pussy mound clearly visible", { adultOnly: true, intensity: "adult" })
   ],
   gaze: [
     pair("不指定", ""),
     pair("直视镜头", "direct eye contact with the camera"),
     pair("看向画外", "looking off-camera"),
-    pair("回眸看镜头", "looking back toward the camera"),
+    pair("回眸看镜头", "a backward glance over the shoulder toward the camera"),
     pair("低垂目光", "lowered gaze"),
     pair("向上抬眸", "glancing upward"),
     pair("侧目", "subtle side glance"),
@@ -1763,12 +1763,12 @@ const O = {
     pair("透过镜子对视", "eye contact through a mirror"),
     pair("闭眼感受光线", "eyes closed, feeling the light"),
     pair("看向另一人", "looking toward another person", { people: 2 }),
-    pair("视线越过肩膀", "gaze directed over the shoulder"),
-    pair("半垂眼睑看向镜头", "half-lidded gaze toward the camera"),
+    pair("视线越过肩膀", "a backward glance over the shoulder toward the camera"),
+    pair("半垂眼睑看向镜头", "an openly desiring adult gaze directed into the camera"),
     pair("透过睫毛上望", "looking up through the lashes", { adultOnly: true }),
     pair("缓慢的直视", "a slow steady look", { adultOnly: true }),
-    pair("视线追随镜头", "a gaze following the camera", { adultOnly: true }),
-    pair("从肩后回望", "a gaze back over the shoulder", { adultOnly: true }),
+    pair("视线追随镜头", "an openly desiring adult gaze directed into the camera", { adultOnly: true }),
+    pair("从肩后回望", "a backward glance over the shoulder toward the camera", { adultOnly: true }),
     pair("半抬眸", "a half-lifted gaze", { adultOnly: true }),
     pair("视线缓慢下移", "a slow downward gaze", { adultOnly: true }),
     pair("不眨眼的直视", "an unblinking direct look", { adultOnly: true }),
@@ -2164,7 +2164,7 @@ const ROLE_PRESETS = {
     outfit: "tailored black suit",
     fabric: "matte leather",
     accessories: "metal wristwatch",
-    pose: "turning back over the shoulder",
+    pose: "caught mid-turn in an adult presentation",
     scene: "a minimalist photography studio",
     lighting: "controlled three-point studio lighting",
     visualStyle: "high-fashion editorial"
@@ -3789,7 +3789,7 @@ const QUICK_PRESETS = [
       age: "in their twenties",
       body: "runway model proportions",
       outfit: "tailored black suit",
-      pose: "turning back over the shoulder",
+      pose: "caught mid-turn in an adult presentation",
       scene: "a minimalist photography studio",
       lighting: "controlled three-point studio lighting",
       visualStyle: "high-fashion editorial"
@@ -4402,7 +4402,9 @@ const LORA_CATALOG = [
 
   O.gaze.push(
     pair("露点 · 欲望明确的直视", "an openly desiring adult gaze directed into the camera", { adultOnly: true, intensity: "revealing" }),
-    pair("露点 · 持续锁定镜头", "a sustained intense adult gaze locked on the camera", { adultOnly: true, intensity: "revealing" })
+    pair("露点 · 持续锁定镜头", "a sustained intense adult gaze locked on the camera", { adultOnly: true, intensity: "revealing" }),
+    pair("露点 · 回眸越过肩膀", "a backward glance over the shoulder toward the camera", { adultOnly: true, intensity: "revealing", group: "露点" }),
+    pair("露点 · 侧脸回望镜头", "turning the head to look back at the camera over the shoulder", { adultOnly: true, intensity: "revealing", group: "露点" })
   );
 
   O.outfit.push(
@@ -4500,16 +4502,16 @@ const LORA_CATALOG = [
     pair("单手提裙摆", "lifting one side of the skirt hem", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the skirt hem", bodyOrientation: "three-quarter view from the front left", bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "full-body shot" }),
     pair("双手提起裙摆", "lifting the front of the skirt with both hands", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "full-body shot" }),
     pair("侧身提起裙摆", "lifting the skirt hem while turning the body slightly to the side", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the skirt hem", bodyOrientation: "three-quarter view from the front right", bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "cowboy shot" }),
-    pair("连同衬裙一起提起", "lifting both the outer skirt and petticoat to reveal the inner layer", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "the upper front crotch area clearly visible", shotSize: "full-body shot" }),
-    pair("外层裙摆自然滑落", "letting the outer skirt slip aside to reveal the inner layer", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the skirt hem", bodyOrientation: "three-quarter view from the front left", bodyFocus: "the upper front crotch area clearly visible", shotSize: "cowboy shot" }),
+    pair("连同衬裙一起提起", "lifting both the outer skirt and petticoat to reveal the inner layer", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "the upper front crotch and pussy mound clearly visible", shotSize: "full-body shot" }),
+    pair("外层裙摆自然滑落", "letting the outer skirt slip aside to reveal the inner layer", { modes: ["skirt"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the skirt hem", bodyOrientation: "three-quarter view from the front left", bodyFocus: "the upper front crotch and pussy mound clearly visible", shotSize: "cowboy shot" }),
     pair("拉开外层洋装前襟", "opening the front of the outer dress", { modes: ["opening"], adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the open garment", bodyFocus: "the chest contour and waistline forming a clear curve toward the camera", shotSize: "medium shot" }),
     pair("滑下一侧肩带", "letting one shoulder strap slip down slowly", { modes: ["opening"], adultOnly: true, intensity: "revealing", handPose: "one hand resting near the collarbone", bodyFocus: "the neck and collarbone angled toward the camera", shotSize: "medium close shot" }),
     pair("侧身展示腰胯线条", "turning to present the waist and hip line", { modes: ["body"], adultOnly: true, intensity: "revealing", bodyOrientation: "three-quarter view from the front left", bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "cowboy shot" }),
     pair("后仰展示腰线", "leaning back to emphasize the torso and waistline", { modes: ["body"], adultOnly: true, intensity: "revealing", bodyOrientation: "three-quarter view from the front right", bodyFocus: "an explicit adult composition emphasizing the chest, waist, and hips together", shotSize: "medium shot" }),
     pair("抬腿展示腿部线条", "lifting one leg to emphasize the leg line", { modes: ["body"], adultOnly: true, intensity: "revealing", bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "cowboy shot" }),
-    pair("主动贴近并回应", "moving close with explicit adult intent and mutual response", { modes: ["intimacy"], adultOnly: true, intensity: "revealing", people: 2, bodyFocus: "an explicit adult composition emphasizing the chest, waist, and hips together", shotSize: "two-shot medium framing" }),
-    pair("一人主导一人回应", "one consenting adult leading while the other actively responds", { modes: ["intimacy"], adultOnly: true, intensity: "revealing", people: 2, bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "two-shot medium framing" }),
-    pair("多人协同亲密互动", "three consenting adults maintaining coordinated adult intimacy", { modes: ["intimacy"], adultOnly: true, intensity: "revealing", people: 3, bodyFocus: "a fully presented adult body-line composition with explicit intent", shotSize: "medium wide shot" })
+    pair("主动贴近并回应", "moving in close with explicit sexual intent and visible mutual arousal", { modes: ["intimacy"], adultOnly: true, intensity: "revealing", people: 2, bodyFocus: "an explicit adult composition emphasizing the chest, waist, and hips together", shotSize: "two-shot medium framing" }),
+    pair("一人主导一人回应", "one consenting adult leading while the other moans and responds", { modes: ["intimacy"], adultOnly: true, intensity: "revealing", people: 2, bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line", shotSize: "two-shot medium framing" }),
+    pair("多人协同亲密互动", "three consenting adults in coordinated explicit intimacy", { modes: ["intimacy"], adultOnly: true, intensity: "revealing", people: 3, bodyFocus: "a fully presented adult body-line composition with explicit intent", shotSize: "medium wide shot" })
   ];
 
   O.underwearStyle = [
@@ -4525,26 +4527,26 @@ const LORA_CATALOG = [
 
   O.revealMode.push(
     pair("乳头清晰可见", "both nipples clearly visible", { mode: "visibility", target: "nipples", adultOnly: true, intensity: "revealing" }),
-    pair("大阴唇清晰可见", "labia majora clearly visible", { mode: "visibility", target: "vulva", adultOnly: true, intensity: "revealing" }),
-    pair("肛门清晰可见", "anus clearly visible", { mode: "visibility", target: "anus", adultOnly: true, intensity: "revealing" })
+    pair("大阴唇清晰可见", "pussy clearly visible", { mode: "visibility", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("肛门清晰可见", "asshole clearly visible", { mode: "visibility", target: "anus", adultOnly: true, intensity: "revealing" })
   );
 
   O.revealAction.push(
-    pair("拉开前襟展露胸部", "opening the front of the garment to clearly reveal the chest", { modes: ["visibility"], targets: ["nipples"], adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the open garment", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium close shot" }),
+    pair("拉开前襟展露胸部", "opening the front of the garment to bare the tits and nipples", { modes: ["visibility"], targets: ["nipples"], adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the open garment", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium close shot" }),
     pair("滑下一侧肩带并侧身", "letting one shoulder strap slip down while turning slightly to the side", { modes: ["visibility"], targets: ["nipples"], adultOnly: true, intensity: "revealing", handPose: "one hand resting near the collarbone", bodyOrientation: "three-quarter view from the front left", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium shot" }),
-    pair("俯身展露胸部", "leaning forward to clearly present the chest toward the camera", { modes: ["visibility"], targets: ["nipples"], adultOnly: true, intensity: "revealing", bodyOrientation: "three-quarter view from the front right", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium close shot" }),
-    pair("提起前摆并分开双腿", "lifting the front hem while parting the legs to expose the intended area", { modes: ["visibility"], targets: ["vulva"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the intended lower-body area", shotSize: "full-body shot" }),
-    pair("侧卧抬腿展示", "lying on one side and lifting the upper leg to expose the intended area", { modes: ["visibility"], targets: ["vulva"], adultOnly: true, intensity: "revealing", bodyOrientation: "lying on one side and facing the camera", bodyFocus: "an explicit front composition clearly presenting the intended lower-body area", shotSize: "full-body shot" }),
-    pair("正面低机位前摆展示", "presenting the front hem from a low camera angle to expose the intended area", { modes: ["visibility"], targets: ["vulva"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the intended lower-body area", shotSize: "cowboy shot" }),
-    pair("背身弯腰提起后摆", "turning away, bending forward, and lifting the rear hem to expose the intended area", { modes: ["visibility"], targets: ["anus"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "viewed from behind", bodyFocus: "an explicit rear composition clearly presenting the intended rear area", shotSize: "full-body shot" }),
-    pair("侧卧抬臀回望", "lying on one side with the hips lifted and looking back toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", handPose: "one hand supporting the body", bodyOrientation: "lying on one side and facing the camera", bodyFocus: "an explicit rear composition clearly presenting the intended rear area", shotSize: "full-body shot" }),
-    pair("跪姿后腰展示", "kneeling with the lower back and rear presented toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", bodyOrientation: "viewed from behind", bodyFocus: "an explicit rear composition clearly presenting the intended rear area", shotSize: "full-body shot" })
+    pair("俯身展露胸部", "leaning forward to push the bare tits toward the camera", { modes: ["visibility"], targets: ["nipples"], adultOnly: true, intensity: "revealing", bodyOrientation: "three-quarter view from the front right", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium close shot" }),
+    pair("提起前摆并分开双腿", "lifting the front hem while parting the legs to bare the pussy", { modes: ["visibility"], targets: ["vulva"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "full-body shot" }),
+    pair("侧卧抬腿展示", "lying on one side, lifting the upper leg and spreading the pussy open to the camera", { modes: ["visibility"], targets: ["vulva"], adultOnly: true, intensity: "revealing", bodyOrientation: "lying on one side and facing the camera", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "full-body shot" }),
+    pair("正面低机位前摆展示", "presenting the front hem from a low camera angle to bare the pussy", { modes: ["visibility"], targets: ["vulva"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "fingers holding the edge of the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "cowboy shot" }),
+    pair("背身弯腰提起后摆", "turning away, bending forward, and lifting the rear hem to bare the ass and asshole", { modes: ["visibility"], targets: ["anus"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "viewed from behind", bodyFocus: "an explicit rear composition clearly presenting the ass and asshole", shotSize: "full-body shot" }),
+    pair("侧卧抬臀回望", "lying on one side with the hips lifted and looking back toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", handPose: "one hand supporting the body", bodyOrientation: "lying on one side and facing the camera", bodyFocus: "an explicit rear composition clearly presenting the ass and asshole", shotSize: "full-body shot" }),
+    pair("跪姿后腰展示", "kneeling with the lower back and rear presented toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", bodyOrientation: "viewed from behind", bodyFocus: "an explicit rear composition clearly presenting the ass and asshole", shotSize: "full-body shot" })
   );
 
   O.bodyFocus.push(
     pair("乳头与胸部清晰呈现", "an explicit composition clearly presenting the nipples and chest", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
-    pair("下体正面清晰呈现", "an explicit front composition clearly presenting the intended lower-body area", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
-    pair("后庭清晰呈现", "an explicit rear composition clearly presenting the intended rear area", { group: "露点目标", adultOnly: true, intensity: "revealing" })
+    pair("下体正面清晰呈现", "an explicit front composition clearly presenting the pussy and inner thighs", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("后庭清晰呈现", "an explicit rear composition clearly presenting the ass and asshole", { group: "露点目标", adultOnly: true, intensity: "revealing" })
   );
 
   O.heightPresence = [
@@ -5108,7 +5110,7 @@ const LORA_CATALOG = [
     pair("面部与下体同框全身构图", "full-body composition with both face and lower body visible", { adultOnly: true, intensity: "revealing" }),
     pair("胸部近景", "chest close-up", { adultOnly: true, intensity: "revealing" }),
     pair("腰胯近景", "waist and hip close-up", { adultOnly: true, intensity: "revealing" }),
-    pair("阴部特写", "explicit adult vulva close-up", { adultOnly: true, intensity: "revealing" })
+    pair("阴部特写", "explicit pussy close-up", { adultOnly: true, intensity: "revealing" })
   );
   O.bodyFocus.push(
     pair("面部与嘴部清晰呈现", "face and mouth clearly presented", { group: "反应焦点" }),
@@ -5119,13 +5121,13 @@ const LORA_CATALOG = [
     pair("脚部近景", "foot close-up", { group: "细节特写" }),
     pair("足底特写", "sole close-up", { group: "细节特写" }),
     pair("腿部与丝袜近景", "legwear close-up", { group: "细节特写", adultOnly: true, intensity: "revealing" }),
-    pair("肛门特写", "explicit adult anal close-up", { group: "露点特写", adultOnly: true, intensity: "revealing" })
+    pair("肛门特写", "explicit asshole close-up", { group: "露点特写", adultOnly: true, intensity: "revealing" })
   );
   O.bodyFocus.push(
     pair("脚尖、足背与脚踝面向镜头", "toes, instep, and ankle presented toward the camera", { group: "脚部焦点" }),
     pair("足底朝向镜头", "the sole of the foot presented toward the camera", { group: "脚部焦点" }),
     pair("大腿与丝袜线条面向镜头", "thigh and legwear lines presented toward the camera", { group: "腿部焦点", adultOnly: true, intensity: "revealing" }),
-    pair("后庭与臀部清晰呈现", "the rear area clearly presented toward the camera", { group: "露点焦点", adultOnly: true, intensity: "revealing" }),
+    pair("后庭与臀部清晰呈现", "the ass and asshole clearly presented toward the camera", { group: "露点焦点", adultOnly: true, intensity: "revealing" }),
     pair("双人互动关系清晰呈现", "the two adults and their interaction clearly framed", { group: "多人焦点" }),
     pair("三人空间关系清晰呈现", "all three adults and their spatial relationship clearly framed", { group: "多人焦点" })
   );
@@ -5170,15 +5172,15 @@ const LORA_CATALOG = [
     }),
     pair("阴部特写", "vulva close-up plan", {
       group: "露点镜头",
-      plan: { shotSize: "explicit adult vulva close-up", bodyFocus: "an explicit front composition clearly presenting the intended lower-body area", angle: "eye-level camera", lens: "100mm macro lens", composition: "centered symmetrical composition", depthOfField: "shallow depth of field", people: 1, requiresFace: false, requiresLowerBody: true, adultOnly: true, weight: 4 }
+      plan: { shotSize: "explicit pussy close-up", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", angle: "eye-level camera", lens: "100mm macro lens", composition: "centered symmetrical composition", depthOfField: "shallow depth of field", people: 1, requiresFace: false, requiresLowerBody: true, adultOnly: true, weight: 4 }
     }),
     pair("肛门特写", "anal close-up plan", {
       group: "露点镜头",
-      plan: { shotSize: "explicit adult anal close-up", bodyFocus: "the rear area clearly presented toward the camera", angle: "forty-five degrees from behind the shoulder", lens: "100mm macro lens", composition: "centered symmetrical composition", depthOfField: "shallow depth of field", people: 1, requiresRear: true, requiresLowerBody: true, adultOnly: true, weight: 3 }
+      plan: { shotSize: "explicit asshole close-up", bodyFocus: "the ass and asshole clearly presented toward the camera", angle: "forty-five degrees from behind the shoulder", lens: "100mm macro lens", composition: "centered symmetrical composition", depthOfField: "shallow depth of field", people: 1, requiresRear: true, requiresLowerBody: true, adultOnly: true, weight: 3 }
     }),
     pair("面部与下体同框", "face and lower-body full-frame plan", {
       group: "露点镜头",
-      plan: { shotSize: "full-body composition with both face and lower body visible", bodyFocus: "an explicit front composition clearly presenting the intended lower-body area", angle: "eye-level camera", lens: "50mm natural-perspective lens", composition: "centered symmetrical composition", depthOfField: "shallow depth of field", people: 1, requiresLowerBody: true, requiresFace: true, adultOnly: true, weight: 4 }
+      plan: { shotSize: "full-body composition with both face and lower body visible", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", angle: "eye-level camera", lens: "50mm natural-perspective lens", composition: "centered symmetrical composition", depthOfField: "shallow depth of field", people: 1, requiresLowerBody: true, requiresFace: true, adultOnly: true, weight: 4 }
     }),
     pair("双人动作中景", "two-person action medium plan", {
       group: "多人镜头",
@@ -5191,18 +5193,18 @@ const LORA_CATALOG = [
   ];
 
   O.revealMode.push(
-    pair("阴茎清晰可见", "adult penis clearly visible", { mode: "visibility", target: "maleGenitals", adultOnly: true, intensity: "revealing" }),
-    pair("阴茎与阴囊清晰可见", "adult penis and scrotum clearly visible", { mode: "visibility", target: "maleGenitals", adultOnly: true, intensity: "revealing" })
+    pair("阴茎清晰可见", "cock clearly visible", { mode: "visibility", target: "maleGenitals", adultOnly: true, intensity: "revealing" }),
+    pair("阴茎与阴囊清晰可见", "cock and balls clearly visible", { mode: "visibility", target: "maleGenitals", adultOnly: true, intensity: "revealing" })
   );
   O.revealAction.push(
-    pair("正面站立自然展示", "standing frontally in a composed adult presentation", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit frontal adult male anatomy composition", shotSize: "full-body shot" }),
-    pair("四分之三侧身展示", "presenting the adult male anatomy in a three-quarter view", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "three-quarter view from the front left", bodyFocus: "an explicit adult male anatomy composition", shotSize: "cowboy shot" }),
-    pair("坐姿单腿伸展展示", "seated with one leg extended in an adult male presentation", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "seated facing the camera", bodyFocus: "an explicit adult male anatomy composition", shotSize: "full-body shot" }),
-    pair("浴巾缓慢松开", "slowly loosening a towel while maintaining an adult presentation", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", handPose: "one hand holding the edge of a towel", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit adult male anatomy composition", shotSize: "cowboy shot" })
+    pair("正面站立自然展示", "standing frontally with the cock and balls fully exposed", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the cock and balls", shotSize: "full-body shot" }),
+    pair("四分之三侧身展示", "presenting the cock and balls in a three-quarter view", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "three-quarter view from the front left", bodyFocus: "an explicit composition clearly presenting the cock and balls", shotSize: "cowboy shot" }),
+    pair("坐姿单腿伸展展示", "seated with one leg extended, the cock and balls fully exposed", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "seated facing the camera", bodyFocus: "an explicit composition clearly presenting the cock and balls", shotSize: "full-body shot" }),
+    pair("浴巾缓慢松开", "slowly loosening the towel to bare the cock and balls", { modes: ["visibility"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", handPose: "one hand holding the edge of a towel", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the cock and balls", shotSize: "cowboy shot" })
   );
   O.revealAction.push(
-    pair("正面站立自然展露下体", "standing frontally in a composed adult presentation with the lower body clearly presented", { modes: ["visibility"], targets: ["vulva"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the intended lower-body area", shotSize: "explicit adult vulva close-up" }),
-    pair("背身弯腰自然展露后庭", "bending forward with the rear clearly presented toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", bodyOrientation: "viewed from behind", bodyFocus: "the rear area clearly presented toward the camera", shotSize: "explicit adult anal close-up" })
+    pair("正面站立自然展露下体", "standing frontally with the pussy fully exposed", { modes: ["visibility"], targets: ["vulva"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "explicit pussy close-up" }),
+    pair("背身弯腰自然展露后庭", "bending forward with the ass and asshole presented toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", bodyOrientation: "viewed from behind", bodyFocus: "the ass and asshole clearly presented toward the camera", shotSize: "explicit asshole close-up" })
   );
 
   const cameraPlanBehaviors = {
@@ -5239,7 +5241,7 @@ const LORA_CATALOG = [
       action: "slowly and confidently presenting the body with explicit adult intent",
       bodyOrientation: "facing the camera directly",
       revealMode: "both nipples clearly visible",
-      revealAction: "leaning forward to clearly present the chest toward the camera"
+      revealAction: "leaning forward to push the bare tits toward the camera"
     },
     "waist and lingerie plan": {
       pose: "sitting on the edge of the bed in an adult presentation",
@@ -5272,16 +5274,16 @@ const LORA_CATALOG = [
       pose: "a side-lying adult pose with the hips lifted and the full body line presented to the camera",
       action: "slowly and confidently presenting the body with explicit adult intent",
       bodyOrientation: "lying on one side and facing the camera",
-      revealMode: "labia majora clearly visible",
-      revealAction: "lying on one side and lifting the upper leg to expose the intended area",
+      revealMode: "pussy clearly visible",
+      revealAction: "lying on one side, lifting the upper leg and spreading the pussy open to the camera",
       requiresLowerBody: true
     },
     "anal close-up plan": {
       pose: "bending slightly with the back turned in an adult presentation",
       action: "slowly and confidently presenting the body with explicit adult intent",
       bodyOrientation: "viewed from behind",
-      revealMode: "anus clearly visible",
-      revealAction: "bending forward with the rear clearly presented toward the camera",
+      revealMode: "asshole clearly visible",
+      revealAction: "bending forward with the ass and asshole presented toward the camera",
       requiresRear: true,
       requiresLowerBody: true
     },
@@ -5289,8 +5291,8 @@ const LORA_CATALOG = [
       pose: "standing frontal adult presentation",
       action: "slowly and confidently presenting the body with explicit adult intent",
       bodyOrientation: "facing the camera directly",
-      revealMode: "labia majora clearly visible",
-      revealAction: "standing frontally in a composed adult presentation with the lower body clearly presented",
+      revealMode: "pussy clearly visible",
+      revealAction: "standing frontally with the pussy fully exposed",
       requiresLowerBody: true
     },
     "two-person action medium plan": {
@@ -5514,8 +5516,12 @@ const LORA_CATALOG = [
         atmosphere: "soft steam",
         visualStyle: "tasteful boudoir photography",
         garmentDisplacement: "one shoulder strap slipped down",
+        pose: "reclining on one side, propped on one elbow",
+        bodyOrientation: "lying on one side and facing the camera",
+        gaze: "subtle side glance",
         expression: "soft parted lips",
-        gaze: "a sustained intense adult gaze locked on the camera",
+        handPose: "one hand supporting the body",
+        legPose: "legs held together while lying on one side",
         revealMode: "body-line presentation",
         revealAction: "leaning back to emphasize the torso and waistline"
       }
@@ -5535,7 +5541,9 @@ const LORA_CATALOG = [
         garmentDisplacement: "one shoulder strap slipped down",
         pose: "standing in a three-quarter adult presentation",
         bodyOrientation: "front-facing reflection in a mirror",
-        gaze: "a sustained intense adult gaze locked on the camera",
+        gaze: "subtle side glance",
+        handPose: "one hand resting near the collarbone",
+        legPose: "weight shifted onto one leg",
         revealMode: "body-line presentation",
         revealAction: "turning to present the waist and hip line"
       }
@@ -5553,8 +5561,11 @@ const LORA_CATALOG = [
         atmosphere: "volumetric light rays",
         visualStyle: "intimate editorial portrait",
         garmentDisplacement: "garment open at the front",
+        pose: "leaning against a floor-to-ceiling window",
         bodyOrientation: "facing the camera directly",
-        gaze: "a sustained intense adult gaze locked on the camera",
+        gaze: "subtle side glance",
+        handPose: "one hand resting near the collarbone",
+        legPose: "weight shifted onto one leg",
         revealMode: "body-line presentation",
         revealAction: "leaning back to emphasize the torso and waistline"
       }
@@ -5574,7 +5585,9 @@ const LORA_CATALOG = [
         garmentDisplacement: "one shoulder strap slipped down",
         pose: "standing with the back turned while looking back in an adult presentation",
         bodyOrientation: "viewed from behind while looking back",
-        gaze: "a sustained intense adult gaze locked on the camera",
+        gaze: "a backward glance over the shoulder toward the camera",
+        handPose: "one hand resting near the collarbone",
+        legPose: "weight shifted onto one leg",
         revealMode: "body-line presentation",
         revealAction: "turning to present the waist and hip line"
       }
@@ -5594,7 +5607,10 @@ const LORA_CATALOG = [
         garmentDisplacement: "garment open at the front",
         pose: "sitting sideways on a sofa in an adult presentation",
         bodyOrientation: "three-quarter view from the front left",
+        gaze: "an openly desiring adult gaze directed into the camera",
         bodyFocus: "an explicit adult composition emphasizing the hips and upper front body line",
+        handPose: "one hand supporting the body",
+        legPose: "legs spread wide apart",
         revealMode: "body-line presentation",
         revealAction: "turning to present the waist and hip line"
       }
@@ -5614,9 +5630,12 @@ const LORA_CATALOG = [
         garmentDisplacement: "selected clothing moved aside",
         pose: "standing frontal adult presentation",
         bodyOrientation: "facing the camera directly",
-        expression: "dazed adult expression",
         gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "dazed adult expression",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
         revealMode: "body-line presentation",
+        revealAction: "turning to present the waist and hip line",
         action: "slowly and confidently presenting the body with explicit adult intent"
       }
     },
@@ -5633,8 +5652,13 @@ const LORA_CATALOG = [
         atmosphere: "soft steam",
         visualStyle: "explicit intimate adult editorial photography",
         garmentDisplacement: "top partially removed",
+        gaze: "an openly desiring adult gaze directed into the camera",
         expression: "half-lidded adult expression while panting",
-        gaze: "a sustained intense adult gaze locked on the camera"
+        bodyFocus: "an explicit composition clearly presenting the nipples and chest",
+        handPose: "",
+        legPose: "legs spread wide apart",
+        revealMode: "bare tits and nipples clearly visible",
+        revealAction: "lifting both tits toward the camera in an explicit presentation"
       }
     },
     {
@@ -5650,8 +5674,15 @@ const LORA_CATALOG = [
         atmosphere: "soft steam",
         visualStyle: "explicit intimate adult editorial photography",
         garmentDisplacement: "innerwear pulled to one side",
+        pose: "a fully open reclining adult pose with the body extended toward the camera",
+        bodyOrientation: "lying with the legs open toward the camera",
+        gaze: "an openly desiring adult gaze directed into the camera",
         expression: "dazed adult expression",
-        gaze: "an openly desiring adult gaze directed into the camera"
+        bodyFocus: "an explicit composition clearly presenting the spread pussy",
+        handPose: "",
+        legPose: "both knees pulled back toward the chest",
+        revealMode: "pussy lips spread open toward the camera",
+        revealAction: "pulling the pussy lips apart with both hands toward the camera"
       }
     },
     {
@@ -5667,8 +5698,15 @@ const LORA_CATALOG = [
         atmosphere: "soft steam",
         visualStyle: "explicit intimate adult editorial photography",
         garmentDisplacement: "innerwear pulled to one side",
+        pose: "a supported reclining adult pose with the torso and hips opened toward the camera",
+        bodyOrientation: "lying with the legs open toward the camera",
+        gaze: "an openly desiring adult gaze directed into the camera",
         expression: "half-lidded adult expression while panting",
-        gaze: "a sustained intense adult gaze locked on the camera"
+        bodyFocus: "an explicit composition clearly presenting the spread pussy",
+        handPose: "",
+        legPose: "both knees pulled back toward the chest",
+        revealMode: "nipples and pussy both clearly visible",
+        revealAction: "lying on the back and pulling both knees back to open the pussy to the camera"
       }
     },
     {
@@ -5684,7 +5722,14 @@ const LORA_CATALOG = [
         atmosphere: "soft steam",
         visualStyle: "explicit intimate adult editorial photography",
         garmentDisplacement: "innerwear pulled to one side",
-        gaze: "a sustained intense adult gaze locked on the camera"
+        pose: "kneeling at the foot of the bed",
+        bodyOrientation: "bent over with the ass toward the camera",
+        gaze: "a backward glance over the shoulder toward the camera",
+        bodyFocus: "an explicit rear composition clearly presenting the spread asshole",
+        handPose: "",
+        legPose: "kneeling with the knees apart",
+        revealMode: "asshole spread open toward the camera",
+        revealAction: "reaching back and spreading the ass cheeks apart toward the camera"
       }
     },
     {
@@ -5702,7 +5747,12 @@ const LORA_CATALOG = [
         garmentDisplacement: "innerwear pulled to one side",
         pose: "bending slightly with the back turned in an adult presentation",
         bodyOrientation: "viewed from behind",
-        gaze: "a sustained intense adult gaze locked on the camera"
+        gaze: "a backward glance over the shoulder toward the camera",
+        bodyFocus: "an explicit rear composition clearly presenting the ass and asshole",
+        handPose: "",
+        legPose: "legs spread wide apart",
+        revealMode: "ass cheeks and asshole clearly visible",
+        revealAction: "kneeling with the hips pushed back and the asshole presented to the camera"
       }
     },
     {
@@ -5718,7 +5768,11 @@ const LORA_CATALOG = [
         atmosphere: "soft glowing highlights",
         visualStyle: "premium glamour portrait",
         garmentDisplacement: "one shoulder strap slipped down",
-        gaze: "a sustained intense adult gaze locked on the camera",
+        pose: "sitting on a chair and leaning forward with an adult presentation",
+        bodyOrientation: "three-quarter view from the front right",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand supporting the body",
+        legPose: "legs spread wide apart",
         revealMode: "body-line presentation",
         revealAction: "lifting one leg to emphasize the leg line"
       }
@@ -5735,6 +5789,11 @@ const LORA_CATALOG = [
         mood: "quiet suggestive atmosphere",
         atmosphere: "soft glowing highlights",
         visualStyle: "premium glamour portrait",
+        pose: "sitting on the edge of the bed with the feet down",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand supporting the body",
+        legPose: "legs spread wide apart",
         revealMode: "body-line presentation",
         revealAction: "lifting one leg to emphasize the leg line"
       }
@@ -5744,7 +5803,7 @@ const LORA_CATALOG = [
       zh: "床榻高强互动",
       group: "高强展示",
       target: "body",
-      cameraPlan: "waist and lingerie plan",
+      cameraPlan: "cinematic full-body plan",
       fields: {
         scene: "a bedroom with silk bedding",
         lighting: "warm bedside lamp light",
@@ -5752,8 +5811,13 @@ const LORA_CATALOG = [
         atmosphere: "soft steam",
         visualStyle: "explicit intimate adult editorial photography",
         garmentDisplacement: "selected clothing moved aside",
+        pose: "a supported reclining adult pose with the torso and hips opened toward the camera",
+        bodyOrientation: "facing the camera directly",
+        gaze: "an openly desiring adult gaze directed into the camera",
         expression: "half-lidded adult expression while panting",
-        gaze: "a sustained intense adult gaze locked on the camera",
+        bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs",
+        handPose: "one hand supporting the body",
+        legPose: "both knees pulled back toward the chest",
         revealMode: "body-line presentation",
         revealAction: "turning to present the waist and hip line"
       }
@@ -5771,8 +5835,14 @@ const LORA_CATALOG = [
         atmosphere: "soft glowing highlights",
         visualStyle: "explicit intimate adult editorial photography",
         garmentDisplacement: "top partially removed",
+        bodyOrientation: "front-facing reflection in a mirror",
+        gaze: "an openly desiring adult gaze directed into the camera",
         expression: "half-lidded adult expression while panting",
-        gaze: "an openly desiring adult gaze directed into the camera"
+        bodyFocus: "an explicit composition clearly presenting the nipples and chest",
+        handPose: "",
+        legPose: "legs spread wide apart",
+        revealMode: "bare tits and nipples clearly visible",
+        revealAction: "pinching one nipple between the fingers while facing the camera"
       }
     },
     {
@@ -5788,7 +5858,11 @@ const LORA_CATALOG = [
         atmosphere: "soft glowing highlights",
         visualStyle: "tasteful boudoir photography",
         garmentDisplacement: "one shoulder strap slipped down",
-        gaze: "half-lidded gaze toward the camera",
+        pose: "sitting on a chair and leaning forward with an adult presentation",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "subtle side glance",
+        handPose: "one hand supporting the body",
+        legPose: "legs casually crossed",
         revealMode: "body-line presentation",
         revealAction: "lifting one leg to emphasize the leg line"
       }
@@ -5805,6 +5879,11 @@ const LORA_CATALOG = [
         mood: "quiet suggestive atmosphere",
         atmosphere: "soft glowing highlights",
         visualStyle: "tasteful boudoir photography",
+        pose: "sitting on the edge of the bed with the feet down",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "subtle side glance",
+        handPose: "one hand supporting the body",
+        legPose: "legs casually crossed",
         revealMode: "body-line presentation",
         revealAction: "lifting one leg to emphasize the leg line"
       }
@@ -5831,6 +5910,666 @@ const LORA_CATALOG = [
   ];
   O.appearance.push(
     pair("中国地域面貌", "Chinese regional facial features")
+  );
+
+  // ===== 露点内容补全 2026-11-14 =====
+  // 一、补齐此前被露出动作引用、但从未定义过的选项（否则 applyRevealActionDefaults 静默失效）
+  O.bodyFocus.push(
+    pair("前裆上缘与阴阜清晰可见", "the upper front crotch and pussy mound clearly visible", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("男性下体清晰呈现", "an explicit composition clearly presenting the cock and balls", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("臀部与后庭朝向镜头", "the ass and asshole clearly presented toward the camera", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("张开阴部特写呈现", "an explicit composition clearly presenting the spread pussy", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("后庭张开呈现", "an explicit rear composition clearly presenting the spread asshole", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("湿润阴部呈现", "an explicit composition clearly presenting the visibly wet pussy", { group: "露点目标", adultOnly: true, intensity: "revealing" }),
+    pair("全身裸露一览", "an explicit full-body composition with every part uncovered", { group: "露点目标", adultOnly: true, intensity: "revealing" })
+  );
+
+  O.bodyOrientation.push(
+    pair("坐姿正面朝向镜头", "seated facing the camera", { group: "露点朝向", adultOnly: true, intensity: "revealing" }),
+    pair("躺姿开腿朝向镜头", "lying with the legs open toward the camera", { group: "露点朝向", adultOnly: true, intensity: "revealing" }),
+    pair("跪姿背身回望镜头", "kneeling with the back to the camera and looking back", { group: "露点朝向", adultOnly: true, intensity: "revealing" }),
+    pair("弯腰臀部朝向镜头", "bent over with the ass toward the camera", { group: "露点朝向", adultOnly: true, intensity: "revealing" }),
+    pair("镜中正面开腿", "mirrored frontal view with the legs open", { group: "露点朝向", adultOnly: true, intensity: "revealing" })
+  );
+
+  O.handPose.push(
+    pair("手捏浴巾边缘", "one hand holding the edge of a towel", { group: "露点手部", adultOnly: true, intensity: "revealing" }),
+    pair("双手拨开内裤", "both hands pulling the panties aside", { group: "露点手部", adultOnly: true, intensity: "revealing" }),
+    pair("双手拉开臀瓣", "both hands spreading the ass cheeks apart", { group: "露点手部", adultOnly: true, intensity: "revealing" }),
+    pair("双手托起胸部", "both hands lifting the tits", { group: "露点手部", adultOnly: true, intensity: "revealing" }),
+    pair("手指拉开阴唇", "fingers spreading the pussy lips apart", { group: "露点手部", adultOnly: true, intensity: "revealing" }),
+    pair("一手勾住膝后", "one hand hooked behind the knee", { group: "露点手部", adultOnly: true, intensity: "revealing" })
+  );
+
+  O.legPose.push(
+    pair("双腿张开", "legs spread wide apart", { group: "露点腿部", adultOnly: true, intensity: "revealing" }),
+    pair("单腿抬高", "one leg lifted high", { group: "露点腿部", adultOnly: true, intensity: "revealing" }),
+    pair("双膝压向胸口", "both knees pulled back toward the chest", { group: "露点腿部", adultOnly: true, intensity: "revealing" }),
+    pair("跪姿双膝分开", "kneeling with the knees apart", { group: "露点腿部", adultOnly: true, intensity: "revealing" }),
+    pair("俯卧抬腿", "lying face down with the legs lifted behind", { group: "露点腿部", adultOnly: true, intensity: "revealing" })
+  );
+
+  // 二、露现方式：在既有五类 mode 下补直白部位（append，保证既有自动补齐仍取到原首条）
+  O.revealMode.push(
+    pair("阴部与后庭同框", "pussy and asshole both clearly visible", { mode: "visibility", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("阴唇张开展示", "pussy lips spread open toward the camera", { mode: "visibility", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("阴蒂清晰可见", "clit clearly visible", { mode: "visibility", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("湿润状态可见", "wet pussy clearly visible with visible slick", { mode: "visibility", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("后庭张开展示", "asshole spread open toward the camera", { mode: "visibility", target: "anus", adultOnly: true, intensity: "revealing" }),
+    pair("臀瓣与后庭同框", "ass cheeks and asshole clearly visible", { mode: "visibility", target: "anus", adultOnly: true, intensity: "revealing" }),
+    pair("裸胸与乳头可见", "bare tits and nipples clearly visible", { mode: "visibility", target: "nipples", adultOnly: true, intensity: "revealing" }),
+    pair("乳头与阴部同框", "nipples and pussy both clearly visible", { mode: "visibility", target: "nipples", adultOnly: true, intensity: "revealing" }),
+    pair("勃起状态可见", "hard erect cock clearly visible", { mode: "visibility", target: "maleGenitals", adultOnly: true, intensity: "revealing" }),
+    pair("男性下体全开放", "cock, balls and asshole all clearly visible", { mode: "visibility", target: "maleGenitals", adultOnly: true, intensity: "revealing" }),
+    pair("全身正面裸露", "fully nude front clearly visible", { mode: "visibility", target: "body", adultOnly: true, intensity: "revealing" }),
+    pair("全身背面裸露", "fully nude rear clearly visible", { mode: "visibility", target: "body", adultOnly: true, intensity: "revealing" }),
+    pair("内裤拨开露阴", "panties pulled aside to bare the pussy", { mode: "opening", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("上衣掀起露胸", "top pulled up to bare the tits", { mode: "opening", target: "nipples", adultOnly: true, intensity: "revealing" }),
+    pair("双腿张开呈现", "legs spread wide open with the pussy presented", { mode: "body", target: "vulva", adultOnly: true, intensity: "revealing" }),
+    pair("面对面亲密", "explicit face-to-face sexual intimacy", { mode: "intimacy", target: "body", adultOnly: true, intensity: "revealing", people: 2 }),
+    pair("背后贴身亲密", "explicit intimacy pressed from behind", { mode: "intimacy", target: "anus", adultOnly: true, intensity: "revealing", people: 2 })
+  );
+
+  // 三、露出动作：直白部位词 + 成套朝向/构图/手部/腿部，避免随机补齐导致姿势矛盾
+  O.revealAction.push(
+    pair("双手拉开阴唇", "pulling the pussy lips apart with both hands toward the camera", { modes: ["visibility", "body"], targets: ["vulva"], adultOnly: true, intensity: "revealing", handPose: "fingers spreading the pussy lips apart", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the spread pussy", shotSize: "explicit pussy close-up" }),
+    pair("坐地V字开腿", "sitting with the legs spread in a wide V and the pussy presented to the camera", { modes: ["visibility", "body"], targets: ["vulva"], adultOnly: true, intensity: "revealing", legPose: "legs spread wide apart", bodyOrientation: "seated facing the camera", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "full-body shot" }),
+    pair("仰卧抱膝张开", "lying on the back and pulling both knees back to open the pussy to the camera", { modes: ["visibility", "body"], targets: ["vulva", "nipples"], adultOnly: true, intensity: "revealing", legPose: "both knees pulled back toward the chest", handPose: "one hand hooked behind the knee", bodyOrientation: "lying with the legs open toward the camera", bodyFocus: "an explicit composition clearly presenting the spread pussy", shotSize: "full-body shot" }),
+    pair("单腿高举张开", "standing with one leg lifted high to open the pussy toward the camera", { modes: ["visibility", "body"], targets: ["vulva"], adultOnly: true, intensity: "revealing", legPose: "one leg lifted high", handPose: "one hand hooked behind the knee", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the spread pussy", shotSize: "cowboy shot" }),
+    pair("背后掰开臀瓣", "reaching back and spreading the ass cheeks apart toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", handPose: "both hands spreading the ass cheeks apart", bodyOrientation: "bent over with the ass toward the camera", bodyFocus: "an explicit rear composition clearly presenting the spread asshole", shotSize: "explicit asshole close-up" }),
+    pair("跪姿后挺呈现", "kneeling with the hips pushed back and the asshole presented to the camera", { modes: ["visibility", "body"], targets: ["anus"], adultOnly: true, intensity: "revealing", legPose: "kneeling with the knees apart", bodyOrientation: "viewed from behind", bodyFocus: "an explicit rear composition clearly presenting the ass and asshole", shotSize: "full-body shot" }),
+    pair("俯卧抬臀呈现", "lying face down with the hips lifted and the asshole raised toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", legPose: "lying face down with the legs lifted behind", bodyOrientation: "bent over with the ass toward the camera", bodyFocus: "an explicit rear composition clearly presenting the spread asshole", shotSize: "cowboy shot" }),
+    pair("桌面弯腰呈现", "bending over a tabletop with the ass and asshole presented toward the camera", { modes: ["visibility"], targets: ["anus"], adultOnly: true, intensity: "revealing", bodyOrientation: "bent over with the ass toward the camera", bodyFocus: "the ass and asshole clearly presented toward the camera", shotSize: "cowboy shot" }),
+    pair("内裤拨到一侧露阴", "pulling the panties aside with one hand to bare the pussy", { modes: ["opening"], targets: ["vulva"], adultOnly: true, intensity: "revealing", handPose: "both hands pulling the panties aside", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "full-body shot" }),
+    pair("上衣掀起露胸", "pulling the top up with both hands to bare the tits", { modes: ["opening"], targets: ["nipples"], adultOnly: true, intensity: "revealing", handPose: "both hands lifting the tits", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium close shot" }),
+    pair("双手托胸展示", "lifting both tits toward the camera in an explicit presentation", { modes: ["visibility", "body"], targets: ["nipples"], adultOnly: true, intensity: "revealing", handPose: "both hands lifting the tits", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "medium close shot" }),
+    pair("指压乳头呈现", "pinching one nipple between the fingers while facing the camera", { modes: ["visibility", "body"], targets: ["nipples"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the nipples and chest", shotSize: "chest close-up" }),
+    pair("手握阴茎展示", "holding the cock and presenting it toward the camera", { modes: ["visibility", "body"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit composition clearly presenting the cock and balls", shotSize: "cowboy shot" }),
+    pair("内裤半褪露男根", "lowering the underwear to expose the cock and balls", { modes: ["opening"], targets: ["maleGenitals"], adultOnly: true, intensity: "revealing", bodyFocus: "an explicit composition clearly presenting the cock and balls", shotSize: "full-body shot" }),
+    pair("面对面贴紧呈现", "pressed face to face with the bodies aligned and fully exposed", { modes: ["intimacy"], targets: ["body"], adultOnly: true, intensity: "revealing", people: 2, bodyFocus: "the two adults and their interaction clearly framed", shotSize: "two-shot medium framing" }),
+    pair("背后贴合呈现", "pressed closely from behind with both bodies fully exposed", { modes: ["intimacy"], targets: ["anus", "body"], adultOnly: true, intensity: "revealing", people: 2, bodyFocus: "the two adults and their interaction clearly framed", shotSize: "two-shot medium framing" }),
+    pair("镜前转身呈现阴部", "turning in front of the mirror so the pussy is reflected toward the camera", { modes: ["visibility", "body"], targets: ["vulva"], adultOnly: true, intensity: "revealing", bodyOrientation: "mirrored frontal view with the legs open", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "full-body shot" }),
+    pair("低机位开腿呈现", "sitting low with the knees apart and the pussy presented straight into a low camera", { modes: ["visibility", "body"], targets: ["vulva"], adultOnly: true, intensity: "revealing", legPose: "legs spread wide apart", bodyOrientation: "seated facing the camera", bodyFocus: "an explicit composition clearly presenting the spread pussy", shotSize: "cowboy shot" }),
+    pair("全裸正面呈现", "standing fully nude with every part exposed to the camera", { modes: ["visibility", "body"], targets: ["body"], adultOnly: true, intensity: "revealing", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit full-body composition with every part uncovered", shotSize: "full-body shot" }),
+    pair("全裸背身呈现", "standing fully nude with the back turned and the ass presented to the camera", { modes: ["visibility"], targets: ["body"], adultOnly: true, intensity: "revealing", bodyOrientation: "viewed from behind", bodyFocus: "an explicit full-body composition with every part uncovered", shotSize: "full-body shot" }),
+    pair("湿润特写呈现", "spreading the pussy open to show how wet it is", { modes: ["visibility"], targets: ["vulva"], adultOnly: true, intensity: "revealing", handPose: "fingers spreading the pussy lips apart", bodyFocus: "an explicit composition clearly presenting the visibly wet pussy", shotSize: "explicit pussy close-up" }),
+    pair("裙摆全掀露阴", "lifting the whole skirt up to the waist to bare the pussy", { modes: ["skirt"], targets: ["vulva"], skirtAction: true, adultOnly: true, intensity: "revealing", handPose: "both hands lifting the skirt hem", bodyOrientation: "facing the camera directly", bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs", shotSize: "full-body shot" })
+  );
+
+  // 四、露点姿势：补成套组合
+  REVEAL_POSES.push(
+    { key: "open-recline", zh: "开腿仰卧展示", targets: ["vulva", "body"], intensities: ["intense"], fields: { pose: "a fully open reclining adult pose with the body extended toward the camera", action: "slowly and confidently presenting the body with explicit adult intent", bodyOrientation: "lying with the legs open toward the camera", gaze: "an openly desiring adult gaze directed into the camera" } },
+    { key: "rear-kneel", zh: "跪姿后庭展示", targets: ["anus"], intensities: ["intense"], fields: { pose: "kneeling at the foot of the bed", action: "slowly and confidently presenting the body with explicit adult intent", bodyOrientation: "viewed from behind", gaze: "a backward glance over the shoulder toward the camera" } },
+    { key: "bend-over-table", zh: "桌面弯腰展示", targets: ["anus", "body"], intensities: ["display", "intense"], fields: { pose: "leaning across a table on their forearms", action: "slowly and confidently presenting the body with explicit adult intent", bodyOrientation: "bent over with the ass toward the camera", gaze: "a backward glance over the shoulder toward the camera" } },
+    { key: "mirror-turn", zh: "镜前转身展示", targets: ["vulva", "body", "legwear"], intensities: ["display", "intense"], fields: { pose: "caught mid-turn in an adult presentation", action: "slowly and confidently presenting the body with explicit adult intent", bodyOrientation: "mirrored frontal view with the legs open", gaze: "a sustained intense adult gaze locked on the camera" } },
+    { key: "nude-stand", zh: "全裸站立展示", targets: ["body"], intensities: ["display", "intense"], fields: { pose: "standing frontal adult presentation", action: "slowly and confidently presenting the body with explicit adult intent", bodyOrientation: "facing the camera directly", gaze: "an openly desiring adult gaze directed into the camera" } }
+  );
+
+  // 五、露点方案：17 → 42
+  REVEAL_SCENARIOS.push(
+    {
+      key: "curtain-silhouette-tease",
+      zh: "窗帘后侧身轮廓",
+      group: "挑逗",
+      target: "body",
+      cameraPlan: "boudoir medium plan",
+      fields: {
+        scene: "a bedroom behind sheer curtains",
+        lighting: "backlight filtered through sheer curtains",
+        mood: "restrained longing atmosphere",
+        atmosphere: "thin atmospheric haze",
+        visualStyle: "film-noir portrait",
+        garmentDisplacement: "garment open at the front",
+        pose: "leaning a shoulder against a sheer curtain",
+        bodyOrientation: "left profile",
+        gaze: "subtle side glance",
+        expression: "soft parted lips",
+        handPose: "one hand resting near the collarbone",
+        legPose: "weight shifted onto one leg",
+        revealMode: "body-line presentation",
+        revealAction: "turning to present the waist and hip line"
+      }
+    },
+    {
+      key: "morning-stretch-bed",
+      zh: "晨光床榻伸展",
+      group: "挑逗",
+      target: "body",
+      cameraPlan: "cinematic full-body plan",
+      fields: {
+        scene: "a bedroom in slanted afternoon light",
+        lighting: "soft morning light filtered through sheer curtains",
+        mood: "lazy morning atmosphere",
+        atmosphere: "fine floating dust",
+        visualStyle: "morning-light environmental portrait",
+        garmentDisplacement: "garment open at the front",
+        pose: "stretching both arms overhead",
+        bodyOrientation: "facing the camera directly",
+        gaze: "subtle side glance",
+        handPose: "one hand resting near the collarbone",
+        legPose: "weight shifted onto one leg",
+        revealMode: "body-line presentation",
+        revealAction: "leaning back to emphasize the torso and waistline"
+      }
+    },
+    {
+      key: "rain-sofa-recline",
+      zh: "雨夜沙发侧卧",
+      group: "挑逗",
+      target: "body",
+      cameraPlan: "boudoir medium plan",
+      fields: {
+        scene: "a sofa by the window on a rainy day",
+        lighting: "low-angle practical light",
+        mood: "solitude on a rainy night",
+        atmosphere: "rain mist",
+        visualStyle: "low-key mood photography",
+        pose: "reclining on one side, propped on one elbow",
+        bodyOrientation: "lying on one side and facing the camera",
+        gaze: "subtle side glance",
+        expression: "soft parted lips",
+        handPose: "one hand supporting the body",
+        legPose: "legs held together while lying on one side",
+        revealMode: "body-line presentation",
+        revealAction: "leaning back to emphasize the torso and waistline"
+      }
+    },
+    {
+      key: "mirror-back-glance",
+      zh: "镜前背身回望",
+      group: "挑逗",
+      target: "body",
+      cameraPlan: "cinematic full-body plan",
+      fields: {
+        scene: "in front of a dressing-room mirror",
+        lighting: "vanity mirror lighting",
+        mood: "quiet suggestive atmosphere",
+        atmosphere: "soft glowing highlights",
+        visualStyle: "mirror portrait",
+        garmentDisplacement: "one shoulder strap slipped down",
+        pose: "back to the camera, looking over the shoulder",
+        bodyOrientation: "rear reflection in a mirror",
+        gaze: "a backward glance over the shoulder toward the camera",
+        handPose: "one hand resting near the collarbone",
+        legPose: "weight shifted onto one leg",
+        revealMode: "body-line presentation",
+        revealAction: "turning to present the waist and hip line"
+      }
+    },
+    {
+      key: "bathtub-steam-tease",
+      zh: "浴缸蒸汽挑逗",
+      group: "挑逗",
+      target: "body",
+      cameraPlan: "boudoir medium plan",
+      fields: {
+        scene: "a bathtub by a floor-to-ceiling window",
+        lighting: "soft light through bathroom steam",
+        mood: "quiet intimacy",
+        atmosphere: "soft steam",
+        visualStyle: "intimate editorial portrait",
+        garmentDisplacement: "garment fully intact",
+        pose: "half-lying, half-sitting",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "subtle side glance",
+        handPose: "one hand supporting the body",
+        legPose: "legs held together while lying on one side",
+        revealMode: "body-line presentation",
+        revealAction: "leaning back to emphasize the torso and waistline"
+      }
+    },
+    {
+      key: "fireplace-open-front",
+      zh: "壁炉前服装敞开",
+      group: "明确展示",
+      target: "body",
+      cameraPlan: "waist and lingerie plan",
+      fields: {
+        scene: "a fireplace lounge",
+        lighting: "warm firelight",
+        mood: "quiet intimacy",
+        atmosphere: "volumetric light rays",
+        visualStyle: "low-key textured portrait style",
+        garmentDisplacement: "garment open at the front",
+        pose: "leaning back into a chair",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "fingers holding the edge of the open garment",
+        legPose: "legs spread wide apart",
+        revealMode: "open-garment presentation",
+        revealAction: "letting one shoulder strap slip down slowly"
+      }
+    },
+    {
+      key: "hotel-suite-line",
+      zh: "酒店套房全身线条",
+      group: "明确展示",
+      target: "body",
+      cameraPlan: "cinematic full-body plan",
+      fields: {
+        scene: "a boutique hotel suite",
+        lighting: "warm paired bedside lamps",
+        mood: "luxurious private atmosphere",
+        atmosphere: "soft glowing highlights",
+        visualStyle: "luxury hotel campaign photography",
+        garmentDisplacement: "lower garment pulled down",
+        pose: "standing with the weight on one leg",
+        bodyOrientation: "three-quarter view from the front right",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "leaning back to emphasize the torso and waistline"
+      }
+    },
+    {
+      key: "studio-chest-bare",
+      zh: "摄影棚裸胸特写",
+      group: "明确展示",
+      target: "chest",
+      cameraPlan: "chest close-up plan",
+      fields: {
+        scene: "a boudoir photography studio",
+        lighting: "a single hard spotlight",
+        mood: "private tenderness",
+        atmosphere: "clean crisp atmosphere",
+        visualStyle: "premium glamour portrait",
+        garmentDisplacement: "top partially removed",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "soft parted lips",
+        bodyFocus: "an explicit composition clearly presenting the nipples and chest",
+        handPose: "",
+        legPose: "legs spread wide apart",
+        revealMode: "bare tits and nipples clearly visible",
+        revealAction: "lifting both tits toward the camera in an explicit presentation"
+      }
+    },
+    {
+      key: "conservatory-stand",
+      zh: "玻璃花房站立展示",
+      group: "明确展示",
+      target: "body",
+      cameraPlan: "boudoir medium plan",
+      fields: {
+        scene: "a glass conservatory beside a garden",
+        lighting: "side-window rim light",
+        mood: "polished vintage atmosphere",
+        atmosphere: "volumetric light rays",
+        visualStyle: "natural intimate lifestyle photography",
+        garmentDisplacement: "garment open at the front",
+        pose: "leaning on a railing",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "turning to present the waist and hip line"
+      }
+    },
+    {
+      key: "sofa-side-hip",
+      zh: "沙发侧坐胯线",
+      group: "明确展示",
+      target: "body",
+      cameraPlan: "waist and lingerie plan",
+      fields: {
+        scene: "a studio lounge with a large sofa",
+        lighting: "a pool of warm floor-lamp light",
+        mood: "cinematic tension",
+        atmosphere: "fine film grain",
+        visualStyle: "cinematic close-up portrait",
+        garmentDisplacement: "innerwear pulled to one side",
+        pose: "sitting sideways on a sofa in an adult presentation",
+        bodyOrientation: "three-quarter view from the front right",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand supporting the body",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "turning to present the waist and hip line"
+      }
+    },
+    {
+      key: "balcony-dawn-sheer",
+      zh: "露台晨光薄衫",
+      group: "明确展示",
+      target: "body",
+      cameraPlan: "cinematic full-body plan",
+      fields: {
+        scene: "a private balcony at dawn",
+        lighting: "soft dawn glow",
+        mood: "a gentle morning haze",
+        atmosphere: "airy atmospheric depth",
+        visualStyle: "morning-light environmental portrait",
+        garmentDisplacement: "one shoulder strap slipped down",
+        pose: "leaning on a railing and looking out",
+        bodyOrientation: "left profile",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "leaning back to emphasize the torso and waistline"
+      }
+    },
+    {
+      key: "yacht-cabin-bed",
+      zh: "游艇舱内躺姿",
+      group: "明确展示",
+      target: "body",
+      cameraPlan: "waist and lingerie plan",
+      fields: {
+        scene: "a private cabin bedroom on a yacht",
+        lighting: "muted low-light bedside glow",
+        mood: "languid closeness",
+        atmosphere: "soft glowing highlights",
+        visualStyle: "low-light film portrait",
+        garmentDisplacement: "selected clothing moved aside",
+        pose: "lying on one side with one knee bent",
+        bodyOrientation: "lying on one side and facing the camera",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "half-lidded adult expression while panting",
+        handPose: "one hand supporting the body",
+        legPose: "both knees pulled back toward the chest",
+        revealMode: "body-line presentation",
+        revealAction: "leaning back to emphasize the torso and waistline"
+      }
+    },
+    {
+      key: "stool-legwear",
+      zh: "高脚凳腿袜展示",
+      group: "明确展示",
+      target: "legwear",
+      cameraPlan: "legwear close-up plan",
+      fields: {
+        scene: "a vintage dressing room",
+        lighting: "vanity mirror lighting",
+        mood: "couture backstage atmosphere",
+        atmosphere: "soft glowing highlights",
+        visualStyle: "boudoir magazine style",
+        pose: "sitting on a chair and leaning forward with an adult presentation",
+        bodyOrientation: "three-quarter view from the front right",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand supporting the body",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "lifting one leg to emphasize the leg line"
+      }
+    },
+    {
+      key: "bed-pussy-spread",
+      zh: "床榻张开阴部",
+      group: "高强展示",
+      target: "vulva",
+      cameraPlan: "vulva close-up plan",
+      fields: {
+        scene: "a bedroom with silk bedding",
+        lighting: "warm bedside lamp light",
+        mood: "humid ambiguity",
+        atmosphere: "soft steam",
+        visualStyle: "explicit intimate adult editorial photography",
+        garmentDisplacement: "clothing fully removed",
+        pose: "a fully open reclining adult pose with the body extended toward the camera",
+        bodyOrientation: "lying with the legs open toward the camera",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "half-lidded adult expression while panting",
+        bodyFocus: "an explicit composition clearly presenting the spread pussy",
+        handPose: "",
+        legPose: "both knees pulled back toward the chest",
+        revealMode: "pussy lips spread open toward the camera",
+        revealAction: "pulling the pussy lips apart with both hands toward the camera"
+      }
+    },
+    {
+      key: "bed-pussy-wet",
+      zh: "床榻湿润特写",
+      group: "高强展示",
+      target: "vulva",
+      cameraPlan: "vulva close-up plan",
+      fields: {
+        scene: "a bedroom with silk bedding",
+        lighting: "striped window light through blinds",
+        mood: "high-intensity adult erotic tension",
+        atmosphere: "soft steam",
+        visualStyle: "explicit intimate adult editorial photography",
+        garmentDisplacement: "clothing fully removed",
+        pose: "a fully open reclining adult pose with the body extended toward the camera",
+        bodyOrientation: "facing the camera directly",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "half-lidded adult expression while panting",
+        bodyFocus: "an explicit composition clearly presenting the visibly wet pussy",
+        handPose: "",
+        legPose: "both knees pulled back toward the chest",
+        revealMode: "wet pussy clearly visible with visible slick",
+        revealAction: "spreading the pussy open to show how wet it is"
+      }
+    },
+    {
+      key: "mirror-rear-spread",
+      zh: "镜前掰开臀瓣",
+      group: "高强展示",
+      target: "anus",
+      cameraPlan: "anal close-up plan",
+      fields: {
+        scene: "a bedroom with a large mirror",
+        lighting: "soft reflected mirror light",
+        mood: "humid ambiguity",
+        atmosphere: "soft steam",
+        visualStyle: "explicit intimate adult editorial photography",
+        garmentDisplacement: "clothing fully removed",
+        pose: "kneeling at the foot of the bed",
+        bodyOrientation: "bent over with the ass toward the camera",
+        gaze: "a backward glance over the shoulder toward the camera",
+        bodyFocus: "an explicit rear composition clearly presenting the spread asshole",
+        handPose: "",
+        legPose: "kneeling with the knees apart",
+        revealMode: "asshole spread open toward the camera",
+        revealAction: "reaching back and spreading the ass cheeks apart toward the camera"
+      }
+    },
+    {
+      key: "kneel-rear-present",
+      zh: "跪姿后挺呈现",
+      group: "高强展示",
+      target: "anus",
+      cameraPlan: "anal close-up plan",
+      fields: {
+        scene: "a boudoir photography studio",
+        lighting: "low-angle practical light",
+        mood: "private and intensely passionate adult atmosphere",
+        atmosphere: "fine film grain",
+        visualStyle: "explicit intimate adult editorial photography",
+        garmentDisplacement: "clothing fully removed",
+        pose: "kneeling at the foot of the bed",
+        bodyOrientation: "viewed from behind",
+        gaze: "a backward glance over the shoulder toward the camera",
+        bodyFocus: "an explicit rear composition clearly presenting the ass and asshole",
+        handPose: "",
+        legPose: "kneeling with the knees apart",
+        revealMode: "ass cheeks and asshole clearly visible",
+        revealAction: "kneeling with the hips pushed back and the asshole presented to the camera"
+      }
+    },
+    {
+      key: "face-and-pussy-open",
+      zh: "面与阴同框张开",
+      group: "高强展示",
+      target: "vulva",
+      cameraPlan: "face and lower-body full-frame plan",
+      fields: {
+        scene: "a bedroom with silk bedding",
+        lighting: "a gentle bedside light gradient",
+        mood: "hushed intimacy",
+        atmosphere: "soft steam",
+        visualStyle: "explicit intimate adult editorial photography",
+        garmentDisplacement: "clothing fully removed",
+        pose: "a fully open reclining adult pose with the body extended toward the camera",
+        bodyOrientation: "lying with the legs open toward the camera",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "dazed adult expression",
+        bodyFocus: "an explicit composition clearly presenting the spread pussy",
+        handPose: "",
+        legPose: "both knees pulled back toward the chest",
+        revealMode: "nipples and pussy both clearly visible",
+        revealAction: "lying on the back and pulling both knees back to open the pussy to the camera"
+      }
+    },
+    {
+      key: "chest-pinch-close",
+      zh: "指压乳头特写",
+      group: "高强展示",
+      target: "chest",
+      cameraPlan: "chest close-up plan",
+      fields: {
+        scene: "a bedroom with layered sheer curtains",
+        lighting: "diffused steam-filled light",
+        mood: "high-intensity adult erotic tension",
+        atmosphere: "thin atmospheric haze",
+        visualStyle: "close texture-focused portrait",
+        garmentDisplacement: "top partially removed",
+        pose: "leaning back against the headboard",
+        bodyOrientation: "facing the camera directly",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        expression: "half-lidded adult expression while panting",
+        bodyFocus: "an explicit composition clearly presenting the nipples and chest",
+        handPose: "",
+        legPose: "legs spread wide apart",
+        revealMode: "bare tits and nipples clearly visible",
+        revealAction: "pinching one nipple between the fingers while facing the camera"
+      }
+    },
+    {
+      key: "nude-front-stand",
+      zh: "全裸正面站立",
+      group: "高强展示",
+      target: "body",
+      cameraPlan: "cinematic full-body plan",
+      fields: {
+        scene: "a dark luxury apartment",
+        lighting: "quiet chiaroscuro lighting",
+        mood: "mysterious night atmosphere",
+        atmosphere: "thin atmospheric haze",
+        visualStyle: "low-key textured portrait style",
+        garmentDisplacement: "clothing fully removed",
+        pose: "standing frontal adult presentation",
+        bodyOrientation: "facing the camera directly",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        bodyFocus: "an explicit full-body composition with every part uncovered",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "fully nude front clearly visible",
+        revealAction: "standing fully nude with every part exposed to the camera"
+      }
+    },
+    {
+      key: "nude-rear-stand",
+      zh: "全裸背身站立",
+      group: "高强展示",
+      target: "body",
+      cameraPlan: "cinematic full-body plan",
+      fields: {
+        scene: "a dark luxury apartment",
+        lighting: "striped window light through blinds",
+        mood: "mysterious night atmosphere",
+        atmosphere: "fine film grain",
+        visualStyle: "low-key textured portrait style",
+        garmentDisplacement: "clothing fully removed",
+        pose: "standing with the back to the camera",
+        bodyOrientation: "viewed from behind",
+        gaze: "a backward glance over the shoulder toward the camera",
+        bodyFocus: "an explicit full-body composition with every part uncovered",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "fully nude rear clearly visible",
+        revealAction: "standing fully nude with the back turned and the ass presented to the camera"
+      }
+    },
+    {
+      key: "table-bend-rear",
+      zh: "桌面弯腰呈现",
+      group: "高强展示",
+      target: "anus",
+      cameraPlan: "anal close-up plan",
+      fields: {
+        scene: "a modern apartment living room",
+        lighting: "low-angle table lamp light",
+        mood: "steamy diffused atmosphere",
+        atmosphere: "soft steam",
+        visualStyle: "explicit intimate adult editorial photography",
+        garmentDisplacement: "clothing fully removed",
+        pose: "leaning across a table on their forearms",
+        bodyOrientation: "bent over with the ass toward the camera",
+        gaze: "a backward glance over the shoulder toward the camera",
+        bodyFocus: "the ass and asshole clearly presented toward the camera",
+        handPose: "",
+        legPose: "legs spread wide apart",
+        revealMode: "ass cheeks and asshole clearly visible",
+        revealAction: "bending over a tabletop with the ass and asshole presented toward the camera"
+      }
+    },
+    {
+      key: "mirror-turn-vulva",
+      zh: "镜前转身呈现",
+      group: "高强展示",
+      target: "vulva",
+      cameraPlan: "face and lower-body full-frame plan",
+      fields: {
+        scene: "a vanity room with mirrors",
+        lighting: "vanity mirror lighting",
+        mood: "private and intensely passionate adult atmosphere",
+        atmosphere: "soft glowing highlights",
+        visualStyle: "mirror portrait",
+        garmentDisplacement: "clothing fully removed",
+        pose: "caught mid-turn in an adult presentation",
+        bodyOrientation: "mirrored frontal view with the legs open",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        bodyFocus: "an explicit front composition clearly presenting the pussy and inner thighs",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "pussy clearly visible",
+        revealAction: "turning in front of the mirror so the pussy is reflected toward the camera"
+      }
+    },
+    {
+      key: "garter-side-display",
+      zh: "吊带袜侧面展示",
+      group: "服饰展示",
+      target: "legwear",
+      cameraPlan: "legwear close-up plan",
+      fields: {
+        scene: "a vintage dressing room",
+        lighting: "wall-washer sconce light",
+        mood: "polished vintage atmosphere",
+        atmosphere: "soft glowing highlights",
+        visualStyle: "vintage film portrait",
+        pose: "standing in profile with the arms hanging",
+        bodyOrientation: "left profile",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand resting near the collarbone",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "lifting one leg to emphasize the leg line"
+      }
+    },
+    {
+      key: "sole-mirror-press",
+      zh: "足底贴镜展示",
+      group: "服饰展示",
+      target: "feet",
+      cameraPlan: "sole close-up plan",
+      fields: {
+        scene: "a vanity room with mirrors",
+        lighting: "soft reflected mirror light",
+        mood: "quiet ambiguity",
+        atmosphere: "clean crisp atmosphere",
+        visualStyle: "boudoir magazine style",
+        pose: "sitting on the edge of the bed with the feet down",
+        bodyOrientation: "three-quarter view from the front left",
+        gaze: "an openly desiring adult gaze directed into the camera",
+        handPose: "one hand supporting the body",
+        legPose: "legs spread wide apart",
+        revealMode: "body-line presentation",
+        revealAction: "lifting one leg to emphasize the leg line"
+      }
+    }
   );
 
   window.PS_DATA = {
